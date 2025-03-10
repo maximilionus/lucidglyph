@@ -1,3 +1,9 @@
+# Development
+- Fix improperly handled installation process.
+
+- Improve script output.
+
+
 # Release 0.9.0
 Major improvements to multiple font drivers.
 

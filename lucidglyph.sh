@@ -19,7 +19,7 @@
 set -e
 
 NAME="lucidglyph"
-VERSION="0.9.0"
+VERSION="0.9.1"
 SRC_DIR=src
 
 # Display the header with project name and version on start
@@ -144,9 +144,7 @@ call_uninstaller () {
         exit 1
     fi
 
-    printf "$C_DIM"
     "$shared_dir/$DEST_UNINSTALL_FILE"
-    printf "$C_RESET"
 }
 
 show_header () {
@@ -185,13 +183,12 @@ cmd_install () {
         require_root
     fi
 
-    printf "$C_DIM"
-
-    printf "Storing the installation metadata\n"
+    printf -- "- Storing the installation metadata "
     mkdir -p "$DEST_SHARED_DIR"
     touch "$DEST_SHARED_DIR/$DEST_INFO_FILE"
     touch "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
     chmod +x "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+    printf "${C_GREEN}Done${C_RESET}\n"
 
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_INFO_FILE"
 version="$VERSION"
@@ -200,24 +197,27 @@ EOF
 #!/bin/bash
 set -e
 echo "Using uninstaller for version $VERSION"
+echo "- Removing the metadata"
+rm -rf "$DEST_SHARED_DIR"
 EOF
 
-    printf "Appending the environment entries\n"
+    printf -- "- Appending the environment entries "
     local fmt_env=$(exec bash -c "source $ENVIRONMENT_SCRIPT && echo \$FREETYPE_PROPERTIES")
     cat <<EOF >> "$DEST_ENVIRONMENT"
 FREETYPE_PROPERTIES="$fmt_env"
 EOF
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-echo "Cleaning the environment entries"
+echo "- Cleaning the environment entries"
 sed -i '/FREETYPE_PROPERTIES="$fmt_env"/d' "$DEST_ENVIRONMENT"
 EOF
+    printf "${C_GREEN}Done${C_RESET}\n"
 
-    printf "Installing the fontconfig configurations\n"
+    printf -- "- Installing the fontconfig rules "
     install -m 644 \
         "$FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[0]}" \
         "$DEST_FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[1]}-${FONTCONFIG_GRAYSCALE[0]}"
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-echo "Removing the fontconfig configurations"
+echo "- Removing the fontconfig rules"
 rm -f "$DEST_FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[1]}-${FONTCONFIG_GRAYSCALE[0]}"
 EOF
 
@@ -227,14 +227,11 @@ EOF
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 rm -f "$DEST_FONTCONFIG_DIR/${FONTCONFIG_DROID_SANS[1]}-${FONTCONFIG_DROID_SANS[0]}"
 EOF
+    printf "${C_GREEN}Done${C_RESET}\n"
 
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-echo "Removing the metadata"
-rm -rf "$DEST_SHARED_DIR"
 echo "Successful removal"
 EOF
-
-    printf "$C_RESET"
 
     printf "${C_GREEN}Success!${C_RESET} Reboot to apply the changes.\n"
 }
