@@ -196,9 +196,10 @@ EOF
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 #!/bin/bash
 set -e
-echo "Using uninstaller for version $VERSION"
-echo "- Removing the metadata"
+printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
+printf -- "- Removing the metadata "
 rm -rf "$DEST_SHARED_DIR"
+printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
     printf -- "- Appending the environment entries "
@@ -207,8 +208,9 @@ EOF
 FREETYPE_PROPERTIES="$fmt_env"
 EOF
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-echo "- Cleaning the environment entries"
+printf -- "- Cleaning the environment entries "
 sed -i '/FREETYPE_PROPERTIES="$fmt_env"/d' "$DEST_ENVIRONMENT"
+printf "${C_GREEN}Done${C_RESET}\n"
 EOF
     printf "${C_GREEN}Done${C_RESET}\n"
 
@@ -217,8 +219,9 @@ EOF
         "$FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[0]}" \
         "$DEST_FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[1]}-${FONTCONFIG_GRAYSCALE[0]}"
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-echo "- Removing the fontconfig rules"
+printf -- "- Removing the fontconfig rules "
 rm -f "$DEST_FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[1]}-${FONTCONFIG_GRAYSCALE[0]}"
+printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
     install -m 644 \
@@ -230,7 +233,7 @@ EOF
     printf "${C_GREEN}Done${C_RESET}\n"
 
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-echo "Successful removal"
+printf "${C_BOLD}Successful removal${C_RESET}\n"
 EOF
 
     printf "${C_GREEN}Success!${C_RESET} Reboot to apply the changes.\n"
