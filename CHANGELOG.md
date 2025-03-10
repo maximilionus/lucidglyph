@@ -1,5 +1,5 @@
-# Development
-- Fix improperly handled installation process.
+# Release 0.9.1
+- Fix improperly handled installation steps.
 
 - Improve script output.
 
