@@ -165,8 +165,6 @@ EOF
 }
 
 cmd_install () {
-    printf "Setting up\n"
-
     load_info_file
     backward_compatibility
 
@@ -183,6 +181,7 @@ cmd_install () {
         require_root
     fi
 
+    printf "Setting up\n"
     printf -- "- Storing the installation metadata "
     mkdir -p "$DEST_SHARED_DIR"
     touch "$DEST_SHARED_DIR/$DEST_INFO_FILE"
@@ -240,8 +239,6 @@ EOF
 }
 
 cmd_remove () {
-    printf "Removing\n"
-
     load_info_file
     backward_compatibility
 
@@ -251,6 +248,7 @@ cmd_remove () {
     fi
 
     require_root
+    printf "Removing\n"
     call_uninstaller
 
     printf "${C_GREEN}Success!${C_RESET} Reboot to apply the changes.\n"
