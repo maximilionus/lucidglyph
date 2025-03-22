@@ -31,18 +31,18 @@ MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # environment
 ENVIRONMENT_DIR="$SRC_DIR/environment"
-DEST_ENVIRONMENT="/etc/environment"
-DEST_ENVIRONMENT_USR="$HOME/.config/environment.d"
+DEST_ENVIRONMENT="$DESTDIR/etc/environment"
+DEST_ENVIRONMENT_USR="${DESTDIR:=$HOME}/.config/environment.d"
 
 # fontconfig
 FONTCONFIG_DIR="$SRC_DIR/fontconfig"
-DEST_FONTCONFIG_DIR="/etc/fonts/conf.d"
-DEST_FONTCONFIG_DIR_USR="$HOME/.config/fontconfig"
+DEST_FONTCONFIG_DIR="$DESTDIR/etc/fonts/conf.d"
+DEST_FONTCONFIG_DIR_USR="${DESTDIR:=$HOME}/.config/fontconfig"
 
 # Metadata location
-DEST_SHARED_DIR="/usr/share/lucidglyph"
-DEST_SHARED_DIR_OLD="/usr/share/freetype-envision"
-DEST_SHARED_DIR_USR="$HOME/.local/share/lucidglyph"
+DEST_SHARED_DIR="$DESTDIR/usr/share/lucidglyph"
+DEST_SHARED_DIR_OLD="$DESTDIR/usr/share/freetype-envision"
+DEST_SHARED_DIR_USR="${DESTDIR:=$HOME}/.local/share/lucidglyph"
 DEST_INFO_FILE="info"
 DEST_UNINSTALL_FILE="uninstaller.sh"
 
