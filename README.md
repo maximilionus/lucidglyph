@@ -2,8 +2,8 @@
 Carefully tuned adjustments designed to improve font rendering on Linux,
 including tweaks for freetype, fontconfig and other components.
 
-Visual comparison is available on the project
-[wiki page](https://github.com/maximilionus/lucidglyph/wiki/Comparison)
+Visual comparison is available on the project's
+[wiki page](https://github.com/maximilionus/lucidglyph/wiki/Comparison).
 
 > [!NOTE]  
 > Previously known as **freetype-envision**
