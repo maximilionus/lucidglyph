@@ -85,21 +85,24 @@ allow the upgrade.
 ### GNOME
 While GNOME does use the grayscale antialiasing method by default, there are a
 few Linux distributions that change this setting to the subpixel method, making
-the font rendering appear incorrect after the tweaks from this project. This
-issue is already tracked, but manual user intervention is still required for
-now.
+the font rendering appear incorrect after the tweaks from this project.
 
-For more details and temporary solution [check this
-report](https://github.com/maximilionus/lucidglyph/issues/7).
+This issue is already being tracked, but manual user intervention is still
+required for now.
+
+To see if you are being affected by this issue and get a temporary solution,
+[check this report](https://github.com/maximilionus/lucidglyph/issues/7).
 
 
 ### KDE Plasma
 By default, vanilla KDE Plasma desktop environment does follow the fontconfig
-rules, including the anti-aliasing settings, but in some cases this behavior
+rules, including the antialiasing settings, but in some cases this behavior
 gets overwritten, presumably by above-level distro-specific configurations.
+This causes improper font rendering due to misconfigured antialiasing
+parameters.
 
-This causes improper font rendering configuration. Issue is already tracked,
-but manual user intervention is still required for now.
+This issue is already being tracked, but manual user intervention is still
+required for now.
 
-For more details and temporary solution [check this
-report](https://github.com/maximilionus/lucidglyph/issues/12).
+To see if you are being affected by this issue and get a temporary solution,
+[check this report](https://github.com/maximilionus/lucidglyph/issues/12).
