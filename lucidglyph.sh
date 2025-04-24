@@ -25,8 +25,12 @@ SRC_DIR=src
 # Display the header with project name and version on start
 SHOW_HEADER=${SHOW_HEADER:=true}
 
+# Marker for tracking appended content
+MARKER_START="### START OF LUCIDGLYPH $VERSION CONTENT ###"
+MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
+
 # environment
-ENVIRONMENT_SCRIPT="$SRC_DIR/environment/lucidglyph.sh"
+ENVIRONMENT_DIR="$SRC_DIR/environment"
 DEST_ENVIRONMENT="/etc/environment"
 
 # fontconfig
@@ -202,13 +206,17 @@ printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
     printf -- "- Appending the environment entries "
-    local fmt_env=$(exec bash -c "source $ENVIRONMENT_SCRIPT && echo \$FREETYPE_PROPERTIES")
-    cat <<EOF >> "$DEST_ENVIRONMENT"
-FREETYPE_PROPERTIES="$fmt_env"
-EOF
+    {
+        echo "$MARKER_START"
+        for f in $ENVIRONMENT_DIR/*.sh; do
+            cat "$f"
+        done
+        echo "$MARKER_END"
+    } >> "$DEST_ENVIRONMENT"
+
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 printf -- "- Cleaning the environment entries "
-sed -i '/FREETYPE_PROPERTIES="$fmt_env"/d' "$DEST_ENVIRONMENT"
+sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
     printf "${C_GREEN}Done${C_RESET}\n"
