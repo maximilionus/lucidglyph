@@ -1,3 +1,9 @@
+# Dev
+- New tweak to fix variable fonts bold style rendering in Qt based software.
+  Eliminates the incorrect rendering of bold fonts as heavy. (Reported by
+  [@xalt7x](https://github.com/maximilionus/lucidglyph/issues/12#issuecomment-2822253637))
+
+
 # Release 0.9.1
 - Fix improperly handled installation steps.
 
