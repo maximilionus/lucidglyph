@@ -79,7 +79,7 @@ ask_confirmation() {
     notification="$1"
     read -p "$notification (Y/n): "
     printf "\n"
-    [[ $REPLY =~ ^[Nn]$ ]] && return 1 || return 0
+    [[ ! $REPLY =~ ^[Nn]$ ]]
 }
 
 # Parse and load the installation information
