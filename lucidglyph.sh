@@ -75,6 +75,13 @@ verlt() {
     [ "$1" = "$2" ] && return 1 || verlte $1 $2
 }
 
+ask_confirmation() {
+    notification="$1"
+    read -p "$notification (Y/n): "
+    printf "\n"
+    [[ $REPLY =~ ^[Nn]$ ]] && return 1 || return 0
+}
+
 # Parse and load the installation information
 load_info_file () {
     if [[ ! -f $DEST_SHARED_DIR/$DEST_INFO_FILE ]]; then
@@ -126,9 +133,9 @@ Proceed at your own risk.
 
 EOF
         printf "$C_RESET"
-        read -p "Do you wish to continue? (y/n): "
-        printf "\n"
-        [[ $REPLY =~ ^[Nn]$ ]] && exit 1
+        if ! ask_confirmation "Do you wish to continue?"; then
+            exit 1
+        fi
     fi
 }
 
@@ -178,9 +185,11 @@ cmd_install () {
     elif [[ ! -z ${local_info[version]} ]]; then
         printf "${C_GREEN}Detected $NAME version ${local_info[version]} on the target system.${C_RESET}\n"
         require_root
-        read -p "Do you wish to upgrade to version $VERSION? (y/n): "
-        printf "\n"
-        [[ $REPLY =~ ^[Yy]$ ]] && call_uninstaller || exit 1
+        if ask_confirmation "Do you wish to upgrade to version $VERSION?"; then
+            call_uninstaller
+        else
+            exit 1
+        fi
     else
         require_root
     fi
