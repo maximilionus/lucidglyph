@@ -29,6 +29,23 @@ verlt() {
 
 printf "Web wrapper for the $NAME\n"
 
+printf "\e[0;31m"
+cat <<EOF
+[Wrapper] Important security notice
+    Due to potential security issues, this wrapper is now obsolete.
+
+    Please refrain from using this script and install the project directly by
+    downloading the release from:
+
+    https://github.com/maximilionus/lucidglyph/releases/latest
+
+    Thank you :)
+EOF
+printf "\e[0m"
+read -p "Do you still wish to proceed? (y/N): "
+printf "\n"
+[[ ! $REPLY =~ ^[Yy]$ ]] && exit 1
+
 TMP_DIR=$( mktemp -d )
 if [[ ! -d $TMP_DIR ]]; then
     cat <<EOF
