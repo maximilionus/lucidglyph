@@ -29,10 +29,18 @@ verlt() {
 
 printf "Web wrapper for the $NAME\n"
 
+deprecation_date="2025-09-01" 
+deprecation_epoch=$(date -d "$deprecation_date" +%s)
+current_epoch=$(date +%s)
+days_left=$(( (deprecation_epoch - current_epoch) / 86400 ))
+
 printf "\e[0;31m"
 cat <<EOF
 [Wrapper] Important security notice
-    Due to potential security issues, this wrapper is now obsolete.
+    Due to potential security issues, this wrapper is now obsolete and will be
+    removed on $deprecation_date (yyyy-mm-dd)!
+
+    Days until this link is no longer availabe -> $days_left <-
 
     Please refrain from using this script and install the project directly by
     downloading the release from:
@@ -42,9 +50,14 @@ cat <<EOF
     Thank you :)
 EOF
 printf "\e[0m"
-read -p "Do you still wish to proceed? (y/N): "
-printf "\n"
-[[ ! $REPLY =~ ^[Yy]$ ]] && exit 1
+
+if (( days_left < 0 )); then
+    exit 1
+else
+    read -p "Do you still wish to proceed? (y/N): "
+    printf "\n"
+    [[ ! $REPLY =~ ^[Yy]$ ]] && exit 1
+fi
 
 TMP_DIR=$( mktemp -d )
 if [[ ! -d $TMP_DIR ]]; then
