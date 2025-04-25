@@ -19,19 +19,6 @@ Visual comparison is available on the project's
 
 
 ## Usage
-You can easily install and upgrade with web wrapper:
-```sh
-bash <(curl -s -L https://maximilionus.github.io/lucidglyph/wrapper.sh) \
-    install
-```
-
-Version can also be selected by declaring the `VERSION` environmental variable:
-```sh
-VERSION="0.2.0" bash <(curl -s -L https://maximilionus.github.io/lucidglyph/wrapper.sh) \
-    [COMMAND]
-```
-
-
 ### Install
 1. Download the latest release
    [here](https://github.com/maximilionus/lucidglyph/releases/latest)
