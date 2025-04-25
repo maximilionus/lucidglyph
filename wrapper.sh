@@ -29,7 +29,7 @@ verlt() {
 
 printf "Web wrapper for the $NAME\n"
 
-deprecation_date="2025-09-01" 
+deprecation_date="2025-09-01"
 deprecation_epoch=$(date -d "$deprecation_date" +%s)
 current_epoch=$(date +%s)
 days_left=$(( (deprecation_epoch - current_epoch) / 86400 ))
@@ -51,12 +51,15 @@ cat <<EOF
 EOF
 printf "\e[0m"
 
-if (( days_left < 0 )); then
-    exit 1
-else
-    read -p "Do you still wish to proceed? (y/N): "
-    printf "\n"
-    [[ ! $REPLY =~ ^[Yy]$ ]] && exit 1
+if [[ -z "$YESIKNOW" ]]; then
+    if (( days_left < 0 )); then
+        exit 1
+    else
+        printf "\nTo skip the input below, add 'YESIKNOW=1' env variable.\n\n"
+        read -p "Do you still wish to proceed? (y/N): "
+        printf "\n"
+        [[ ! $REPLY =~ ^[Yy]$ ]] && exit 1
+    fi
 fi
 
 TMP_DIR=$( mktemp -d )
