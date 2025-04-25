@@ -40,7 +40,7 @@ cat <<EOF
     Due to potential security issues, this wrapper is now obsolete and will be
     removed on $deprecation_date (yyyy-mm-dd)!
 
-    Days until this link is no longer availabe -> $days_left <-
+    Days until this link is no longer available -> $days_left <-
 
     Please refrain from using this script and install the project directly by
     downloading the release from:
