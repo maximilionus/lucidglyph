@@ -51,12 +51,12 @@ VERSION="0.2.0" bash <(curl -s -L https://maximilionus.github.io/lucidglyph/wrap
 2. Reboot to apply the changes.
 
 ### Upgrade
-**Versions above `0.7.0`:**  
+**Versions after `0.7.0`:**  
 Follow the same steps from "Install" section. If there's a supported version of
 the project already installed, the "install" command will prompt the user to
 allow the upgrade.
 
-**Versions below `0.7.0`:**  
+**Versions before `0.7.0`:**  
 1. Follow the "Remove" section steps using the script exactly the version of
    the project that is currently installed on the system.
 2. Now you can install the new version by simply following the "Install"
@@ -66,24 +66,35 @@ allow the upgrade.
 ## Details
 - Environmental configurations:
    - Stem-darkening *(fonts emboldening)* with custom values for `autofitter`,
-   `type1`, `t1cid` and `cff` drivers.
-   > This feature improves visibility of the medium and small-sized fonts.
-   > Especially helpful for the LowPPI displays.
+     `type1`, `t1cid` and `cff` drivers. This feature improves visibility of
+     the medium and small-sized fonts. Especially helpful for the LowPPI
+     displays. More
+     [information](https://freetype.org/freetype2/docs/hinting/text-rendering-general.html)
+     and
+     [usage documentation](https://freetype.org/freetype2/docs/reference/ft2-properties.html#no-stem-darkening).
+
+   - Disable synthesized bold fonts in Qt-based software. There is an issue
+     that causes bold glyphs to appear heavy in variable fonts. More
+     information:
+     Fedora reports (
+     [#1](https://bugzilla.redhat.com/show_bug.cgi?id=2179854),
+     [#2](https://pagure.io/fedora-kde/SIG/issue/461)
+     ),
+     [Qt report](https://bugreports.qt.io/browse/QTBUG-112136).
 
 - Rules for fontconfig:
-   - Enforce grayscale antialiasing (disable sub-pixel).
-   > Grayscale antialiasing should be enforced in the system to make the
-   > stem-darkening work properly.
+   - Enforce grayscale anti-aliasing (disable sub-pixel). Grayscale
+     anti-aliasing should be enforced in the system to make the stem-darkening
+     from the above work properly.
 
-   - Reject usage of *Droid Sans* family for Japanese and Chinese, force the
-     environment to use other fonts.
-   > Stem-darkening does not work well with these typefaces, causing characters
-   > over-emboldening.
+   - Reject usage of "Droid Sans" family for Japanese and Chinese characters
+     and force the environment to use other fonts. Stem-darkening does not work
+     well with this typeface, causing characters over-emboldening.
 
 
 ## Notes
 ### GNOME
-While GNOME does use the grayscale antialiasing method by default, there are a
+While GNOME does use the grayscale anti-aliasing method by default, there are a
 few Linux distributions that change this setting to the subpixel method, making
 the font rendering appear incorrect after the tweaks from this project.
 
@@ -96,9 +107,9 @@ To see if you are being affected by this issue and get a temporary solution,
 
 ### KDE Plasma
 By default, vanilla KDE Plasma desktop environment does follow the fontconfig
-rules, including the antialiasing settings, but in some cases this behavior
+rules, including the anti-aliasing settings, but in some cases this behavior
 gets overwritten, presumably by above-level distro-specific configurations.
-This causes improper font rendering due to misconfigured antialiasing
+This causes improper font rendering due to misconfigured anti-aliasing
 parameters.
 
 This issue is already being tracked, but manual user intervention is still
