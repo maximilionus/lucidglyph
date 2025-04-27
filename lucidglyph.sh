@@ -348,7 +348,7 @@ if $per_user_mode; then
     if [[ "$(ps --no-headers -o comm 1)" != "systemd" ]]; then
         printf "${C_RED}"
         cat <<EOF
-Per-user installation mode is only supported on Linux systems that run on
+Per-user operating mode is only supported on Linux distributions that run on
 systemd initialization system.
 EOF
         printf "${C_RESET}"
