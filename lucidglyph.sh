@@ -328,7 +328,7 @@ case $1 in
         cmd_help
         ;;
     *)
-        printf "${C_RED}Invalid command${C_RESET} $1\n"
-        printf "Use ${C_WHITE_BOLD}help${C_RESET} command to get usage information\n"
+        printf "${C_RED}Unknown command${C_RESET} $1\n"
+        printf "Use ${C_BOLD}help${C_RESET} command to get usage information\n"
         exit 1
 esac
