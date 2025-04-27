@@ -32,10 +32,12 @@ MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 # environment
 ENVIRONMENT_DIR="$SRC_DIR/environment"
 DEST_ENVIRONMENT="/etc/environment"
+DEST_ENVIRONMENT_USR="$HOME/.config/environment.d"
 
 # fontconfig
 FONTCONFIG_DIR="$SRC_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="/etc/fonts/conf.d"
+DEST_FONTCONFIG_DIR_USR="$HOME/.config/fontconfig"
 #                    ("<NAME>" "<PRIORITY>")
 FONTCONFIG_GRAYSCALE=("lucidglyph-grayscale.conf" 11)
 FONTCONFIG_DROID_SANS=("lucidglyph-droid-sans.conf" 70)
@@ -43,6 +45,7 @@ FONTCONFIG_DROID_SANS=("lucidglyph-droid-sans.conf" 70)
 # Metadata location
 DEST_SHARED_DIR="/usr/share/lucidglyph"
 DEST_SHARED_DIR_OLD="/usr/share/freetype-envision"
+DEST_SHARED_DIR_USR="$HOME/.local/share/lucidglyph"
 DEST_INFO_FILE="info"
 DEST_UNINSTALL_FILE="uninstaller.sh"
 
@@ -56,6 +59,7 @@ C_RED="\e[0;31m"
 
 # Global variables
 declare -A local_info
+declare per_user_mode=false
 
 
 require_root () {
@@ -124,21 +128,6 @@ EOF
     fi
 }
 
-check_system () {
-    if [[ $( uname -s ) != Linux* ]]; then
-        printf "$C_YELLOW"
-        cat <<EOF
-You are trying to run this script on the unsupported platform.
-Proceed at your own risk.
-
-EOF
-        printf "$C_RESET"
-        if ! ask_confirmation "Do you wish to continue?"; then
-            exit 1
-        fi
-    fi
-}
-
 # Call the locally stored uninstaller from target machine
 call_uninstaller () {
     local shared_dir="$DEST_SHARED_DIR"
@@ -164,7 +153,7 @@ show_header () {
 
 cmd_help () {
     cat <<EOF
-Usage: $0 [COMMAND]
+usage: $0 [OPTIONS] [COMMAND]
 
 Carefully tuned adjustments designed to improve font rendering on Linux
 
@@ -172,6 +161,10 @@ COMMANDS:
   install  Install or upgrade the project
   remove   Remove the installed project
   help     Show this help message
+
+OPTIONS:
+  -s, --system (default)  Operate in system mode
+  -u, --user              Operate in user mode (experimental feature, systemd only)
 EOF
 }
 
@@ -275,7 +268,33 @@ cmd_remove () {
 # Main logics
 
 [[ $SHOW_HEADER = true ]] && show_header
-check_system
+
+# Parse optional args
+POSITIONAL_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -s|--system)
+            per_user_mode=false
+            shift
+            ;;
+        -u|--user)
+            per_user_mode=true
+            shift
+            ;;
+        -*|--*)
+            printf "${C_YELLOW}Unknown option${C_RESET} $1\n"
+            exit 1
+            ;;
+        *)
+            POSITIONAL_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+set -- "${POSITIONAL_ARGS[@]}"
+unset POSITIONAL_ARGS
 
 # Deprecate short commands.
 # TODO: Remove in 1.0.0
@@ -311,6 +330,33 @@ EOF
     printf "$C_RESET"
 fi
 
+# Check system compatibility
+if [[ $( uname -s ) != Linux* ]]; then
+    printf "$C_YELLOW"
+    cat <<EOF
+You are trying to run this script on the unsupported platform.
+Proceed at your own risk.
+
+EOF
+    printf "$C_RESET"
+    if ! ask_confirmation "Do you wish to continue?"; then
+        exit 1
+    fi
+fi
+
+if $per_user_mode; then
+    if [[ "$(ps --no-headers -o comm 1)" != "systemd" ]]; then
+        printf "${C_RED}"
+        cat <<EOF
+Per-user installation mode is only supported on Linux systems that run on
+systemd initialization system.
+EOF
+        printf "${C_RESET}"
+        exit 1
+    fi
+fi
+
+# Parse main args
 case $1 in
     # "i" is deprecated
     # TODO: Remove in 1.0.0
