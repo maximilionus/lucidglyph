@@ -62,10 +62,18 @@ declare -A local_info
 declare per_user_mode=false
 
 
-require_root () {
-    if [[ $(/usr/bin/id -u) -ne 0 ]]; then
+check_root () {
+    if [[ $(/usr/bin/id -u) != 0 ]] && ! $per_user_mode; then
         printf "${C_RED}This action requires the root privileges${C_RESET}\n"
         exit 1
+    elif [[ $(/usr/bin/id -u) == 0 ]] && $per_user_mode; then
+        printf "${C_YELLOW}"
+        cat <<EOF
+Warning: You are trying to run the per-user operational mode under the root
+user. This is probably a mistake, as it will result in the utility only working
+with root user configurations.
+EOF
+        printf "${C_RESET}"
     fi
 }
 
@@ -177,14 +185,14 @@ cmd_install () {
         exit 1
     elif [[ ! -z ${local_info[version]} ]]; then
         printf "${C_GREEN}Detected $NAME version ${local_info[version]} on the target system.${C_RESET}\n"
-        require_root
+        check_root
         if ask_confirmation "Do you wish to upgrade to version $VERSION?"; then
             call_uninstaller
         else
             exit 1
         fi
     else
-        require_root
+        check_root
     fi
 
     printf "Setting up\n"
@@ -257,7 +265,7 @@ cmd_remove () {
         exit 1
     fi
 
-    require_root
+    check_root
     printf "Removing\n"
     call_uninstaller
 
@@ -334,8 +342,8 @@ fi
 if [[ $( uname -s ) != Linux* ]]; then
     printf "$C_YELLOW"
     cat <<EOF
-You are trying to run this script on the unsupported platform.
-Proceed at your own risk.
+Warning: You are trying to run this script on the unsupported platform. Proceed
+at your own risk.
 
 EOF
     printf "$C_RESET"
