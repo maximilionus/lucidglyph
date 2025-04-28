@@ -210,7 +210,7 @@ EOF
 #!/bin/bash
 set -e
 printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
-printf -- "- Removing the metadata "
+printf -- "- Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
@@ -232,6 +232,8 @@ EOF
     printf "${C_GREEN}Done${C_RESET}\n"
 
     printf -- "- Installing the fontconfig rules "
+    mkdir -p "$DEST_FONTCONFIG_DIR"
+
     install -m 644 \
         "$FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[0]}" \
         "$DEST_FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[1]}-${FONTCONFIG_GRAYSCALE[0]}"
@@ -362,7 +364,12 @@ EOF
         printf "${C_RESET}"
         exit 1
     fi
+
+    DEST_ENVIRONMENT="$DEST_ENVIRONMENT_USR"
+    DEST_FONTCONFIG_DIR="$DEST_FONTCONFIG_DIR_USR"
+    DEST_SHARED_DIR="$DEST_SHARED_DIR_USR"
 fi
+
 
 # Parse main args
 case $1 in
