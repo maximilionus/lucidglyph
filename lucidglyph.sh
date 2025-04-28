@@ -38,9 +38,6 @@ DEST_ENVIRONMENT_USR="$HOME/.config/environment.d"
 FONTCONFIG_DIR="$SRC_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="/etc/fonts/conf.d"
 DEST_FONTCONFIG_DIR_USR="$HOME/.config/fontconfig"
-#                    ("<NAME>" "<PRIORITY>")
-FONTCONFIG_GRAYSCALE=("lucidglyph-grayscale.conf" 11)
-FONTCONFIG_DROID_SANS=("lucidglyph-droid-sans.conf" 70)
 
 # Metadata location
 DEST_SHARED_DIR="/usr/share/lucidglyph"
@@ -186,6 +183,7 @@ cmd_install () {
     elif [[ ! -z ${local_info[version]} ]]; then
         printf "${C_GREEN}Detected $NAME version ${local_info[version]} on the target system.${C_RESET}\n"
         check_root
+
         if ask_confirmation "Do you wish to upgrade to version $VERSION?"; then
             call_uninstaller
         else
@@ -205,6 +203,7 @@ cmd_install () {
 
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_INFO_FILE"
 version="$VERSION"
+is_user_mode="$per_user_mode"
 EOF
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 #!/bin/bash
@@ -216,39 +215,62 @@ printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
     printf -- "- Appending the environment entries "
-    {
-        echo "$MARKER_START"
-        for f in $ENVIRONMENT_DIR/*.sh; do
-            cat "$f"
-        done
-        echo "$MARKER_END"
-    } >> "$DEST_ENVIRONMENT"
-
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 printf -- "- Cleaning the environment entries "
-sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
-printf "${C_GREEN}Done${C_RESET}\n"
 EOF
+
+    if $per_user_mode; then
+        # In case of user install, variable contains the dir path, not file
+        mkdir -p "$DEST_ENVIRONMENT"
+
+        for f in $ENVIRONMENT_DIR/*.conf; do
+            install -m 644 "$f" "$DEST_ENVIRONMENT/$(basename $f)"
+            cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+rm -f "$DEST_ENVIRONMENT/$(basename $f)"
+EOF
+        done
+
+        echo "rm -d \"$DEST_ENVIRONMENT\" 2>/dev/null || true" \
+            >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+    else
+        {
+            echo "$MARKER_START"
+            for f in $ENVIRONMENT_DIR/*.conf; do
+                cat "$f"
+            done
+            echo "$MARKER_END"
+        } >> "$DEST_ENVIRONMENT"
+
+    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
+EOF
+    fi
+
+    echo "printf \"${C_GREEN}Done${C_RESET}\n\"" \
+        >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
     printf "${C_GREEN}Done${C_RESET}\n"
 
     printf -- "- Installing the fontconfig rules "
     mkdir -p "$DEST_FONTCONFIG_DIR"
 
-    install -m 644 \
-        "$FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[0]}" \
-        "$DEST_FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[1]}-${FONTCONFIG_GRAYSCALE[0]}"
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 printf -- "- Removing the fontconfig rules "
-rm -f "$DEST_FONTCONFIG_DIR/${FONTCONFIG_GRAYSCALE[1]}-${FONTCONFIG_GRAYSCALE[0]}"
-printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
-    install -m 644 \
-        "$FONTCONFIG_DIR/${FONTCONFIG_DROID_SANS[0]}" \
-        "$DEST_FONTCONFIG_DIR/${FONTCONFIG_DROID_SANS[1]}-${FONTCONFIG_DROID_SANS[0]}"
-    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-rm -f "$DEST_FONTCONFIG_DIR/${FONTCONFIG_DROID_SANS[1]}-${FONTCONFIG_DROID_SANS[0]}"
+    for f in $FONTCONFIG_DIR/*.conf; do
+        install -m 644 "$f" "$DEST_FONTCONFIG_DIR/$(basename $f)"
+        cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
 EOF
+    done
+
+    if $per_user_mode; then
+        echo "rm -d \"$DEST_FONTCONFIG_DIR\" 2>/dev/null || true" \
+            >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+    fi
+
+    echo "printf \"${C_GREEN}Done${C_RESET}\n\"" \
+        >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
     printf "${C_GREEN}Done${C_RESET}\n"
 
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
