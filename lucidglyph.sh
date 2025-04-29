@@ -37,7 +37,7 @@ DEST_ENVIRONMENT_USR="${DESTDIR:=$HOME}/.config/environment.d"
 # fontconfig
 FONTCONFIG_DIR="$SRC_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="$DESTDIR/etc/fonts/conf.d"
-DEST_FONTCONFIG_DIR_USR="${DESTDIR:=$HOME}/.config/fontconfig"
+DEST_FONTCONFIG_DIR_USR="${DESTDIR:=$HOME}/.config/fontconfig/conf.d"
 
 # Metadata location
 DEST_SHARED_DIR="$DESTDIR/usr/share/lucidglyph"
