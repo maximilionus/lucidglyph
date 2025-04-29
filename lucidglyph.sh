@@ -37,12 +37,12 @@ DEST_ENVIRONMENT="$DESTDIR/etc/environment"
 # fontconfig
 FONTCONFIG_DIR="$SRC_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="$DESTDIR/etc/fonts/conf.d"
-DEST_FONTCONFIG_DIR_USR="${DESTDIR:=$HOME}/.config/fontconfig/conf.d"
+DEST_FONTCONFIG_DIR_USR="${DESTDIR:-$HOME}/.config/fontconfig/conf.d"
 
 # Metadata location
 DEST_SHARED_DIR="$DESTDIR/usr/share/lucidglyph"
 DEST_SHARED_DIR_OLD="$DESTDIR/usr/share/freetype-envision"
-DEST_SHARED_DIR_USR="${DESTDIR:=$HOME}/.local/share/lucidglyph"
+DEST_SHARED_DIR_USR="${DESTDIR:-$HOME}/.local/share/lucidglyph"
 DEST_INFO_FILE="info"
 DEST_UNINSTALL_FILE="uninstaller.sh"
 
@@ -96,16 +96,16 @@ get_usr_shell_rc() {
     local shell="$(basename $SHELL 2>/dev/null)"
     case "$shell" in
         bash)
-            echo "${DESTDIR:=$HOME}/.bashrc"
+            echo "${DESTDIR:-$HOME}/.bashrc"
             ;;
         zsh)
-            echo "${DESTDIR:=$HOME}/.zshrc"
+            echo "${DESTDIR:-$HOME}/.zshrc"
             ;;
         fish)
-            echo "${DESTDIR:=$HOME}/.config/fish/config.fish"
+            echo "${DESTDIR:-$HOME}/.config/fish/config.fish"
             ;;
         ksh)
-            echo "${DESTDIR:=$HOME}/.kshrc"
+            echo "${DESTDIR:-$HOME}/.kshrc"
             ;;
         *)
             echo ""
