@@ -246,15 +246,20 @@ EOF
     {
         printf "$MARKER_START\n"
         printf "$MARKER_WARNING\n"
+
+        prefix=""
+        if $per_user_mode; then
+            case "$SHELL" in
+                fish)  prefix="set --export " ;;
+                *)     prefix="export " ;;
+            esac
+        fi
+
         for f in $ENVIRONMENT_DIR/*.conf; do
-            if $per_user_mode; then
-                case "$(get_usr_shell_rc)" in
-                    fish)  printf "set --export " ;;
-                    *)     printf "export " ;;
-                esac
-            fi
+            printf "$prefix"
             cat "$f"
         done
+
         printf "$MARKER_END\n"
     } >> "$DEST_ENVIRONMENT"
 
