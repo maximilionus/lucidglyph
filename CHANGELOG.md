@@ -5,7 +5,6 @@
 
 - New experimental per-user installation mode, allowing to apply all tweaks
   only for the current user. Enable by passing the `--user` (`-u`) flag.
-  Currently available only for systemd-based Linux distributions.
 
 - Main script now supports the
   [`DESTDIR`](https://www.gnu.org/prep/standards/html_node/DESTDIR.html)
