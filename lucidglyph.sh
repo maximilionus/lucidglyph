@@ -136,6 +136,8 @@ load_info_file () {
 # Check for old versions and adapt the script logics
 # TODO Remove on 1.0.0
 backward_compatibility () {
+    [[ $per_user_mode ]] && return 0  # No need for per-user mode
+
     if (( ! ${#local_info[@]} )); then
         if [[ -f "$DEST_SHARED_DIR_OLD/$DEST_INFO_FILE" ]]; then
             # Load the 0.7.0 state file
