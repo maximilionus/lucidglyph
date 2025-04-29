@@ -27,12 +27,12 @@ SHOW_HEADER=${SHOW_HEADER:=true}
 
 # Marker for tracking appended content
 MARKER_START="### START OF LUCIDGLYPH $VERSION CONTENT ###"
+MARKER_WARNING="# !! DO NOT PUT ANY USER CONFIGURATIONS INSIDE THIS BLOCK !!"
 MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # environment
 ENVIRONMENT_DIR="$SRC_DIR/environment"
 DEST_ENVIRONMENT="$DESTDIR/etc/environment"
-DEST_ENVIRONMENT_USR="${DESTDIR:=$HOME}/.config/environment.d"
 
 # fontconfig
 FONTCONFIG_DIR="$SRC_DIR/fontconfig"
@@ -89,6 +89,28 @@ ask_confirmation() {
     read -p "$notification (Y/n): "
     printf "\n"
     [[ ! $REPLY =~ ^[Nn]$ ]]
+}
+
+# Probe the user shell and get main configuration path
+get_usr_shell_rc() {
+    local shell="$(basename $SHELL 2>/dev/null)"
+    case "$shell" in
+        bash)
+            echo "${DESTDIR:=$HOME}/.bashrc"
+            ;;
+        zsh)
+            echo "${DESTDIR:=$HOME}/.zshrc"
+            ;;
+        fish)
+            echo "${DESTDIR:=$HOME}/.config/fish/config.fish"
+            ;;
+        ksh)
+            echo "${DESTDIR:=$HOME}/.kshrc"
+            ;;
+        *)
+            echo ""
+            ;;
+    esac
 }
 
 # Parse and load the installation information
@@ -169,7 +191,7 @@ COMMANDS:
 
 OPTIONS:
   -s, --system (default)  Operate in system mode
-  -u, --user              Operate in user mode (experimental feature, systemd only)
+  -u, --user              Operate in user mode (experimental feature)
 EOF
 }
 
@@ -219,32 +241,24 @@ EOF
 printf -- "- Cleaning the environment entries "
 EOF
 
-    if $per_user_mode; then
-        # In case of user install, variable contains the dir path, not file
-        mkdir -p "$DEST_ENVIRONMENT"
-
+    {
+        printf "$MARKER_START\n"
+        printf "$MARKER_WARNING\n"
         for f in $ENVIRONMENT_DIR/*.conf; do
-            install -m 644 "$f" "$DEST_ENVIRONMENT/$(basename $f)"
-            cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-rm -f "$DEST_ENVIRONMENT/$(basename $f)"
-EOF
+            if $per_user_mode; then
+                case "$(get_usr_shell_rc)" in
+                    fish)  printf "set --export " ;;
+                    *)     printf "export " ;;
+                esac
+            fi
+            cat "$f"
         done
-
-        echo "rm -d \"$DEST_ENVIRONMENT\" 2>/dev/null || true" \
-            >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-    else
-        {
-            echo "$MARKER_START"
-            for f in $ENVIRONMENT_DIR/*.conf; do
-                cat "$f"
-            done
-            echo "$MARKER_END"
-        } >> "$DEST_ENVIRONMENT"
+        printf "$MARKER_END\n"
+    } >> "$DEST_ENVIRONMENT"
 
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
-    fi
 
     echo "printf \"${C_GREEN}Done${C_RESET}\n\"" \
         >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
@@ -265,8 +279,10 @@ EOF
     done
 
     if $per_user_mode; then
-        echo "rm -d \"$DEST_FONTCONFIG_DIR\" 2>/dev/null || true" \
-            >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+        cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+rm -d "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
+rm -d "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
+EOF
     fi
 
     echo "printf \"${C_GREEN}Done${C_RESET}\n\"" \
@@ -377,17 +393,17 @@ EOF
 fi
 
 if $per_user_mode; then
-    if [[ "$(ps --no-headers -o comm 1)" != "systemd" ]]; then
+    shell_config="$(get_usr_shell_rc)"
+    if [[ -z "$shell_config" ]]; then
         printf "${C_RED}"
         cat <<EOF
-Per-user operating mode is only supported on Linux distributions that run on
-systemd initialization system.
+Per-user operational mode is only supported on bash, zsh, fish and ksh shells.
 EOF
         printf "${C_RESET}"
         exit 1
     fi
 
-    DEST_ENVIRONMENT="$DEST_ENVIRONMENT_USR"
+    DEST_ENVIRONMENT="$shell_config"
     DEST_FONTCONFIG_DIR="$DEST_FONTCONFIG_DIR_USR"
     DEST_SHARED_DIR="$DEST_SHARED_DIR_USR"
 fi
