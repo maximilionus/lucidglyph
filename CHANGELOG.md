@@ -6,10 +6,11 @@
 - New experimental per-user installation mode, allowing to apply all tweaks
   only for the current user. Enable by passing the `--user` (`-u`) flag.
 
-- Main script now supports the
+- Improved modular paths handling in main script, including support for the
   [`DESTDIR`](https://www.gnu.org/prep/standards/html_node/DESTDIR.html)
-  variable. (cherry-picked from
+  (cherry-picked from
   [VictorQueiroz/lucidglyph](https://github.com/VictorQueiroz/lucidglyph) fork)
+  variable.
 
 
 # Release 0.9.1
