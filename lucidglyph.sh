@@ -108,9 +108,9 @@ get_usr_shell_rc() {
         zsh)
             echo "${DESTDIR:-$HOME}/.zshrc"
             ;;
-        fish)
-            echo "${DESTDIR:-$HOME}/.config/fish/config.fish"
-            ;;
+        # fish)  # TODO: Implement fish handling
+        #     echo "${DESTDIR:-$HOME}/.config/fish/config.fish"
+        #     ;;
         ksh)
             echo "${DESTDIR:-$HOME}/.kshrc"
             ;;
@@ -271,8 +271,8 @@ if ! $per_user_mode; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
         prefix=""
         if $per_user_mode; then
             case "$SHELL" in
-                fish)  prefix="set --export " ;;
-                *)     prefix="export " ;;
+                # *fish)  prefix="set --export " ;;  # TODO
+                *)      prefix="export " ;;
             esac
         fi
 
@@ -416,7 +416,7 @@ if $per_user_mode; then
     if [[ -z "$shell_config" ]]; then
         printf "${C_RED}"
         cat <<EOF
-Per-user operational mode is only supported on bash, zsh, fish and ksh shells.
+Per-user operational mode is only supported on bash, zsh and ksh shells.
 EOF
         printf "${C_RESET}"
         exit 1
