@@ -25,7 +25,6 @@ Visual comparison is available on the project's
    *(download "Source code")* and unpack it to any user available location.
 2. Open the terminal in the unpacked directory.
 3. Run the command below, root required:
-   > [!NOTE]  
    > It is also possible to install project only for the current user without
    > any need for system-wide access. See [Per-User Mode](#per-user-mode).
 
@@ -58,7 +57,7 @@ allow the upgrade.
 > This feature is only available starting from `0.10.0` version.
 
 > [!IMPORTANT]  
-> Experimental feature, expect things not to work as expected. User feedback is
+> Experimental feature, expect things not to work as intended. User feedback is
 > greatly appreciated.
 
 Per-user mode allows the project to be installed only for the current user,
