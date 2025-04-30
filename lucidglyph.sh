@@ -235,12 +235,24 @@ set -e
 printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
 printf -- "- Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
+rm -d "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
+rm -d "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
     printf -- "- Appending the environment entries "
+
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 printf -- "- Cleaning the environment entries "
+sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
+EOF
+    if $per_user_mode; then
+        cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+[[ ! -s $DEST_ENVIRONMENT ]] && rm "$DEST_ENVIRONMENT"
+EOF
+    fi
+    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
     {
@@ -263,12 +275,6 @@ EOF
         printf "$MARKER_END\n"
     } >> "$DEST_ENVIRONMENT"
 
-    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
-EOF
-
-    echo "printf \"${C_GREEN}Done${C_RESET}\n\"" \
-        >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
     printf "${C_GREEN}Done${C_RESET}\n"
 
     printf -- "- Installing the fontconfig rules "
@@ -289,17 +295,14 @@ EOF
         cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 rm -d "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
 rm -d "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
+rm -d "$(dirname $(dirname $DEST_FONTCONFIG_DIR))" 2>/dev/null || true
 EOF
     fi
 
-    echo "printf \"${C_GREEN}Done${C_RESET}\n\"" \
-        >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-    printf "${C_GREEN}Done${C_RESET}\n"
-
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-printf "${C_BOLD}Successful removal${C_RESET}\n"
+printf "${C_GREEN}Done${C_RESET}\n"
 EOF
-
+    printf "${C_GREEN}Done${C_RESET}\n"
     printf "${C_GREEN}Success!${C_RESET} Reboot to apply the changes.\n"
 }
 
