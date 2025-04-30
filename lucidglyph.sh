@@ -30,19 +30,26 @@ MARKER_START="### START OF LUCIDGLYPH $VERSION CONTENT ###"
 MARKER_WARNING="# !! DO NOT PUT ANY USER CONFIGURATIONS INSIDE THIS BLOCK !!"
 MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
+# Filesystem
+DEST_CONF="${DESTDIR:-}${DEST_CONF:-/etc}"
+DEST_USR="${DESTDIR:-}${DEST_USR:-/usr}"
+
+DEST_CONF_USR="${DESTDIR:-$HOME}${DEST_CONF_USR:-/.config}"
+DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
+
 # environment
 ENVIRONMENT_DIR="$SRC_DIR/environment"
-DEST_ENVIRONMENT="$DESTDIR/etc/environment"
+DEST_ENVIRONMENT="$DEST_CONF/environment"
 
 # fontconfig
 FONTCONFIG_DIR="$SRC_DIR/fontconfig"
-DEST_FONTCONFIG_DIR="$DESTDIR/etc/fonts/conf.d"
-DEST_FONTCONFIG_DIR_USR="${DESTDIR:-$HOME}/.config/fontconfig/conf.d"
+DEST_FONTCONFIG_DIR="$DEST_CONF/fonts/conf.d"
+DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
 
 # Metadata location
-DEST_SHARED_DIR="$DESTDIR/usr/share/lucidglyph"
-DEST_SHARED_DIR_OLD="$DESTDIR/usr/share/freetype-envision"
-DEST_SHARED_DIR_USR="${DESTDIR:-$HOME}/.local/share/lucidglyph"
+DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
+DEST_SHARED_DIR_OLD="$DEST_USR/share/freetype-envision"  # TODO: Remove on 1.0.0
+DEST_SHARED_DIR_USR="$DEST_USR_USR/share/lucidglyph"
 DEST_INFO_FILE="info"
 DEST_UNINSTALL_FILE="uninstaller.sh"
 
@@ -248,12 +255,14 @@ sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
     if $per_user_mode; then
         cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-[[ ! -s $DEST_ENVIRONMENT ]] && rm "$DEST_ENVIRONMENT"
+[[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
 EOF
     fi
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
+
+if ! $per_user_mode; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
 
     {
         printf "$MARKER_START\n"
