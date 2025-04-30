@@ -25,6 +25,10 @@ Visual comparison is available on the project's
    *(download "Source code")* and unpack it to any user available location.
 2. Open the terminal in the unpacked directory.
 3. Run the command below, root required:
+   > [!NOTE]  
+   > It is also possible to install project only for the current user without
+   > any need for system-wide access. See [Per-User Mode](#per-user-mode).
+
    ```sh
    sudo ./lucidglyph.sh install
    ```
@@ -48,6 +52,24 @@ allow the upgrade.
    the project that is currently installed on the system.
 2. Now you can install the new version by simply following the "Install"
    section.
+
+### Per-User Mode
+> [!NOTE]  
+> This feature is only available starting from `0.10.0` version.
+
+> [!IMPORTANT]  
+> Experimental feature, expect things not to work as expected. User feedback is
+> greatly appreciated.
+
+Per-user mode allows the project to be installed only for the current user,
+without any need for elevated permissions (sudo) or system-wide changes. This
+is very handy for immutable file systems where any system-wide changes are
+forbidden or overwritten on upgrade.
+
+To activate this mode, pass the `--user` (or `-u`) argument on main script run:
+```sh
+./lucidglyph.sh --user [COMMAND]
+```
 
 
 ## Notes
