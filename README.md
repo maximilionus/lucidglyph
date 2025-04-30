@@ -25,8 +25,9 @@ Visual comparison is available on the project's
    *(download "Source code")* and unpack it to any user available location.
 2. Open the terminal in the unpacked directory.
 3. Run the command below, root required:
-   > It is also possible to install project only for the current user without
-   > any need for system-wide access. See [Per-User Mode](#per-user-mode).
+   > It is also possible to install the project only for the current user,
+   > without any need for system-wide access.
+   > See [Per-User Mode](#per-user-mode).
 
    ```sh
    sudo ./lucidglyph.sh install
