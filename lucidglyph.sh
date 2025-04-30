@@ -19,7 +19,7 @@
 set -e
 
 NAME="lucidglyph"
-VERSION="0.9.1"
+VERSION="0.10.0"
 SRC_DIR=src
 
 # Display the header with project name and version on start
