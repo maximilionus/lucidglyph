@@ -1,15 +1,15 @@
-# Dev
+# Release 0.10.0
+- New experimental per-user installation mode, allowing to apply all tweaks
+  only for the current user. Enable by passing the `--user` (`-u`) flag.
+
 - New tweak to fix variable fonts bold style rendering in Qt based software.
   Eliminates the incorrect rendering of bold fonts as heavy. (Reported by
   [@xalt7x](https://github.com/maximilionus/lucidglyph/issues/12#issuecomment-2822253637))
 
-- New experimental per-user installation mode, allowing to apply all tweaks
-  only for the current user. Enable by passing the `--user` (`-u`) flag.
-
 - Improved modular paths handling in main script, including support for the
   [`DESTDIR`](https://www.gnu.org/prep/standards/html_node/DESTDIR.html)
   (cherry-picked from
-  [VictorQueiroz/lucidglyph](https://github.com/VictorQueiroz/lucidglyph) fork)
+  [VictorQueiroz](https://github.com/VictorQueiroz/lucidglyph) fork)
   variable.
 
 
