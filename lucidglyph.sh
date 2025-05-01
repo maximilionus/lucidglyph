@@ -242,8 +242,14 @@ set -e
 printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
 printf -- "- Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
+EOF
+    if $per_user_mode; then
+        cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 rm -d "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
 rm -d "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
+EOF
+    fi
+    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
