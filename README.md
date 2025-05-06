@@ -102,9 +102,9 @@ To see if you are being affected by this issue and get a temporary solution,
 - Environmental configurations:
    - Stem-darkening *(fonts emboldening)* with custom values for `autofitter`,
      `type1`, `t1cid` and `cff` drivers. This feature improves visibility of
-     the medium and small-sized fonts. Especially helpful for the LowPPI
-     displays. More
-     [information](https://freetype.org/freetype2/docs/hinting/text-rendering-general.html)
+     the medium and small-sized fonts. Especially helpful on the low pixel
+     density (LowPPI) outputs.
+     [More information](https://freetype.org/freetype2/docs/hinting/text-rendering-general.html)
      and
      [usage documentation](https://freetype.org/freetype2/docs/reference/ft2-properties.html#no-stem-darkening).
 
