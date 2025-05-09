@@ -1,3 +1,9 @@
+# Dev
+- Per-user mode now prefers working with less widely used user shell
+  configuration paths to avoid cluttering. For example, it will now prefer
+  working with `.bash_profile` over `.bashrc`.
+
+
 # Release 0.10.0
 - New experimental per-user installation mode, allowing to apply all tweaks
   only for the current user. Enable by passing the `--user` (`-u`) flag.

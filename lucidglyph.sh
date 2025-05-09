@@ -66,21 +66,6 @@ declare -A local_info
 declare per_user_mode=false
 
 
-check_root () {
-    if [[ $(/usr/bin/id -u) != 0 ]] && ! $per_user_mode; then
-        printf "${C_RED}This action requires the root privileges${C_RESET}\n"
-        exit 1
-    elif [[ $(/usr/bin/id -u) == 0 ]] && $per_user_mode; then
-        printf "${C_YELLOW}"
-        cat <<EOF
-Warning: You are trying to run the per-user operational mode under the root
-user. This is probably a mistake, as it will result in the utility only working
-with root user configurations.
-EOF
-        printf "${C_RESET}"
-    fi
-}
-
 # Check if version $2 >= $1
 verlte() {
     [  "$1" = "`echo -e \"$1\n$2\" | sort -V | head -n1`" ]
@@ -98,21 +83,40 @@ ask_confirmation() {
     [[ ! $REPLY =~ ^[Nn]$ ]]
 }
 
-# Probe the user shell and get main configuration path
-get_usr_shell_rc() {
+check_root () {
+    if [[ $(/usr/bin/id -u) != 0 ]] && ! $per_user_mode; then
+        printf "${C_RED}This action requires the root privileges${C_RESET}\n"
+        exit 1
+    elif [[ $(/usr/bin/id -u) == 0 ]] && $per_user_mode; then
+        printf "${C_YELLOW}"
+        cat <<EOF
+Warning: You are trying to run the per-user operational mode under the root
+user. This is probably a mistake, as it will result in the utility only working
+with root user configurations.
+EOF
+        printf "${C_RESET}"
+    fi
+}
+
+# Get configuration path the for current user's shell.
+# Prefers *profile over *rc.
+#
+# Usage:
+#       shell_conf="$(get_shell_conf)"
+get_shell_conf() {
     local shell="$(basename $SHELL 2>/dev/null)"
     case "$shell" in
         bash)
-            echo "${DESTDIR:-$HOME}/.bashrc"
+            echo "${DESTDIR:-$HOME}/.bash_profile"
             ;;
         zsh)
-            echo "${DESTDIR:-$HOME}/.zshrc"
+            echo "${DESTDIR:-$HOME}/.zprofile"
             ;;
         # fish)  # TODO: Implement fish handling
         #     echo "${DESTDIR:-$HOME}/.config/fish/config.fish"
         #     ;;
         ksh)
-            echo "${DESTDIR:-$HOME}/.kshrc"
+            echo "${DESTDIR:-$HOME}/.profile"
             ;;
         *)
             echo ""
@@ -418,7 +422,7 @@ EOF
 fi
 
 if $per_user_mode; then
-    shell_config="$(get_usr_shell_rc)"
+    shell_config="$(get_shell_conf)"
     if [[ -z "$shell_config" ]]; then
         printf "${C_RED}"
         cat <<EOF
