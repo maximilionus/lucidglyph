@@ -41,20 +41,18 @@ Visual comparison is available on the project's
 2. Reboot to apply the changes.
 
 ### Upgrade
-**Versions after `0.7.0`:**  
-Follow the same steps from "Install" section. If there's a supported version of
-the project already installed, the "install" command will prompt the user to
-allow the upgrade.
+Follow the steps from the [#Install](#install) section above and the script
+will request user confirmation to allow the upgrade.
 
-**Versions before `0.7.0`:**  
-1. Follow the "Remove" section steps using the script exactly the version of
-   the project that is currently installed on the system.
-2. Now you can install the new version by simply following the "Install"
-   section.
+> **From versions before `0.7.0`:**  
+> 1. Follow the "Remove" section steps using the script exactly the version of
+>    the project that is currently installed on the system.
+> 2. Now you can install the new version by simply following the "Install"
+>    section.
 
 ### Per-User Mode
 > [!NOTE]  
-> This feature is only available starting from `0.10.0` version.
+> This feature is available starting from `0.10.0` version.
 
 > [!IMPORTANT]  
 > Experimental feature, expect things not to work as intended. User feedback is
