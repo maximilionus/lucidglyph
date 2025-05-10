@@ -229,7 +229,7 @@ cmd_install () {
     fi
 
     printf "Setting up\n"
-    printf -- "- Storing the installation metadata "
+    printf -- "- %-40s%s" "Storing the installation metadata"
     mkdir -p "$DEST_SHARED_DIR"
     touch "$DEST_SHARED_DIR/$DEST_INFO_FILE"
     touch "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
@@ -244,7 +244,7 @@ EOF
 #!/bin/bash
 set -e
 printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
-printf -- "- Removing the installation metadata "
+printf -- "- %-40s%s" "Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
 EOF
     if $per_user_mode; then
@@ -257,10 +257,10 @@ EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
-    printf -- "- Appending the environment entries "
+    printf -- "- %-40s%s" "Appending the environment entries "
 
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-printf -- "- Cleaning the environment entries "
+printf -- "- %-40s%s" "Cleaning the environment entries "
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
     if $per_user_mode; then
@@ -296,11 +296,11 @@ if ! $per_user_mode; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
 
     printf "${C_GREEN}Done${C_RESET}\n"
 
-    printf -- "- Installing the fontconfig rules "
+    printf -- "- %-40s%s" "Installing the fontconfig rules "
     mkdir -p "$DEST_FONTCONFIG_DIR"
 
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-printf -- "- Removing the fontconfig rules "
+printf -- "- %-40s%s" "Removing the fontconfig rules "
 EOF
 
     for f in $FONTCONFIG_DIR/*.conf; do
