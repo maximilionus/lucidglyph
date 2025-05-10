@@ -1,4 +1,4 @@
-## Dev
+## Release 0.10.1
 - Per-user mode now prefers working with less widely used user shell
   configuration paths to avoid cluttering. For example, it will now prefer
   working with `.bash_profile` over `.bashrc`.
