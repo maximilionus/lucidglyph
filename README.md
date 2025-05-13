@@ -70,6 +70,27 @@ To activate this mode, pass the `--user` (or `-u`) argument on main script run:
 
 
 ## Notes
+### Chromium
+Starting from version 133 (February 2025), Chromium now uses the self-written
+replacement for FreeType called Fontations, as a new font system, with Skrifa
+library being responsible for rendering in it.
+
+Skrifa currently
+[lacks any stem-darkening support](https://github.com/googlefonts/fontations/issues/1407),
+which is one of the crucial parts of the lucidglyph project, so the only real
+solution for now is disabling the new font rendering backend and switching back
+to FreeType through `chrome://flags`:
+
+1. Open this link: `chrome://flags/#enable-fontations-backend`
+2. Set the flag to `Disabled`.
+3. Restart the browser by closing the window, not by pressing the restart button.
+
+This solution is also applicable to any Chromium-based browsers and software.
+
+You can track the progress on this issue
+[here](https://github.com/maximilionus/lucidglyph/issues/18).
+
+
 ### GNOME
 While GNOME does use the grayscale anti-aliasing method by default, there are a
 few Linux distributions that change this setting to the subpixel method, making
