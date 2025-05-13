@@ -40,7 +40,7 @@ cat <<EOF
     Due to potential security issues, this wrapper is now obsolete and will be
     removed on $deprecation_date (yyyy-mm-dd)!
 
-    Days until this link is no longer available -> $days_left <-
+    Days until this script is no longer available -> $days_left <-
 
     Please refrain from using this script and install the project directly by
     downloading the release from:
@@ -51,10 +51,11 @@ cat <<EOF
 EOF
 printf "\e[0m"
 
-if [[ -z "$YESIKNOW" ]]; then
-    if (( days_left < 0 )); then
-        exit 1
-    else
+
+if (( days_left < 0 )); then
+    exit 1
+else
+    if [[ -z "$YESIKNOW" ]]; then
         printf "\nTo skip the input below, add 'YESIKNOW=1' env variable.\n\n"
         read -p "Do you still wish to proceed? (y/N): "
         printf "\n"
