@@ -2,6 +2,10 @@
 Carefully tuned adjustments designed to improve font rendering on Linux
 systems, including tweaks for FreeType, fontconfig and other components.
 
+Note that this project is just a collection of tweaks that reflect the author's
+vision on how a font rendering should look like. Please avoid using it for any
+real typography.
+
 Visual comparison is available on the project's
 [wiki page](https://github.com/maximilionus/lucidglyph/wiki/Comparison).
 
@@ -15,6 +19,7 @@ Visual comparison is available on the project's
 ### Overall
 - Improve the visibility of medium and small-sized fonts.
 - Adjust the font environment to support new FreeType features.
+- Does not remove or install any system fonts.
 
 
 ## Usage
