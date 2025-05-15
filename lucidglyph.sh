@@ -198,7 +198,7 @@ usage: $0 [OPTIONS] [COMMAND]
 Carefully tuned adjustments designed to improve font rendering on Linux systems
 
 COMMANDS:
-  install  Install or upgrade the project
+  install  Install, reinstall or upgrade the project
   remove   Remove the installed project
   help     Show this help message
 
@@ -214,12 +214,18 @@ cmd_install () {
 
     if [[ ${local_info[version]} == "$VERSION" ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
-        exit 1
+
+        if ask_confirmation "Do you wish to reinstall it?"; then
+            check_root
+            call_uninstaller
+        else
+            exit 0
+        fi
     elif [[ ! -z ${local_info[version]} ]]; then
         printf "${C_GREEN}Detected $NAME version ${local_info[version]} on the target system.${C_RESET}\n"
-        check_root
 
         if ask_confirmation "Do you wish to upgrade to version $VERSION?"; then
+            check_root
             call_uninstaller
         else
             exit 1
