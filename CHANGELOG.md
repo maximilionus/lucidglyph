@@ -1,10 +1,11 @@
-## Dev
+## Release 0.11.0
 - Main script now supports re-installation by user confirmation when
   attempting to install an already installed version of the project.
 
-- Tweak the `cff` driver stem-darkening values that corrupted most of the
-  fonts. This will inevitably add back the Cantarell font regression, but
-  that's a trade-off that has to be made to restore the correct rendering.
+- Remove the `cff`, `type1`, `t1cid` drivers custom stem-darkening values that
+  corrupted the font rendering and use the default ones. This will inevitably
+  add back the Cantarell font regression, but that's a trade-off that has to be
+  made.
 
 
 ## Release 0.10.1
