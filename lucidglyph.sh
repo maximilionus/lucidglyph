@@ -179,7 +179,7 @@ call_uninstaller () {
         shared_dir="$DEST_SHARED_DIR_OLD"
     fi
 
-    if [[ ! -f "$shared_dir/$DEST_UNINSTALL_FILE" ]]; then
+    if [[ ! -f $shared_dir/$DEST_UNINSTALL_FILE ]]; then
         printf "${C_RED}Uninstaller script not found, installation corrupted${C_RESET}"
         exit 1
     fi
@@ -212,7 +212,7 @@ cmd_install () {
     load_info_file
     backward_compatibility
 
-    if [[ ${local_info[version]} == "$VERSION" ]]; then
+    if [[ ${local_info[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
 
         if ask_confirmation "Do you wish to reinstall it?"; then
@@ -429,7 +429,7 @@ fi
 
 if $per_user_mode; then
     shell_config="$(get_shell_conf)"
-    if [[ -z "$shell_config" ]]; then
+    if [[ -z $shell_config ]]; then
         printf "${C_RED}"
         cat <<EOF
 Per-user operational mode is only supported on bash, zsh and ksh shells.
