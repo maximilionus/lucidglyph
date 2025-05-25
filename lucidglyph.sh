@@ -278,7 +278,7 @@ EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
-if ! $per_user_mode; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
+    if ! $per_user_mode; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
 
     {
         printf "$MARKER_START\n"
@@ -348,7 +348,7 @@ cmd_remove () {
 }
 
 
-# Main logics
+# Execution
 
 [[ $SHOW_HEADER = true ]] && show_header
 
