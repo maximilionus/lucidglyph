@@ -1,3 +1,8 @@
+## Dev
+- Fix main installation script backwards compatibility handling and add
+  detection for new potential installations through package managers.
+
+
 ## Release 0.11.0
 - Main script now supports re-installation by user confirmation when
   attempting to install an already installed version of the project.

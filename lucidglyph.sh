@@ -101,8 +101,8 @@ EOF
 # Get configuration path the for current user's shell.
 # Prefers *profile over *rc.
 #
-# Usage:
-#       shell_conf="$(get_shell_conf)"
+# USAGE
+#     shell_conf="$(get_shell_conf)"
 get_shell_conf() {
     local shell="$(basename $SHELL 2>/dev/null)"
     case "$shell" in
@@ -146,8 +146,9 @@ load_info_file () {
 
 # Check for old versions and adapt the script logics
 # TODO Remove on 1.0.0
-backward_compatibility () {
-    [[ $per_user_mode ]] && return 0  # No need for per-user mode
+backwards_compatibility () {
+    # Not required for per-user mode
+    if $per_user_mode; then return 0; fi
 
     if (( ! ${#local_info[@]} )); then
         if [[ -f "$DEST_SHARED_DIR_OLD/$DEST_INFO_FILE" ]]; then
@@ -156,7 +157,8 @@ backward_compatibility () {
             DEST_SHARED_DIR="$DEST_SHARED_DIR_OLD"
             load_info_file
             DEST_SHARED_DIR="$temp"
-        elif ls $DEST_FONTCONFIG_DIR/*freetype-envision* > /dev/null 2>&1; then
+        elif compgen -G "$DEST_FONTCONFIG_DIR/*freetype-envision*" > /dev/null \
+            || compgen -G "$DEST_FONTCONFIG_DIR/*$NAME*" > /dev/null; then
             cat <<EOF
 Project is already installed on the system, presumably with package manager or
 an installation script of the version below '0.7.0', that does not support the
@@ -210,7 +212,7 @@ EOF
 
 cmd_install () {
     load_info_file
-    backward_compatibility
+    backwards_compatibility
 
     if [[ ${local_info[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
@@ -333,7 +335,7 @@ EOF
 
 cmd_remove () {
     load_info_file
-    backward_compatibility
+    backwards_compatibility
 
     if (( ! ${#local_info[@]} )); then
         printf "${C_RED}Project is not installed.${C_RESET}\n"
