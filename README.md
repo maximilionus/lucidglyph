@@ -46,8 +46,8 @@ Visual comparison is available on the project's
 2. Reboot to apply the changes.
 
 ### Upgrade
-Follow the steps from the [#Install](#install) section above and the script
-will request user confirmation to allow the upgrade.
+Follow the steps from the [Install](#install) section above and the script will
+request user confirmation to allow the upgrade.
 
 > **From versions before `0.7.0`:**  
 > 1. Follow the "Remove" section steps using the script exactly the version of

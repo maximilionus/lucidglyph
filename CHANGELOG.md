@@ -1,4 +1,4 @@
-## Dev
+## Release 0.11.1
 - Fix main installation script backwards compatibility handling and add
   detection for new potential installations through package managers.
 
