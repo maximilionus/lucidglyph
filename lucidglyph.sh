@@ -197,7 +197,10 @@ cmd_help () {
     cat <<EOF
 usage: $0 [OPTIONS] [COMMAND]
 
-Carefully tuned adjustments designed to improve font rendering on Linux systems
+Fine-tuning the Linux font rendering stack for a more visually pleasing output.
+
+For further information and usage details, please refer to the project
+documentation.
 
 COMMANDS:
   install  Install, reinstall or upgrade the project
