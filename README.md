@@ -8,11 +8,12 @@ Visual comparison is available on the project's
 [wiki page](https://github.com/maximilionus/lucidglyph/wiki/Comparison).
 
 > Note that this project is just a collection of tweaks that reflect the
-> author's vision on how font rendering should look like. Due to the nature of
-> most of the used by this project functionality of the rendering stack being
-> still in the experimental phase or even completely not supported by most of
-> the desktop Linux (like a proper gamma blending and correction), correct
-> rendering of some fonts cannot be guaranteed.
+> author's vision on how font rendering should look like.
+>
+> Due to the nature of the rendering stack features used in this project being
+> still experimental or even completely not supported by most of the Linux
+> desktop environments (like proper gamma correction and blending), correct
+> rendering cannot be guaranteed in some cases.
 
 > Previously known as **freetype-envision**
 >
