@@ -36,9 +36,8 @@ Visual comparison is available on the project's
    *(download "Source code")* and unpack it to any user available location.
 2. Open the terminal in the unpacked directory.
 3. Run the command below, root required:
-   > It is also possible to install the project only for the current user,
-   > without any need for system-wide access.
-   > See [Per-User Mode](#per-user-mode).
+   > You can also set up this project for the current user only, without
+   > system-wide access. See [User mode](#user-mode).
 
    ```sh
    sudo ./lucidglyph.sh install
@@ -62,18 +61,16 @@ request user confirmation to allow the upgrade.
 > 2. Now you can install the new version by simply following the "Install"
 >    section.
 
-### Per-User Mode
-> [!NOTE]  
-> This feature is available starting from `0.10.0` version.
-
-> [!IMPORTANT]  
+### User Mode
+> **Warning**
+>
 > Experimental feature, expect things not to work as intended. User feedback is
 > greatly appreciated.
 
-Per-user mode allows the project to be installed only for the current user,
-without any need for elevated permissions (sudo) or system-wide changes. This
-is very handy for immutable file systems where any system-wide changes are
-forbidden or overwritten on upgrade.
+User mode allows the project to be installed only for the current user, without
+any need for elevated permissions (sudo) or system-wide changes. This is very
+handy for immutable file systems where system-wide changes are forbidden or get
+overwritten on firmware upgrade.
 
 To activate this mode, pass the `--user` (or `-u`) argument on main script run:
 ```sh
@@ -87,29 +84,20 @@ Starting from version 133 (February 2025), Chromium now uses the self-written
 replacement for FreeType called Fontations, as a new font system, with Skrifa
 library being responsible for rendering in it.
 
-Skrifa currently
-[lacks any stem-darkening support](https://github.com/googlefonts/fontations/issues/1407),
-which is one of the crucial parts of the lucidglyph project, so the only real
-solution for now is disabling the new font rendering backend and switching back
-to FreeType through `chrome://flags`:
+Skrifa currently lacks any stem-darkening support[^1], which is one of the
+crucial parts of the lucidglyph project _(see [Details](#details))_.
 
-**Manual:**  
-1. Open this link: `chrome://flags/#enable-fontations-backend`
-2. Set the flag to `Disabled`.
-3. Restart the browser by closing the window.
+In Chromium `139.0.7258` the flag that was previously used to turn back the
+FreeType rendering backend was completely removed[^2] with one of the
+contributors stating that they _"...no longer intend to carry the FreeType
+support."_[^3].
 
-**Command Line:**  
-Launch the software with the `--disable-features` flag:
-
-```sh
-$ <software> --disable-features=FontationsFontBackend
-```
-
-The solutions above are also applicable to any Chromium-based browsers and
-software.
-
-You can track the progress on this issue
-[here](https://github.com/maximilionus/lucidglyph/issues/18).
+> There's nothing more I can do here other than suggest switching your browser
+> to Firefox, at least until the Fontations stack matures enough to support the
+> required functionality _(mostly stem-darkening)_.
+>
+> You can track the progress on this issue
+> [here](https://github.com/maximilionus/lucidglyph/issues/18).
 
 
 ### GNOME
@@ -120,8 +108,8 @@ the font rendering appear incorrect after the tweaks from this project.
 This issue is already being tracked, but manual user intervention is still
 required for now.
 
-To see if you are being affected by this issue and get a temporary solution,
-[check this report](https://github.com/maximilionus/lucidglyph/issues/7).
+> [Check this report](https://github.com/maximilionus/lucidglyph/issues/7) to
+> see if you are being affected by this issue and get a temporary solution.
 
 
 ### KDE Plasma
@@ -134,8 +122,8 @@ parameters.
 This issue is already being tracked, but manual user intervention is still
 required for now.
 
-To see if you are being affected by this issue and get a temporary solution,
-[check this report](https://github.com/maximilionus/lucidglyph/issues/12).
+> [Check this report](https://github.com/maximilionus/lucidglyph/issues/12) to
+> see if you are being affected by this issue and get a temporary solution.
 
 
 ## Details
@@ -165,3 +153,8 @@ To see if you are being affected by this issue and get a temporary solution,
    - Reject usage of "Droid Sans" family for Japanese and Chinese characters
      and force the environment to use other fonts. Stem-darkening does not work
      well with this typeface, causing characters over-emboldening.
+
+
+[^1]: https://github.com/googlefonts/fontations/issues/1407
+[^2]: https://chromiumdash.appspot.com/commit/2fc1ae192a45eb6f1716e232dd1626317f8d299e
+[^3]: https://github.com/googlefonts/fontations/pull/1496#issuecomment-3004330901
