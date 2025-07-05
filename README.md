@@ -1,8 +1,9 @@
 ## About
 Fine-tuning the Linux font rendering stack for a more visually pleasing output.
 
-Includes tweaks for FreeType, fontconfig and some other components. See
-[Overall](#overall) and [Details](#details) for more information.
+Includes tweaks for FreeType, fontconfig, and other components. See
+[Overall](#overall) with [Details](#details) for more information, and
+[Notes](#notes) for the list of known issues and possible mitigations.
 
 Visual comparison is available on the project's
 [wiki page](https://github.com/maximilionus/lucidglyph/wiki/Comparison).
