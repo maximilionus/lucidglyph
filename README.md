@@ -126,6 +126,20 @@ required for now.
 > see if you are being affected by this issue and get a temporary solution.
 
 
+### Kitty Terminal
+Rendering dark fonts on light backgrounds _(light themes)_ in Kitty appears to
+cancel most of the applied emboldening _(stem-darkening, see
+[Details](#details))_, making the fonts look thin again.
+
+To remedy this issue, append this modified
+[`text_composition_strategy`](https://sw.kovidgoyal.net/kitty/conf/#opt-kitty.text_composition_strategy)
+parameter to Kitty's user configuration file:
+
+```conf
+text_composition_strategy 1.7 0
+```
+
+
 ## Details
 - Environmental configurations:
    - Stem-darkening (fonts emboldening) for `autofitter` (including custom
