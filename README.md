@@ -129,7 +129,7 @@ required for now.
 
 ### Kitty Terminal
 Rendering dark fonts on light backgrounds _(light themes)_ in Kitty appears to
-cancel most of the applied emboldening _(stem-darkening, see
+discard most of the applied emboldening _(stem-darkening, see
 [Details](#details))_, making the fonts look thin again.
 
 To remedy this issue, append this modified
