@@ -32,11 +32,11 @@ Visual comparison is available on the project's
 
 ## Usage
 ### Install
-1. Download the latest release
+1. Download the latest release from
    [here](https://github.com/maximilionus/lucidglyph/releases/latest)
-   *(download "Source code")* and unpack it to any user available location.
+   _(Assets - Source code)_ and unpack it.
 2. Open the terminal in the unpacked directory.
-3. Run the command below, root required:
+3. Execute the command below with elevated permissions:
    > You can also set up this project for the current user only, without
    > system-wide access. See [User mode](#user-mode).
 
@@ -46,10 +46,13 @@ Visual comparison is available on the project's
 4. Reboot to apply the changes.
 
 ### Remove
-1. Run the command below, root required:
+1. Execute the same script from [Install](#install) section above with elevated
+   permissions:
    ```sh
    sudo ./lucidglyph.sh remove
    ```
+   > For all versions after `0.7.0`, it is no longer necessary to use the same
+   > version of the script as the installed project for removal.
 2. Reboot to apply the changes.
 
 ### Upgrade
