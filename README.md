@@ -1,5 +1,5 @@
 ## About
-Fine-tuning the Linux font rendering stack for a more visually pleasing output.
+Tuning the Linux font rendering stack for a more visually pleasing output.
 
 Includes tweaks for FreeType, fontconfig, and other components. See
 [Overall](#overall) with [Details](#details) for more information, and
