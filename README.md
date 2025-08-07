@@ -145,7 +145,7 @@ text_composition_strategy 1.7 0
 
 
 ## Details
-- Environmental configurations:
+- Environment configurations:
    - Stem-darkening (fonts emboldening) for `autofitter` (including custom
      darkening values), `type1`, `t1cid` and `cff` drivers. This feature
      improves visibility of the medium and small-sized fonts. Especially
