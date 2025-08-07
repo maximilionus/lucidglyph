@@ -62,8 +62,8 @@ C_YELLOW="\e[0;33m"
 C_RED="\e[0;31m"
 
 # Global variables
-declare -A local_info
-declare per_user_mode=false
+declare -A INSTALL_METADATA
+declare IS_PER_USER=false
 
 
 # Check if version $2 >= $1
@@ -84,10 +84,10 @@ ask_confirmation() {
 }
 
 check_root () {
-    if [[ $(/usr/bin/id -u) != 0 ]] && ! $per_user_mode; then
+    if [[ $(/usr/bin/id -u) != 0 ]] && ! $IS_PER_USER; then
         printf "${C_RED}This action requires the root privileges${C_RESET}\n"
         exit 1
-    elif [[ $(/usr/bin/id -u) == 0 ]] && $per_user_mode; then
+    elif [[ $(/usr/bin/id -u) == 0 ]] && $IS_PER_USER; then
         printf "${C_YELLOW}"
         cat <<EOF
 Warning: You are trying to run the per-user operational mode under the root
@@ -137,7 +137,7 @@ load_info_file () {
         if [[ $line =~ $regex ]]; then
             local key="${BASH_REMATCH[1]}"
             local value="${BASH_REMATCH[2]}"
-            local_info["$key"]="$value"
+            INSTALL_METADATA["$key"]="$value"
         else
             printf "${C_YELLOW}Warning: Skipping invalid info file line '$line'${C_RESET}\n"
         fi
@@ -146,11 +146,11 @@ load_info_file () {
 
 # Check for old versions and adapt the script logics
 # TODO Remove on 1.0.0
-backwards_compatibility () {
+backward_compatibility () {
     # Not required for per-user mode
-    if $per_user_mode; then return 0; fi
+    if $IS_PER_USER; then return 0; fi
 
-    if (( ! ${#local_info[@]} )); then
+    if (( ! ${#INSTALL_METADATA[@]} )); then
         if [[ -f "$DEST_SHARED_DIR_OLD/$DEST_INFO_FILE" ]]; then
             # Load the 0.7.0 state file
             local temp="$DEST_SHARED_DIR"
@@ -174,8 +174,8 @@ EOF
 call_uninstaller () {
     local shared_dir="$DEST_SHARED_DIR"
 
-    if verlt ${local_info[version]} "0.8.0"; then
-        # Backwards compatibility with version 0.7.0
+    if verlt ${INSTALL_METADATA[version]} "0.8.0"; then
+        # Backward compatibility with version 0.7.0
         # (Before the project rename)
         # TODO: Remove on 1.0.0
         shared_dir="$DEST_SHARED_DIR_OLD"
@@ -215,9 +215,9 @@ EOF
 
 cmd_install () {
     load_info_file
-    backwards_compatibility
+    backward_compatibility
 
-    if [[ ${local_info[version]} == $VERSION ]]; then
+    if [[ ${INSTALL_METADATA[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
 
         if ask_confirmation "Do you wish to reinstall it?"; then
@@ -226,8 +226,8 @@ cmd_install () {
         else
             exit 0
         fi
-    elif [[ ! -z ${local_info[version]} ]]; then
-        printf "${C_GREEN}Detected $NAME version ${local_info[version]} on the target system.${C_RESET}\n"
+    elif [[ ! -z ${INSTALL_METADATA[version]} ]]; then
+        printf "${C_GREEN}Detected $NAME version ${INSTALL_METADATA[version]} on the target system.${C_RESET}\n"
 
         if ask_confirmation "Do you wish to upgrade to version $VERSION?"; then
             check_root
@@ -249,7 +249,7 @@ cmd_install () {
 
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_INFO_FILE"
 version="$VERSION"
-is_user_mode="$per_user_mode"
+is_user_mode="$IS_PER_USER"
 EOF
     cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 #!/bin/bash
@@ -258,7 +258,7 @@ printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
 printf -- "- %-40s%s" "Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
 EOF
-    if $per_user_mode; then
+    if $IS_PER_USER; then
         cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 rm -d "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
 rm -d "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
@@ -274,7 +274,7 @@ EOF
 printf -- "- %-40s%s" "Cleaning the environment entries "
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
-    if $per_user_mode; then
+    if $IS_PER_USER; then
         cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 [[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
 EOF
@@ -283,14 +283,14 @@ EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
-    if ! $per_user_mode; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
+    if ! $IS_PER_USER; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
 
     {
         printf "$MARKER_START\n"
         printf "$MARKER_WARNING\n"
 
         prefix=""
-        if $per_user_mode; then
+        if $IS_PER_USER; then
             case "$SHELL" in
                 # *fish)  prefix="set --export " ;;  # TODO
                 *)      prefix="export " ;;
@@ -321,7 +321,7 @@ rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
 EOF
     done
 
-    if $per_user_mode; then
+    if $IS_PER_USER; then
         cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 rm -d "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
 rm -d "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
@@ -338,9 +338,9 @@ EOF
 
 cmd_remove () {
     load_info_file
-    backwards_compatibility
+    backward_compatibility
 
-    if (( ! ${#local_info[@]} )); then
+    if (( ! ${#INSTALL_METADATA[@]} )); then
         printf "${C_RED}Project is not installed.${C_RESET}\n"
         exit 1
     fi
@@ -363,11 +363,11 @@ POSITIONAL_ARGS=()
 while [[ $# -gt 0 ]]; do
     case $1 in
         -s|--system)
-            per_user_mode=false
+            IS_PER_USER=false
             shift
             ;;
         -u|--user)
-            per_user_mode=true
+            IS_PER_USER=true
             shift
             ;;
         -*|--*)
@@ -432,7 +432,7 @@ EOF
     fi
 fi
 
-if $per_user_mode; then
+if $IS_PER_USER; then
     shell_config="$(get_shell_conf)"
     if [[ -z $shell_config ]]; then
         printf "${C_RED}"
