@@ -17,10 +17,6 @@ Visual comparison is available on the project's
 > rendering cannot be guaranteed in some cases.
 
 > Previously known as **freetype-envision**
->
-> As the project grew from simple tweaks to FreeType and started to cover many
-> additional components of linux environments, the decision was made to rename
-> it to something more relevant.
 
 ### Overall
 - Improves visibility of the medium and small-sized fonts.
@@ -51,19 +47,11 @@ Visual comparison is available on the project's
    ```sh
    sudo ./lucidglyph.sh remove
    ```
-   > For all versions after `0.7.0`, it is no longer necessary to use the same
-   > version of the script as the installed project for removal.
 2. Reboot to apply the changes.
 
 ### Upgrade
-Follow the steps from the [Install](#install) section above and the script will
+- Follow the steps from the [Install](#install) section above and the script will
 request user confirmation to allow the upgrade.
-
-> **From versions before `0.7.0`:**  
-> 1. Follow the "Remove" section steps using the script exactly the version of
->    the project that is currently installed on the system.
-> 2. Now you can install the new version by simply following the "Install"
->    section.
 
 ### User Mode
 > **Warning**
@@ -71,10 +59,8 @@ request user confirmation to allow the upgrade.
 > Experimental feature, expect things not to work as intended. User feedback is
 > greatly appreciated.
 
-User mode allows the project to be installed only for the current user, without
-any need for elevated permissions (sudo) or system-wide changes. This is very
-handy for immutable file systems where system-wide changes are forbidden or get
-overwritten on firmware upgrade.
+User mode allows the project to be installed for the current user only, without
+any need for elevated privileges (sudo) or system-wide changes.
 
 To activate this mode, pass the `--user` (or `-u`) argument on main script run:
 ```sh
@@ -96,10 +82,25 @@ FreeType rendering backend was completely removed[^2] with one of the
 contributors stating that they _"...no longer intend to carry the FreeType
 support."_[^3].
 
-> There's nothing more I can do here other than suggest switching your browser
-> to Firefox, at least until the Fontations stack matures enough to support the
-> required functionality _(mostly stem-darkening)_.
->
+There's nothing more I can do here until the Fontations stack matures enough to
+support the required functionality other than suggest switching your browser of
+choice to any non-chromium-based one or make use of scaling and zoom features.
+
+For software that is still based on older versions of Chromium, you can switch
+to FreeType rendering in several ways:
+
+**Command Line:**  
+Launch the software with the `--disable-features` flag:
+
+```sh
+$ <software> --disable-features=FontationsFontBackend
+```
+
+**Manual:**  
+1. Open this link: `chrome://flags/#enable-fontations-backend`
+2. Set the flag to `Disabled`.
+3. Restart the browser by closing the window.
+
 > You can track the progress on this issue
 > [here](https://github.com/maximilionus/lucidglyph/issues/18).
 
@@ -109,22 +110,20 @@ While GNOME does use the grayscale anti-aliasing method by default, there are a
 few Linux distributions that change this setting to the subpixel method, making
 the font rendering appear incorrect after the tweaks from this project.
 
-This issue is already being tracked, but manual user intervention is still
-required for now.
+This issue is being tracked, but still requires manual user intervention.
 
 > [Check this report](https://github.com/maximilionus/lucidglyph/issues/7) to
 > see if you are being affected by this issue and get a temporary solution.
 
 
 ### KDE Plasma
-By default, vanilla KDE Plasma desktop environment does follow the fontconfig
+By default, vanilla Plasma desktop environment does follow the fontconfig
 rules, including the anti-aliasing settings, but in some cases this behavior
 gets overwritten, presumably by above-level distro-specific configurations.
 This causes improper font rendering due to misconfigured anti-aliasing
 parameters.
 
-This issue is already being tracked, but manual user intervention is still
-required for now.
+This issue is being tracked, but still requires manual user intervention.
 
 > [Check this report](https://github.com/maximilionus/lucidglyph/issues/12) to
 > see if you are being affected by this issue and get a temporary solution.
