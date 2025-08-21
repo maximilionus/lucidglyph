@@ -33,8 +33,7 @@ Visual comparison is available on the project's
    _(Assets - Source code)_ and unpack it.
 2. Open the terminal in the unpacked directory.
 3. Execute the command below with elevated permissions:
-   > You can also set up this project for the current user only, without
-   > system-wide access. See [User mode](#user-mode).
+   > See [User mode](#user-mode) for per-user installation.
 
    ```sh
    sudo ./lucidglyph.sh install
