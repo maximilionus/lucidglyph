@@ -213,8 +213,8 @@ rm -rf "$DEST_SHARED_DIR"
 EOF
     if [[ $IS_PER_USER == true ]]; then
         append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
-rm -d "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
-rm -d "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
+rmdir "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
+rmdir "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
 EOF
     fi
     append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
@@ -291,9 +291,9 @@ EOF
 
     if [[ $IS_PER_USER == true ]]; then
         append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
-rm -d "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
-rm -d "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
-rm -d "$(dirname $(dirname $DEST_FONTCONFIG_DIR))" 2>/dev/null || true
+rmdir "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
+rmdir "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
+rmdir "$(dirname $(dirname $DEST_FONTCONFIG_DIR))" 2>/dev/null || true
 EOF
     fi
 
