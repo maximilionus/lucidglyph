@@ -33,16 +33,18 @@ Visual comparison is available on the project's
    _(Assets - Source code)_ and unpack it.
 2. Open the terminal in the unpacked directory.
 3. Execute the command below with elevated permissions:
-   > See [User mode](#user-mode) for per-user installation.
 
    ```sh
    sudo ./lucidglyph.sh install
    ```
+
+   > See [User mode](#user-mode) for per-user installation
 4. Reboot to apply the changes.
 
 ### Remove
 1. Execute the same script from [Install](#install) section above with elevated
    permissions:
+
    ```sh
    sudo ./lucidglyph.sh remove
    ```
@@ -85,23 +87,23 @@ There's nothing more I can do here until the Fontations stack matures enough to
 support the required functionality other than suggest switching your browser of
 choice to any non-chromium-based one or make use of scaling and zoom features.
 
-For software that is still based on older versions of Chromium, you can switch
+For the software that is still based on older Chromium versions, you can switch
 to FreeType rendering in several ways:
 
-**Command Line:**  
+**Command Line**  
 Launch the software with the `--disable-features` flag:
 
 ```sh
 $ <software> --disable-features=FontationsFontBackend
 ```
 
-**Manual:**  
+**Manual**  
 1. Open this link: `chrome://flags/#enable-fontations-backend`
 2. Set the flag to `Disabled`.
 3. Restart the browser by closing the window.
 
-> You can track the progress on this issue
-> [here](https://github.com/maximilionus/lucidglyph/issues/18).
+You can track the detailed progress on this issue
+[here](https://github.com/maximilionus/lucidglyph/issues/18).
 
 
 ### GNOME
@@ -111,8 +113,8 @@ the font rendering appear incorrect after the tweaks from this project.
 
 This issue is being tracked, but still requires manual user intervention.
 
-> [Check this report](https://github.com/maximilionus/lucidglyph/issues/7) to
-> see if you are being affected by this issue and get a temporary solution.
+[Check this report](https://github.com/maximilionus/lucidglyph/issues/7) to
+see if you are being affected by this issue and get a temporary solution.
 
 
 ### KDE Plasma
@@ -124,8 +126,8 @@ parameters.
 
 This issue is being tracked, but still requires manual user intervention.
 
-> [Check this report](https://github.com/maximilionus/lucidglyph/issues/12) to
-> see if you are being affected by this issue and get a temporary solution.
+[Check this report](https://github.com/maximilionus/lucidglyph/issues/12) to
+see if you are being affected by this issue and get a temporary solution.
 
 
 ### Kitty Terminal
