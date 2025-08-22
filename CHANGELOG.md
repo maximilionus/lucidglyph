@@ -4,7 +4,8 @@
   `ENABLE_FONTCONFIG` and `ENABLE_METADATA`.
 
 - Fix the per-user symlink corruption issue on project uninstall
-  ([18](https://github.com/maximilionus/lucidglyph/issues/19)).
+  ([18](https://github.com/maximilionus/lucidglyph/issues/19)) and
+  automatically apply the mitigation on upgrade to this version.
 
 
 ## Release 0.11.1

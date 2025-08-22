@@ -90,10 +90,10 @@ ask_confirmation() {
 }
 
 check_root () {
-    if [[ $(/usr/bin/id -u) != 0 ]] && ! $IS_PER_USER; then
+    if [[ $(/usr/bin/id -u) != 0 ]] &&  [[ $IS_PER_USER == false ]]; then
         printf "${C_RED}This action requires the root privileges${C_RESET}\n"
         exit 1
-    elif [[ $(/usr/bin/id -u) == 0 ]] && $IS_PER_USER; then
+    elif [[ $(/usr/bin/id -u) == 0 ]] && [[ $IS_PER_USER == true ]]; then
         printf "${C_YELLOW}"
         cat <<EOF
 Warning: You are trying to run the per-user operational mode under the root
@@ -101,6 +101,10 @@ user. This is probably a mistake, as it will result in the utility only working
 with root user configurations.
 EOF
         printf "${C_RESET}"
+
+        if ! ask_confirmation "Do you wish to continue?"; then
+            exit 1
+        fi
     fi
 }
 
@@ -243,7 +247,7 @@ EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
-    if ! $IS_PER_USER; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
+    if [[ $IS_PER_USER == false ]]; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
 
     {
         printf "$MARKER_START\n"
@@ -307,11 +311,23 @@ EOF
 call_uninstaller () {
     local shared_dir="$DEST_SHARED_DIR"
 
+    # Backward compatibility with version 0.7.0
+    # (Before the project rename)
+    #
+    # TODO: Remove on 1.0.0
     if verlt ${INSTALL_METADATA[version]} "0.8.0"; then
-        # Backward compatibility with version 0.7.0
-        # (Before the project rename)
-        # TODO: Remove on 1.0.0
         shared_dir="$DEST_SHARED_DIR_OLD"
+    fi
+
+    # Mitigate the symlink corruption issue that exists in 0.10.0-0.11.1
+    # per-user mode.
+    #
+    # https://github.com/maximilionus/lucidglyph/issues/19
+    #
+    # TODO: Remove on 1.0.0
+    if [[ $IS_PER_USER == true ]] && verlt ${INSTALL_METADATA[version]} "0.12.0"
+    then
+        sed -i 's/rm -d/rmdir/g' "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
     fi
 
     if [[ ! -f $shared_dir/$DEST_UNINSTALL_FILE ]]; then
