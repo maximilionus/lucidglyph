@@ -25,28 +25,29 @@ SRC_DIR=src
 # Display the header with project name and version on start
 SHOW_HEADER=${SHOW_HEADER:=true}
 
-# Marker for tracking appended content
-MARKER_START="### START OF LUCIDGLYPH $VERSION CONTENT ###"
-MARKER_WARNING="# !! DO NOT PUT ANY USER CONFIGURATIONS INSIDE THIS BLOCK !!"
-MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
-
-# Filesystem
+# Filesystem configuration
 DEST_CONF="${DESTDIR:-}${DEST_CONF:-/etc}"
 DEST_USR="${DESTDIR:-}${DEST_USR:-/usr}"
 
 DEST_CONF_USR="${DESTDIR:-$HOME}${DEST_CONF_USR:-/.config}"
 DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
 
-# environment
+# Environment group
+ENABLE_ENVIRONMENT=${ENABLE_ENVIRONMENT:=true}  # Set to false to completely disable this group
+
 ENVIRONMENT_DIR="$SRC_DIR/environment"
 DEST_ENVIRONMENT="$DEST_CONF/environment"
 
-# fontconfig
+# Fontconfig group
+ENABLE_FONTCONFIG=${ENABLE_FONTCONFIG:=true}  # Set to false to completely disable this group
+
 FONTCONFIG_DIR="$SRC_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="$DEST_CONF/fonts/conf.d"
 DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
 
-# Metadata location
+# Metadata group
+ENABLE_METADATA=${ENABLE_METADATA:=true}  # Set to false to completely disable this group
+
 DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
 DEST_SHARED_DIR_OLD="$DEST_USR/share/freetype-envision"  # TODO: Remove on 1.0.0
 DEST_SHARED_DIR_USR="$DEST_USR_USR/share/lucidglyph"
@@ -60,6 +61,11 @@ C_DIM="\e[2m"
 C_GREEN="\e[0;32m"
 C_YELLOW="\e[0;33m"
 C_RED="\e[0;31m"
+
+# Marker for tracking the appended content
+MARKER_START="### START OF LUCIDGLYPH $VERSION CONTENT ###"
+MARKER_WARNING="# !! DO NOT PUT ANY USER CONFIGURATIONS INSIDE THIS BLOCK !!"
+MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # Global variables
 declare -A INSTALL_METADATA
@@ -77,8 +83,8 @@ verlt() {
 }
 
 ask_confirmation() {
-    notification="$1"
-    read -p "$notification (Y/n): "
+    message="$1"
+    read -p "$message (Y/n): "
     printf "\n"
     [[ ! $REPLY =~ ^[Nn]$ ]]
 }
@@ -126,7 +132,8 @@ get_shell_conf() {
 
 # Parse and load the installation information
 load_info_file () {
-    if [[ ! -f $DEST_SHARED_DIR/$DEST_INFO_FILE ]]; then
+    if [[ ! -f $DEST_SHARED_DIR/$DEST_INFO_FILE ]] || [[ $ENABLE_METADATA == false ]]
+    then
         return 0
     fi
 
@@ -144,11 +151,20 @@ load_info_file () {
     done < "$DEST_SHARED_DIR/$DEST_INFO_FILE"
 }
 
+# Append the content from HEREDOC to "$1" file.
+# Only works if ENABLE_METADATA is set to true.
+append_metadata () {
+    [[ $ENABLE_METADATA == false ]] && return 0
+
+    path="$1"
+    cat >> "$path"
+}
+
 # Check for old versions and adapt the script logics
 # TODO Remove on 1.0.0
-backward_compatibility () {
+backwards_compatibility () {
     # Not required for per-user mode
-    if $IS_PER_USER; then return 0; fi
+    [[ $IS_PER_USER == true ]] && return 0
 
     if (( ! ${#INSTALL_METADATA[@]} )); then
         if [[ -f "$DEST_SHARED_DIR_OLD/$DEST_INFO_FILE" ]]; then
@@ -168,6 +184,123 @@ EOF
             exit 1
         fi
     fi
+}
+
+install_metadata () {
+    printf -- "- %-40s%s" "Storing the installation metadata"
+
+    if [[ $ENABLE_METADATA == false ]]; then
+        printf "${C_YELLOW}Disabled${C_RESET}\n"
+        return 0
+    fi
+
+    mkdir -p "$DEST_SHARED_DIR"
+    touch "$DEST_SHARED_DIR/$DEST_INFO_FILE"
+    touch "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+    chmod +x "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+    printf "${C_GREEN}Done${C_RESET}\n"
+
+    append_metadata "$DEST_SHARED_DIR/$DEST_INFO_FILE" <<EOF
+version="$VERSION"
+is_user_mode="$IS_PER_USER"
+EOF
+    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+#!/bin/bash
+set -e
+printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
+printf -- "- %-40s%s" "Removing the installation metadata "
+rm -rf "$DEST_SHARED_DIR"
+EOF
+    if [[ $IS_PER_USER == true ]]; then
+        append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+rm -d "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
+rm -d "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
+EOF
+    fi
+    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+printf "${C_GREEN}Done${C_RESET}\n"
+EOF
+}
+
+install_environment () {
+    printf -- "- %-40s%s" "Appending the environment entries "
+
+    if [[ $ENABLE_ENVIRONMENT == false ]]; then
+        printf "${C_YELLOW}Disabled${C_RESET}\n"
+        return 0
+    fi
+
+    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+printf -- "- %-40s%s" "Cleaning the environment entries "
+sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
+EOF
+    if [[ $IS_PER_USER == true ]]; then
+        append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+[[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
+EOF
+    fi
+    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+printf "${C_GREEN}Done${C_RESET}\n"
+EOF
+
+    if ! $IS_PER_USER; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
+
+    {
+        printf "$MARKER_START\n"
+        printf "$MARKER_WARNING\n"
+
+        prefix=""
+        if [[ $IS_PER_USER == true ]]; then
+            case "$SHELL" in
+                # *fish)  prefix="set --export " ;;  # TODO
+                *)      prefix="export " ;;
+            esac
+        fi
+
+        for f in $ENVIRONMENT_DIR/*.conf; do
+            printf "$prefix"
+            cat "$f"
+        done
+
+        printf "$MARKER_END\n"
+    } >> "$DEST_ENVIRONMENT"
+
+    printf "${C_GREEN}Done${C_RESET}\n"
+}
+
+install_fontconfig () {
+    printf -- "- %-40s%s" "Installing the fontconfig rules "
+
+    if [[ $ENABLE_FONTCONFIG == false ]]; then
+        printf "${C_YELLOW}Disabled${C_RESET}\n"
+        return 0
+    fi
+
+    mkdir -p "$DEST_FONTCONFIG_DIR"
+
+    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+printf -- "- %-40s%s" "Removing the fontconfig rules "
+EOF
+
+    for f in $FONTCONFIG_DIR/*.conf; do
+        install -m 644 "$f" "$DEST_FONTCONFIG_DIR/$(basename $f)"
+        append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
+EOF
+    done
+
+    if [[ $IS_PER_USER == true ]]; then
+        append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+rm -d "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
+rm -d "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
+rm -d "$(dirname $(dirname $DEST_FONTCONFIG_DIR))" 2>/dev/null || true
+EOF
+    fi
+
+    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+printf "${C_GREEN}Done${C_RESET}\n"
+EOF
+    printf "${C_GREEN}Done${C_RESET}\n"
 }
 
 # Call the locally stored uninstaller from target machine
@@ -215,7 +348,7 @@ EOF
 
 cmd_install () {
     load_info_file
-    backward_compatibility
+    backwards_compatibility
 
     if [[ ${INSTALL_METADATA[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
@@ -240,105 +373,23 @@ cmd_install () {
     fi
 
     printf "Setting up\n"
-    printf -- "- %-40s%s" "Storing the installation metadata"
-    mkdir -p "$DEST_SHARED_DIR"
-    touch "$DEST_SHARED_DIR/$DEST_INFO_FILE"
-    touch "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-    chmod +x "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-    printf "${C_GREEN}Done${C_RESET}\n"
-
-    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_INFO_FILE"
-version="$VERSION"
-is_user_mode="$IS_PER_USER"
-EOF
-    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-#!/bin/bash
-set -e
-printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
-printf -- "- %-40s%s" "Removing the installation metadata "
-rm -rf "$DEST_SHARED_DIR"
-EOF
-    if $IS_PER_USER; then
-        cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-rm -d "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
-rm -d "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
-EOF
-    fi
-    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-printf "${C_GREEN}Done${C_RESET}\n"
-EOF
-
-    printf -- "- %-40s%s" "Appending the environment entries "
-
-    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-printf -- "- %-40s%s" "Cleaning the environment entries "
-sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
-EOF
-    if $IS_PER_USER; then
-        cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-[[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
-EOF
-    fi
-    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-printf "${C_GREEN}Done${C_RESET}\n"
-EOF
-
-    if ! $IS_PER_USER; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
-
-    {
-        printf "$MARKER_START\n"
-        printf "$MARKER_WARNING\n"
-
-        prefix=""
-        if $IS_PER_USER; then
-            case "$SHELL" in
-                # *fish)  prefix="set --export " ;;  # TODO
-                *)      prefix="export " ;;
-            esac
-        fi
-
-        for f in $ENVIRONMENT_DIR/*.conf; do
-            printf "$prefix"
-            cat "$f"
-        done
-
-        printf "$MARKER_END\n"
-    } >> "$DEST_ENVIRONMENT"
-
-    printf "${C_GREEN}Done${C_RESET}\n"
-
-    printf -- "- %-40s%s" "Installing the fontconfig rules "
-    mkdir -p "$DEST_FONTCONFIG_DIR"
-
-    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-printf -- "- %-40s%s" "Removing the fontconfig rules "
-EOF
-
-    for f in $FONTCONFIG_DIR/*.conf; do
-        install -m 644 "$f" "$DEST_FONTCONFIG_DIR/$(basename $f)"
-        cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
-EOF
-    done
-
-    if $IS_PER_USER; then
-        cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-rm -d "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
-rm -d "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
-rm -d "$(dirname $(dirname $DEST_FONTCONFIG_DIR))" 2>/dev/null || true
-EOF
-    fi
-
-    cat <<EOF >> "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-printf "${C_GREEN}Done${C_RESET}\n"
-EOF
-    printf "${C_GREEN}Done${C_RESET}\n"
+    install_metadata
+    install_environment
+    install_fontconfig
     printf "${C_GREEN}Success!${C_RESET} Reboot to apply the changes.\n"
 }
 
 cmd_remove () {
+    if [[ $ENABLE_METADATA == false ]]; then
+        printf "${C_YELLOW}"
+        cat <<EOF
+Functionality not available with disabled metadata
+EOF
+        exit 1
+    fi
+
     load_info_file
-    backward_compatibility
+    backwards_compatibility
 
     if (( ! ${#INSTALL_METADATA[@]} )); then
         printf "${C_RED}Project is not installed.${C_RESET}\n"
@@ -355,7 +406,7 @@ cmd_remove () {
 
 # Execution
 
-[[ $SHOW_HEADER = true ]] && show_header
+[[ $SHOW_HEADER == true ]] && show_header
 
 # Parse optional args
 POSITIONAL_ARGS=()
@@ -432,7 +483,7 @@ EOF
     fi
 fi
 
-if $IS_PER_USER; then
+if [[ $IS_PER_USER == true ]]; then
     shell_config="$(get_shell_conf)"
     if [[ -z $shell_config ]]; then
         printf "${C_RED}"
