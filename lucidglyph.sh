@@ -319,6 +319,11 @@ call_uninstaller () {
         shared_dir="$DEST_SHARED_DIR_OLD"
     fi
 
+    if [[ ! -f $shared_dir/$DEST_UNINSTALL_FILE ]]; then
+        printf "${C_RED}Uninstaller script not found, installation corrupted${C_RESET}"
+        exit 1
+    fi
+
     # Mitigate the symlink corruption issue that exists in 0.10.0-0.11.1
     # per-user mode.
     #
@@ -328,11 +333,6 @@ call_uninstaller () {
     if [[ $IS_PER_USER == true ]] && verlt ${INSTALL_METADATA[version]} "0.12.0"
     then
         sed -i 's/rm -d/rmdir/g' "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-    fi
-
-    if [[ ! -f $shared_dir/$DEST_UNINSTALL_FILE ]]; then
-        printf "${C_RED}Uninstaller script not found, installation corrupted${C_RESET}"
-        exit 1
     fi
 
     "$shared_dir/$DEST_UNINSTALL_FILE"
