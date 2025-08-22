@@ -1,3 +1,12 @@
+## Release 0.12.0 - Dev
+- New grouped structure for project modules in script to allow the selective
+  installations using the new environmental variables: `ENABLE_ENVIRONMENT`,
+  `ENABLE_FONTCONFIG` and `ENABLE_METADATA`.
+
+- Fix the per-user symlink corruption issue on project uninstall
+  ([18](https://github.com/maximilionus/lucidglyph/issues/19)).
+
+
 ## Release 0.11.1
 - Fix main installation script backwards compatibility handling and add
   detection for new potential installations through package managers.
