@@ -60,6 +60,13 @@ request user confirmation to allow the upgrade.
 > Experimental feature, expect things not to work as intended. User feedback is
 > greatly appreciated.
 
+> **Caution**
+>
+> If you are a power user that heavily relies on dotfiles symlinking for
+> fontconfig rules, please
+> [check this](https://github.com/maximilionus/lucidglyph/issues/19)
+> to avoid symlink corruptions after user mode uninstall.
+
 User mode allows the project to be installed for the current user only, without
 any need for elevated privileges (sudo) or system-wide changes.
 
