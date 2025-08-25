@@ -68,7 +68,7 @@ MARKER_WARNING="# !! DO NOT PUT ANY USER CONFIGURATIONS INSIDE THIS BLOCK !!"
 MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # Global variables
-declare -A INSTALL_METADATA
+declare -A PARSED_METADATA
 declare IS_PER_USER=false
 
 
@@ -148,7 +148,7 @@ load_info_file () {
         if [[ $line =~ $regex ]]; then
             local key="${BASH_REMATCH[1]}"
             local value="${BASH_REMATCH[2]}"
-            INSTALL_METADATA["$key"]="$value"
+            PARSED_METADATA["$key"]="$value"
         else
             printf "${C_YELLOW}Warning: Skipping invalid info file line '$line'${C_RESET}\n"
         fi
@@ -170,7 +170,7 @@ backwards_compatibility () {
     # Not required for per-user mode
     [[ $IS_PER_USER == true ]] && return 0
 
-    if (( ! ${#INSTALL_METADATA[@]} )); then
+    if (( ! ${#PARSED_METADATA[@]} )); then
         if [[ -f "$DEST_SHARED_DIR_OLD/$DEST_INFO_FILE" ]]; then
             # Load the 0.7.0 state file
             local temp="$DEST_SHARED_DIR"
@@ -313,7 +313,7 @@ call_uninstaller () {
     # (Before the project rename)
     #
     # TODO: Remove on 1.0.0
-    if verlt ${INSTALL_METADATA[version]} "0.8.0"; then
+    if verlt ${PARSED_METADATA[version]} "0.8.0"; then
         DEST_SHARED_DIR="$DEST_SHARED_DIR_OLD"
     fi
 
@@ -328,7 +328,7 @@ call_uninstaller () {
     # https://github.com/maximilionus/lucidglyph/issues/19
     #
     # TODO: Remove on 1.0.0
-    if [[ $IS_PER_USER == true ]] && verlt ${INSTALL_METADATA[version]} "0.12.0"
+    if [[ $IS_PER_USER == true ]] && verlt ${PARSED_METADATA[version]} "0.12.0"
     then
         sed -i 's/rm -d/rmdir/g' "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
     fi
@@ -364,7 +364,7 @@ cmd_install () {
     load_info_file
     backwards_compatibility
 
-    if [[ ${INSTALL_METADATA[version]} == $VERSION ]]; then
+    if [[ ${PARSED_METADATA[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
 
         if ask_confirmation "Do you wish to reinstall it?"; then
@@ -373,8 +373,8 @@ cmd_install () {
         else
             exit 0
         fi
-    elif [[ ! -z ${INSTALL_METADATA[version]} ]]; then
-        printf "${C_GREEN}Detected $NAME version ${INSTALL_METADATA[version]} on the target system.${C_RESET}\n"
+    elif [[ ! -z ${PARSED_METADATA[version]} ]]; then
+        printf "${C_GREEN}Detected $NAME version ${PARSED_METADATA[version]} on the target system.${C_RESET}\n"
 
         if ask_confirmation "Do you wish to upgrade to version $VERSION?"; then
             check_root
@@ -405,7 +405,7 @@ EOF
     load_info_file
     backwards_compatibility
 
-    if (( ! ${#INSTALL_METADATA[@]} )); then
+    if (( ! ${#PARSED_METADATA[@]} )); then
         printf "${C_RED}Project is not installed.${C_RESET}\n"
         exit 1
     fi
