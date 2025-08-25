@@ -1,4 +1,10 @@
 ## Release 0.12.0 - Dev
+> **Notice**
+>
+> Previous [issues](https://github.com/maximilionus/lucidglyph/issues/19) with
+> per-user mode possible symbolic links corruption are resolved and mitigated
+> in this release. No manual intervention is required.
+
 - New grouped structure for project modules in script to allow the selective
   installations using the new environmental variables: `ENABLE_ENVIRONMENT`,
   `ENABLE_FONTCONFIG` and `ENABLE_METADATA`.
