@@ -309,17 +309,15 @@ EOF
 
 # Call the locally stored uninstaller from target machine
 call_uninstaller () {
-    local shared_dir="$DEST_SHARED_DIR"
-
     # Backward compatibility with version 0.7.0
     # (Before the project rename)
     #
     # TODO: Remove on 1.0.0
     if verlt ${INSTALL_METADATA[version]} "0.8.0"; then
-        shared_dir="$DEST_SHARED_DIR_OLD"
+        DEST_SHARED_DIR="$DEST_SHARED_DIR_OLD"
     fi
 
-    if [[ ! -f $shared_dir/$DEST_UNINSTALL_FILE ]]; then
+    if [[ ! -f $DEST_SHARED_DIR/$DEST_UNINSTALL_FILE ]]; then
         printf "${C_RED}Uninstaller script not found, installation corrupted${C_RESET}"
         exit 1
     fi
@@ -335,7 +333,7 @@ call_uninstaller () {
         sed -i 's/rm -d/rmdir/g' "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
     fi
 
-    "$shared_dir/$DEST_UNINSTALL_FILE"
+    "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
 }
 
 show_header () {
@@ -352,7 +350,7 @@ For further information and usage details, please refer to the project
 documentation.
 
 COMMANDS:
-  install  Install, reinstall or upgrade the project
+  install  Install, re-install or upgrade the project
   remove   Remove the installed project
   help     Show this help message
 
@@ -425,7 +423,7 @@ EOF
 [[ $SHOW_HEADER == true ]] && show_header
 
 # Parse optional args
-POSITIONAL_ARGS=()
+positional_args=()
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -442,14 +440,15 @@ while [[ $# -gt 0 ]]; do
             exit 1
             ;;
         *)
-            POSITIONAL_ARGS+=("$1")
+            positional_args+=("$1")
             shift
             ;;
     esac
 done
 
-set -- "${POSITIONAL_ARGS[@]}"
-unset POSITIONAL_ARGS
+# Set the positional arguments back for further usage
+set -- "${positional_args[@]}"
+unset positional_args
 
 # Deprecate short commands.
 # TODO: Remove in 1.0.0
@@ -517,7 +516,7 @@ fi
 
 
 # Parse main args
-case $1 in
+case "$1" in
     # "i" is deprecated
     # TODO: Remove in 1.0.0
     i|install)
