@@ -33,20 +33,25 @@ DEST_CONF_USR="${DESTDIR:-$HOME}${DEST_CONF_USR:-/.config}"
 DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
 
 # Environment group
-ENABLE_ENVIRONMENT=${ENABLE_ENVIRONMENT:=true}  # Set to false to completely disable this group
-
+ENABLE_ENVIRONMENT=${ENABLE_ENVIRONMENT:=true}  # Set this env variable to false
+                                                # to completely disable this group.
 ENVIRONMENT_DIR="$SRC_DIR/environment"
 DEST_ENVIRONMENT="$DEST_CONF/environment"
 
 # Fontconfig group
-ENABLE_FONTCONFIG=${ENABLE_FONTCONFIG:=true}  # Set to false to completely disable this group
-
+ENABLE_FONTCONFIG=${ENABLE_FONTCONFIG:=true}  # Set this env variable to false
+                                              # to completely disable this group.
 FONTCONFIG_DIR="$SRC_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="$DEST_CONF/fonts/conf.d"
 DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
 
 # Metadata group
-ENABLE_METADATA=${ENABLE_METADATA:=true}  # Set to false to completely disable this group
+ENABLE_METADATA=${ENABLE_METADATA:=true}  # Set this env variable to false
+                                          # to completely disable this group.
+                                          #
+                                          # Be aware that uninstaller script
+                                          # won't be generated with disabled
+                                          # metadata.
 
 DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
 DEST_SHARED_DIR_OLD="$DEST_USR/share/freetype-envision"  # TODO: Remove on 1.0.0
