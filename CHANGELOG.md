@@ -7,13 +7,32 @@
   ([18](https://github.com/maximilionus/lucidglyph/issues/19)) and
   automatically apply the mitigation on upgrade to this version.
 
+- Attempting to install the project in per-user mode with elevated permissions
+  will now request manual user confirmation after notice.
+
 
 ## Release 0.11.1
+> **Caution for per-user mode**
+>
+> If you are a power user that heavily relies on symbolic links for custom
+> fontconfig rules and use lucidglyph versions from `0.10.0` to `0.11.1`,
+> please [check this](https://github.com/maximilionus/lucidglyph/issues/19) to
+> avoid the possible symlinks corruption on this project upgrade or removal in
+> per-user mode.
+
 - Fix main installation script backwards compatibility handling and add
   detection for new potential installations through package managers.
 
 
 ## Release 0.11.0
+> **Caution for per-user mode**
+>
+> If you are a power user that heavily relies on symbolic links for custom
+> fontconfig rules and use lucidglyph versions from `0.10.0` to `0.11.1`,
+> please [check this](https://github.com/maximilionus/lucidglyph/issues/19) to
+> avoid the possible symlinks corruption on this project upgrade or removal in
+> per-user mode.
+
 - Main script now supports re-installation by user confirmation when
   attempting to install an already installed version of the project.
 
@@ -24,12 +43,28 @@
 
 
 ## Release 0.10.1
+> **Caution for per-user mode**
+>
+> If you are a power user that heavily relies on symbolic links for custom
+> fontconfig rules and use lucidglyph versions from `0.10.0` to `0.11.1`,
+> please [check this](https://github.com/maximilionus/lucidglyph/issues/19) to
+> avoid the possible symlinks corruption on this project upgrade or removal in
+> per-user mode.
+
 - Per-user mode now prefers working with less widely used user shell
   configuration paths to avoid cluttering. For example, it will now prefer
   working with `.bash_profile` over `.bashrc`.
 
 
 ## Release 0.10.0
+> **Caution for per-user mode**
+>
+> If you are a power user that heavily relies on symbolic links for custom
+> fontconfig rules and use lucidglyph versions from `0.10.0` to `0.11.1`,
+> please [check this](https://github.com/maximilionus/lucidglyph/issues/19) to
+> avoid the possible symlinks corruption on this project upgrade or removal in
+> per-user mode.
+
 - New experimental per-user installation mode, allowing to apply all tweaks
   only for the current user. Enable by passing the `--user` (`-u`) flag.
 

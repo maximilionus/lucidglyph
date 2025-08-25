@@ -62,10 +62,11 @@ request user confirmation to allow the upgrade.
 
 > **Caution**
 >
-> If you are a power user that heavily relies on dotfiles symlinking for custom
+> If you are a power user that heavily relies on symbolic links for custom
 > fontconfig rules and use lucidglyph versions from `0.10.0` to `0.11.1`,
 > please [check this](https://github.com/maximilionus/lucidglyph/issues/19) to
-> avoid the possible symlinks corruption after project uninstall.
+> avoid the possible symlinks corruption on this project upgrade or removal in
+> per-user mode.
 
 User mode allows the project to be installed for the current user only, without
 any need for elevated privileges (sudo) or system-wide changes.
