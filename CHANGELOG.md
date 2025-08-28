@@ -1,4 +1,4 @@
-## Release 0.12.0 - Dev
+## Release 0.12.0
 > **Notice**
 >
 > Previous issues with per-user mode possible symbolic link corruptions on
