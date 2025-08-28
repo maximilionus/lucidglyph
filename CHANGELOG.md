@@ -1,17 +1,17 @@
 ## Release 0.12.0 - Dev
 > **Notice**
 >
-> Previous [issues](https://github.com/maximilionus/lucidglyph/issues/19) with
-> per-user mode possible symbolic links corruption are resolved and mitigated
-> in this release. No manual intervention is required.
+> Previous issues with per-user mode possible symbolic link corruptions on
+> uninstall and upgrade have been resolved and mitigated in this release. No
+> manual intervention is required.
 
 - New grouped structure for project modules in script to allow the selective
   installations using the new environmental variables: `ENABLE_ENVIRONMENT`,
   `ENABLE_FONTCONFIG` and `ENABLE_METADATA`.
 
-- Fix the per-user symbolic links corruption issue on project upgrade or
-  uninstall ([report](https://github.com/maximilionus/lucidglyph/issues/19))
-  and automatically apply the mitigation on upgrade to this version.
+- Fix the per-user symbolic link corruption issue on project uninstall or
+  upgrade and automatically mitigate the already existing installations
+  ([detailed report](https://github.com/maximilionus/lucidglyph/issues/19)).
 
 - Attempting to install the project in per-user mode with elevated permissions
   will now request manual user confirmation after notice.
