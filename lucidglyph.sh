@@ -101,9 +101,9 @@ check_root () {
     elif [[ $(/usr/bin/id -u) == 0 ]] && [[ $IS_PER_USER == true ]]; then
         printf "${C_YELLOW}"
         cat <<EOF
-Warning: You are trying to run the per-user operational mode under the root
-user. This is probably a mistake, as it will result in the utility only working
-with root user configurations.
+Warning: You are attempting to perform a per-user operation as the root user.
+This is probably a mistake, as it will cause the utility to work with the root
+user instead of the regular user. Please confirm that this is intentional.
 EOF
         printf "${C_RESET}"
 
