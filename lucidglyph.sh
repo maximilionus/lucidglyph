@@ -404,6 +404,7 @@ cmd_remove () {
         cat <<EOF
 Functionality not available with disabled metadata
 EOF
+        printf "${C_RESET}"
         exit 1
     fi
 
