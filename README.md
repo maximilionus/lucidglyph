@@ -67,6 +67,9 @@ request user confirmation to allow the upgrade.
 > please [check this](https://github.com/maximilionus/lucidglyph/issues/19) to
 > avoid the possible symlinks corruption on this project upgrade or removal in
 > per-user mode.
+>
+> This issue has been resolved and mitigated in `0.12.0` release. No manual
+> intervention is required.
 
 User mode allows the project to be installed for the current user only, without
 any need for elevated privileges (sudo) or system-wide changes.
