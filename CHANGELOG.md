@@ -6,7 +6,7 @@
 > manual intervention is required.
 
 - New grouped structure for project modules in script to allow the selective
-  installations using the new environmental variables: `ENABLE_ENVIRONMENT`,
+  installations using the new environment variables: `ENABLE_ENVIRONMENT`,
   `ENABLE_FONTCONFIG` and `ENABLE_METADATA`.
 
 - Fix the per-user symbolic link corruption issue on project uninstall or
@@ -134,10 +134,10 @@ Major improvements to multiple font drivers.
 
 - Enhanced colored output and removed verbose information in main script.
 
-- Environmental variables are now set in `/etc/environment` file and handled by
+- Environment variables are now set in `/etc/environment` file and handled by
   PAM. The problem with using the `/etc/profile.d/` modular way, while being
-  much easier to manage, causes dependency on the shell to actually source
-  those values, which can be troublesome on some Linux distributions.
+  much easier to manage, causes dependency on the shell to actually source those
+  values, which can be troublesome on some Linux distributions.
 
 - Support for packaging is removed now with RHEL/Fedora (dnf) repository
   deprecated. No more updates will come to COPR repository, and it will be
