@@ -508,9 +508,9 @@ fi
 #
 # While this project supports the fully functional Korn Shell (ksh)
 # installations, it's quite impossible to run the installer itself through ksh
-# since it relays on a huge amount of modern bash functionality. So... You can
-# not install the project without actually having modern bash shell available
-# on target system :)
+# since it relies on a huge amount of modern bash functionality. So... You can
+# not install the project without actually having modern bash shell available on
+# target system :)
 if [[ $IS_PER_USER == true ]]; then
     shell_config="$(get_shell_conf)"
     if [[ -z $shell_config ]]; then
