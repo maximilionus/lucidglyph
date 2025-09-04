@@ -155,7 +155,7 @@ load_info_file () {
             local value="${BASH_REMATCH[2]}"
             PARSED_METADATA["$key"]="$value"
         else
-            printf "${C_YELLOW}Warning: Skipping invalid info file line '$line'${C_RESET}\n"
+            printf "${C_YELLOW}Warning: Skipping invalid metadata entry: '$line'.${C_RESET}\n"
         fi
     done < "$DEST_SHARED_DIR/$DEST_INFO_FILE"
 }
