@@ -62,11 +62,11 @@ request user confirmation to allow the upgrade.
 
 > **Caution**
 >
-> If you are a power user that heavily relies on symbolic links for custom
-> fontconfig rules and use lucidglyph versions from `0.10.0` to `0.11.1`,
+> If you are a power user who relies heavily on symbolic links for custom
+> Fontconfig rules and use lucidglyph versions from `0.10.0` to `0.11.1`,
 > please [check this](https://github.com/maximilionus/lucidglyph/issues/19) to
-> avoid the possible symlinks corruption on this project upgrade or removal in
-> per-user mode.
+> avoid possible corruption of symlinks during an upgrade or removal of this
+> project in per-user mode.
 >
 > This issue has been resolved and mitigated in `0.12.0` release. No manual
 > intervention is required.
