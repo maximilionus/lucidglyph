@@ -119,8 +119,8 @@ You can track the detailed progress on this issue
 
 ### GNOME
 While GNOME does use the grayscale anti-aliasing method by default, there are a
-few Linux distributions that change this setting to the subpixel method, making
-the font rendering appear incorrect after the tweaks from this project.
+few Linux distributions that change this setting to the sub-pixel method,
+making the font rendering appear incorrect after the tweaks from this project.
 
 This issue is being tracked, but still requires manual user intervention.
 
@@ -152,6 +152,25 @@ parameter to Kitty's user configuration file:
 
 ```conf
 text_composition_strategy 1.7 0
+```
+
+
+### SwayWM
+Sway Window Manager does not respect global font anti-aliasing settings,
+resulting in subpixel anti-aliasing being used instead of grayscale.
+
+To remedy this issue, append the following content to your window manager
+configuration file:
+
+```conf
+output * subpixel none
+```
+
+For a more detailed explanation of this entry, please refer to the official
+SwayWM man page:
+
+```shell
+man sway-output | grep -A8 "output <name> subpixel"
 ```
 
 
