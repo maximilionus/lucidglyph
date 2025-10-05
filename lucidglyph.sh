@@ -127,9 +127,9 @@ get_shell_conf() {
         zsh)
             echo "${DESTDIR:-$HOME}/.zprofile"
             ;;
-        # fish)  # TODO: Implement fish handling
-        #     echo "${DESTDIR:-$HOME}/.config/fish/config.fish"
-        #     ;;
+        fish)
+            echo "${DESTDIR:-$HOME}/.config/fish/config.fish"
+            ;;
         ksh)
             echo "${DESTDIR:-$HOME}/.profile"
             ;;
@@ -254,25 +254,34 @@ EOF
 
     if [[ $IS_PER_USER == false ]]; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
 
-    {
-        printf "$MARKER_START\n"
-        printf "$MARKER_WARNING\n"
+    if [[ $SHELL == *fish ]] && [[ $IS_PER_USER == true ]]; then
+        for f in "$ENVIRONMENT_DIR"/*.conf; do
+            while IFS= read -r line; do
+                [[ -z "$line" || "$line" =~ ^# ]] && continue
+                varname="${line%%=*}"
+                varvalue="${line#*=}"
 
-        prefix=""
-        if [[ $IS_PER_USER == true ]]; then
-            case "$SHELL" in
-                # *fish)  prefix="set --export " ;;  # TODO
-                *)      prefix="export " ;;
-            esac
-        fi
-
-        for f in $ENVIRONMENT_DIR/*.conf; do
-            printf "$prefix"
-            cat "$f"
+                fish -c "set -Ux $varname $varvalue"
+            done < "$f"
         done
+    else
+        {
+            printf "$MARKER_START\n"
+            printf "$MARKER_WARNING\n"
 
-        printf "$MARKER_END\n"
-    } >> "$DEST_ENVIRONMENT"
+            prefix=""
+            if [[ $IS_PER_USER == true ]]; then
+                prefix="export "
+            fi
+
+            for f in "$ENVIRONMENT_DIR"/*.conf; do
+                printf "$prefix"
+                cat "$f"
+            done
+
+            printf "$MARKER_END\n"
+        } >> "$DEST_ENVIRONMENT"
+    fi
 
     printf "${C_GREEN}Done${C_RESET}\n"
 }
@@ -291,7 +300,7 @@ install_fontconfig () {
 printf -- "- %-40s%s" "Removing the fontconfig rules "
 EOF
 
-    for f in $FONTCONFIG_DIR/*.conf; do
+    for f in "$FONTCONFIG_DIR"/*.conf; do
         install -m 644 "$f" "$DEST_FONTCONFIG_DIR/$(basename $f)"
         append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
 rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
