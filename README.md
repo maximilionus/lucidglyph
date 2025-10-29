@@ -201,7 +201,9 @@ man sway-output | grep -A8 "output <name> subpixel"
    - Stem-darkening fallback through emboldening. This rule compensates the
      lack of stem-darkening on very small glyph sizes (caused by
      [#9](https://github.com/maximilionus/lucidglyph/issues/9)) by utilizing
-     the built-in emboldening feature of Fontconfig.
+     the built-in emboldening feature of Fontconfig. It is important to note
+     that there is a significant chance that some software may not support this
+     feature.
 
    - Reject usage of "Droid Sans" family for Japanese and Chinese characters
      and force the environment to use other fonts. Stem-darkening does not work
