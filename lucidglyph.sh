@@ -352,7 +352,7 @@ usage: $0 [OPTIONS] [COMMAND]
 Tuning the Linux font rendering stack for a more visually pleasing output.
 
 For further information and usage details, please refer to the project
-documentation.
+documentation provided in the README file.
 
 COMMANDS:
   install  Install, re-install or upgrade the project
@@ -395,7 +395,15 @@ cmd_install () {
     install_metadata
     install_environment
     install_fontconfig
-    printf "${C_GREEN}Success!${C_RESET} Reboot to apply the changes.\n"
+
+    printf "\n${C_BOLD}${C_GREEN}Success!${C_RESET} ${C_BOLD}Reboot to apply the changes.${C_RESET}\n"
+    printf "\n${C_DIM}"
+    cat <<EOF
+See the "Notes" section in README file for a more thorough explanation of the
+potential problems that might need manual intervention or are just not fixable
+currently.
+EOF
+    printf "${C_RESET}"
 }
 
 cmd_remove () {
