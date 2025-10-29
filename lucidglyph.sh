@@ -433,6 +433,7 @@ EOF
 
 
 # Execution
+cd "$(dirname "$0")"
 
 [[ $SHOW_HEADER == true ]] && show_header
 
