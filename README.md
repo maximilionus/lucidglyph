@@ -175,7 +175,7 @@ man sway-output | grep -A8 "output <name> subpixel"
 
 
 ## Details
-- Environment configurations:
+- Environment variables:
    - Stem-darkening (fonts emboldening) for `autofitter` (including custom
      darkening values), `type1`, `t1cid` and `cff` drivers. This feature
      improves visibility of the medium and small-sized fonts. Especially
@@ -193,10 +193,15 @@ man sway-output | grep -A8 "output <name> subpixel"
      ),
      [Qt report](https://bugreports.qt.io/browse/QTBUG-112136).
 
-- Rules for fontconfig:
+- Rules for Fontconfig:
    - Enforce grayscale anti-aliasing (disable sub-pixel). Grayscale
      anti-aliasing should be enforced in the system to make the stem-darkening
      from the above work properly.
+
+   - Stem-darkening fallback through emboldening. This rule compensates the
+     lack of stem-darkening on very small glyph sizes (caused by
+     [#9](https://github.com/maximilionus/lucidglyph/issues/9)) by utilizing
+     the built-in emboldening feature of Fontconfig.
 
    - Reject usage of "Droid Sans" family for Japanese and Chinese characters
      and force the environment to use other fonts. Stem-darkening does not work
