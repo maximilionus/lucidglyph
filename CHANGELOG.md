@@ -7,6 +7,12 @@
 
 - Improved after-install notice in script.
 
+- To comply with
+  [FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard), script
+  will now use `/usr/local/` directories instead of `/usr/`, placing all the
+  metadata in `/usr/local/share/lucidglyph/` and uninstaller to
+  `/usr/local/lib/lucidglyph/`
+
 
 ## Release 0.12.0
 > **Notice**
