@@ -19,7 +19,7 @@
 set -e
 
 NAME="lucidglyph"
-VERSION="0.12.0"
+VERSION="0.13.0"
 SRC_DIR=src
 
 # Display the header with project name and version on start
@@ -27,12 +27,29 @@ SHOW_HEADER=${SHOW_HEADER:=true}
 
 # Filesystem configuration
 DEST_CONF="${DESTDIR:-}${DEST_CONF:-/etc}"
-DEST_USR="${DESTDIR:-}${DEST_USR:-/usr}"
+DEST_USR="${DESTDIR:-}${DEST_USR:-/usr/local}"
+DEST_USR_OLD="${DESTDIR:-}/usr"  # TODO: Remove on 1.0.0
 
 DEST_CONF_USR="${DESTDIR:-$HOME}${DEST_CONF_USR:-/.config}"
 DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
 
+# Metadata group
+#     Installation information and uninstaller script.
+#
+#     Disable this group when used in package manager.
+ENABLE_METADATA=${ENABLE_METADATA:=true}  # Set this env variable to false
+                                          # to completely disable this group.
+
+DEST_LIB_DIR="$DEST_USR/lib/lucidglyph"
+DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
+DEST_SHARED_DIR_OLD="$DEST_USR/share/freetype-envision"  # TODO: Remove on 1.0.0
+DEST_SHARED_DIR_OLD2="$DEST_USR_OLD/share/lucidglyph"  # TODO: Remove on 1.0.0
+DEST_SHARED_DIR_USR="$DEST_USR_USR/share/lucidglyph"
+DEST_INFO_FILE="info"
+DEST_UNINSTALL_FILE="uninstaller.sh"
+
 # Environment group
+#     Variables that need to be exported to the system environment.
 ENABLE_ENVIRONMENT=${ENABLE_ENVIRONMENT:=true}  # Set this env variable to false
                                                 # to completely disable this group.
 ENVIRONMENT_DIR="$SRC_DIR/environment"
@@ -44,20 +61,6 @@ ENABLE_FONTCONFIG=${ENABLE_FONTCONFIG:=true}  # Set this env variable to false
 FONTCONFIG_DIR="$SRC_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="$DEST_CONF/fonts/conf.d"
 DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
-
-# Metadata group
-ENABLE_METADATA=${ENABLE_METADATA:=true}  # Set this env variable to false
-                                          # to completely disable this group.
-                                          #
-                                          # Be aware that uninstaller script
-                                          # won't be generated with disabled
-                                          # metadata.
-
-DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
-DEST_SHARED_DIR_OLD="$DEST_USR/share/freetype-envision"  # TODO: Remove on 1.0.0
-DEST_SHARED_DIR_USR="$DEST_USR_USR/share/lucidglyph"
-DEST_INFO_FILE="info"
-DEST_UNINSTALL_FILE="uninstaller.sh"
 
 # Colors
 C_RESET="\e[0m"
@@ -141,10 +144,32 @@ get_shell_conf() {
 
 # Parse and load the installation information
 load_info_file () {
-    if [[ ! -f $DEST_SHARED_DIR/$DEST_INFO_FILE ]] || [[ $ENABLE_METADATA == false ]]
-    then
-        return 0
+    local info_file_path="$DEST_SHARED_DIR/$DEST_INFO_FILE"
+
+    [[ $ENABLE_METADATA == false ]] && return 0
+
+    if [[ ! -f "$info_file_path" ]]; then
+        # Backwards compatibility
+        # TODO: Remove on 1.0.0
+        if [[ -f "$DEST_SHARED_DIR_OLD2/$DEST_INFO_FILE" ]]; then
+            # Load the <0.13.0 info file
+            info_file_path="$DEST_SHARED_DIR_OLD2/$DEST_INFO_FILE"
+        elif [[ -f "$DEST_SHARED_DIR_OLD/$DEST_INFO_FILE" ]]; then
+            # Load the 0.7.0 state (info) file
+            info_file_path="$DEST_SHARED_DIR_OLD/$DEST_INFO_FILE"
+        elif compgen -G "$DEST_FONTCONFIG_DIR/*freetype-envision*" > /dev/null \
+            || compgen -G "$DEST_FONTCONFIG_DIR/*$NAME*" > /dev/null; then
+        cat <<EOF
+Project is already installed on the system, presumably with package manager or
+an installation script of the version below '0.7.0', that does not support the
+automatic removal. You have to uninstall it using the original installation
+method first.
+EOF
+            exit 1
+        fi
     fi
+
+    [[ ! -f $DEST_SHARED_DIR/$DEST_INFO_FILE ]] && return 0
 
     while read -r line; do
         # Parse all key="value"
@@ -157,7 +182,7 @@ load_info_file () {
         else
             printf "${C_YELLOW}Warning: Skipping invalid metadata entry: '$line'.${C_RESET}\n"
         fi
-    done < "$DEST_SHARED_DIR/$DEST_INFO_FILE"
+    done < "$info_file_path"
 }
 
 # Append the content from HEREDOC to "$1" file.
@@ -167,32 +192,6 @@ append_metadata () {
 
     path="$1"
     cat >> "$path"
-}
-
-# Check for old versions and adapt the script logics
-# TODO Remove on 1.0.0
-backwards_compatibility () {
-    # Not required for per-user mode
-    [[ $IS_PER_USER == true ]] && return 0
-
-    if (( ! ${#PARSED_METADATA[@]} )); then
-        if [[ -f "$DEST_SHARED_DIR_OLD/$DEST_INFO_FILE" ]]; then
-            # Load the 0.7.0 state file
-            local temp="$DEST_SHARED_DIR"
-            DEST_SHARED_DIR="$DEST_SHARED_DIR_OLD"
-            load_info_file
-            DEST_SHARED_DIR="$temp"
-        elif compgen -G "$DEST_FONTCONFIG_DIR/*freetype-envision*" > /dev/null \
-            || compgen -G "$DEST_FONTCONFIG_DIR/*$NAME*" > /dev/null; then
-            cat <<EOF
-Project is already installed on the system, presumably with package manager or
-an installation script of the version below '0.7.0', that does not support the
-automatic removal. You have to uninstall it using the original installation
-method first.
-EOF
-            exit 1
-        fi
-    fi
 }
 
 install_metadata () {
@@ -205,28 +204,31 @@ install_metadata () {
 
     mkdir -p "$DEST_SHARED_DIR"
     touch "$DEST_SHARED_DIR/$DEST_INFO_FILE"
-    touch "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
-    chmod +x "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+
+    mkdir -p "$DEST_LIB_DIR"
+    touch "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE"
+    chmod +x "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE"
     printf "${C_GREEN}Done${C_RESET}\n"
 
     append_metadata "$DEST_SHARED_DIR/$DEST_INFO_FILE" <<EOF
 version="$VERSION"
 is_user_mode="$IS_PER_USER"
 EOF
-    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
 #!/bin/bash
 set -e
 printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
 printf -- "- %-40s%s" "Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
+rm -rf "$DEST_LIB_DIR"
 EOF
     if [[ $IS_PER_USER == true ]]; then
-        append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+        append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
 rmdir "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
 rmdir "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
 EOF
     fi
-    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 }
@@ -239,16 +241,16 @@ install_environment () {
         return 0
     fi
 
-    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
 printf -- "- %-40s%s" "Cleaning the environment entries "
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
     if [[ $IS_PER_USER == true ]]; then
-        append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+        append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
 [[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
 EOF
     fi
-    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
@@ -287,26 +289,26 @@ install_fontconfig () {
 
     mkdir -p "$DEST_FONTCONFIG_DIR"
 
-    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
 printf -- "- %-40s%s" "Removing the fontconfig rules "
 EOF
 
     for f in $FONTCONFIG_DIR/*.conf; do
         install -m 644 "$f" "$DEST_FONTCONFIG_DIR/$(basename $f)"
-        append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+        append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
 rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
 EOF
     done
 
     if [[ $IS_PER_USER == true ]]; then
-        append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+        append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
 rmdir "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
 rmdir "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
 rmdir "$(dirname $(dirname $DEST_FONTCONFIG_DIR))" 2>/dev/null || true
 EOF
     fi
 
-    append_metadata "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
     printf "${C_GREEN}Done${C_RESET}\n"
@@ -314,16 +316,24 @@ EOF
 
 # Call the locally stored uninstaller from target machine
 call_uninstaller () {
-    # Backward compatibility with version 0.7.0
-    # (Before the project rename)
-    #
+    local lib_dir="$DEST_LIB_DIR"
+
     # TODO: Remove on 1.0.0
-    if verlt ${PARSED_METADATA[version]} "0.8.0"; then
-        DEST_SHARED_DIR="$DEST_SHARED_DIR_OLD"
+    if verlt ${PARSED_METADATA[version]} "0.13.0"; then
+        # Backward compatibility with versions below 0.13.0
+        #
+        # Uses old path to system shared dir
+        lib_dir="$DEST_SHARED_DIR_OLD2"
+    elif [[ ${PARSED_METADATA[version]} == "0.7.0" ]]; then
+        # Backward compatibility with version 0.7.0
+        #
+        # Before the project rename
+        lib_dir="$DEST_SHARED_DIR_OLD"
     fi
 
-    if [[ ! -f $DEST_SHARED_DIR/$DEST_UNINSTALL_FILE ]]; then
-        printf "${C_RED}Uninstaller script not found, installation corrupted${C_RESET}"
+
+    if [[ ! -f "$lib_dir/$DEST_UNINSTALL_FILE" ]]; then
+        printf "${C_RED}Uninstaller script not found, installation corrupted${C_RESET}\n"
         exit 1
     fi
 
@@ -335,10 +345,10 @@ call_uninstaller () {
     # TODO: Remove on 1.0.0
     if [[ $IS_PER_USER == true ]] && verlt ${PARSED_METADATA[version]} "0.12.0"
     then
-        sed -i 's/rm -d/rmdir/g' "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+        sed -i 's/rm -d/rmdir/g' "$lib_dir/$DEST_UNINSTALL_FILE"
     fi
 
-    "$DEST_SHARED_DIR/$DEST_UNINSTALL_FILE"
+    "$lib_dir/$DEST_UNINSTALL_FILE"
 }
 
 show_header () {
@@ -367,7 +377,6 @@ EOF
 
 cmd_install () {
     load_info_file
-    backwards_compatibility
 
     if [[ ${PARSED_METADATA[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
@@ -408,7 +417,7 @@ EOF
 
 cmd_remove () {
     if [[ $ENABLE_METADATA == false ]]; then
-        printf "${C_YELLOW}"
+        printf "${C_RED}"
         cat <<EOF
 Functionality not available with disabled metadata
 EOF
@@ -417,7 +426,6 @@ EOF
     fi
 
     load_info_file
-    backwards_compatibility
 
     if (( ! ${#PARSED_METADATA[@]} )); then
         printf "${C_RED}Project is not installed.${C_RESET}\n"
@@ -534,6 +542,7 @@ EOF
     DEST_ENVIRONMENT="$shell_config"
     DEST_FONTCONFIG_DIR="$DEST_FONTCONFIG_DIR_USR"
     DEST_SHARED_DIR="$DEST_SHARED_DIR_USR"
+    DEST_LIB_DIR="$DEST_SHARED_DIR_USR"
 fi
 
 
