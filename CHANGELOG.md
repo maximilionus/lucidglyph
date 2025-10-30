@@ -1,3 +1,13 @@
+# Development
+- New stem-darkening enhancement through Fontconfig "embolden" feature. This
+  feature compensates the lack of stem-darkening on very small glyph sizes
+  caused by [#9](https://github.com/maximilionus/lucidglyph/issues/9). It is
+  important to note that there is a significant chance that some software may
+  not support this feature.
+
+- Improved after-install notice in script.
+
+
 ## Release 0.12.0
 > **Notice**
 >
