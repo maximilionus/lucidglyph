@@ -81,6 +81,21 @@ To activate this mode, pass the `--user` (or `-u`) argument on main script run:
 
 
 ## Notes
+### Font Recommendations
+Below two lists contain fonts that are (or not) recommended to be used for UI
+with lucidglyph installed. The "Avoid" list fonts are generally not recommended
+for UI because of the poor readability on small sizes but you still can use
+them.
+
+Recommended:
+- Inter
+- Adwaita Sans
+
+Avoid:
+- Noto Sans
+- Cantarell
+
+
 ### Chromium
 Starting from version 133 (February 2025), Chromium now uses the self-written
 replacement for FreeType called Fontations, as a new font system, with Skrifa
@@ -155,7 +170,7 @@ text_composition_strategy 1.7 0
 ```
 
 
-### SwayWM
+### Sway Window Manager
 Sway Window Manager does not respect global font anti-aliasing settings,
 resulting in subpixel anti-aliasing being used instead of grayscale.
 
