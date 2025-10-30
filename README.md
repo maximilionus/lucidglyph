@@ -82,10 +82,9 @@ To activate this mode, pass the `--user` (or `-u`) argument on main script run:
 
 ## Notes
 ### Font Recommendations
-Below two lists contain fonts that are (or not) recommended to be used for UI
-with lucidglyph installed. The "Avoid" list fonts are generally not recommended
-for UI because of the poor readability on small sizes but you still can use
-them.
+Below are two lists of fonts that are recommended (and not) for UI usage with
+lucidglyph installed. Fonts in the "Avoid" list are generally not recommended
+for UI usage due to poor legibility at small sizes, but you still can use them.
 
 Recommended:
 - Inter
