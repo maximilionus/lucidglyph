@@ -1,17 +1,19 @@
-## Development
+## Release 0.13.0 - Development
 - New stem-darkening enhancement through Fontconfig "embolden" feature. This
   feature compensates the lack of stem-darkening on very small glyph sizes
   caused by [#9](https://github.com/maximilionus/lucidglyph/issues/9). It is
   important to note that there is a significant chance that some software may
   not support this feature.
 
+- To comply with
+  [FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard),
+  script will now use `/usr/local/` directories instead of `/usr/`, placing all
+  the metadata in `/usr/local/share/lucidglyph/` and uninstaller in
+  `/usr/local/lib/lucidglyph/`.
+
 - Improved after-install notice in script.
 
-- To comply with
-  [FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard), script
-  will now use `/usr/local/` directories instead of `/usr/`, placing all the
-  metadata in `/usr/local/share/lucidglyph/` and uninstaller in
-  `/usr/local/lib/lucidglyph/`.
+- Multiple small fixes and enhancements for script logic and output.
 
 
 ## Release 0.12.0
