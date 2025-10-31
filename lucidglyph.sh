@@ -180,7 +180,7 @@ EOF
             local value="${BASH_REMATCH[2]}"
             PARSED_METADATA["$key"]="$value"
         else
-            printf "${C_YELLOW}Warning: Skipping invalid metadata entry: '$line'.${C_RESET}\n"
+            printf "${C_YELLOW}Warning: Skipping the invalid metadata entry:${C_RESET} \"$line\".\n"
         fi
     done < "$info_file_path"
 }
@@ -370,8 +370,8 @@ COMMANDS:
   help     Show this help message
 
 OPTIONS:
-  -s, --system (default)  Operate in system mode
-  -u, --user              Operate in user mode (experimental feature)
+  -s, --system (default)  Operate in system-wide mode
+  -u, --user              Operate in per-user mode (experimental feature)
 EOF
 }
 
