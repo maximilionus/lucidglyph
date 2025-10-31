@@ -28,7 +28,7 @@ SHOW_HEADER=${SHOW_HEADER:=true}
 # Filesystem configuration
 DEST_CONF="${DESTDIR:-}${DEST_CONF:-/etc}"
 DEST_USR="${DESTDIR:-}${DEST_USR:-/usr/local}"
-DEST_USR_OLD="${DESTDIR:-}/usr"  # TODO: Remove on 1.0.0
+DEST_USR_OLD_BEFORE_0_13_0="${DESTDIR:-}/usr"  # TODO: Remove on 1.0.0
 
 DEST_CONF_USR="${DESTDIR:-$HOME}${DEST_CONF_USR:-/.config}"
 DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
@@ -42,8 +42,8 @@ ENABLE_METADATA=${ENABLE_METADATA:=true}  # Set this env variable to false
 
 DEST_LIB_DIR="$DEST_USR/lib/lucidglyph"
 DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
-DEST_SHARED_DIR_OLD="$DEST_USR/share/freetype-envision"  # TODO: Remove on 1.0.0
-DEST_SHARED_DIR_OLD2="$DEST_USR_OLD/share/lucidglyph"  # TODO: Remove on 1.0.0
+DEST_SHARED_DIR_OLD_BEFORE_0_8_0="$DEST_USR_OLD_BEFORE_0_13_0/share/freetype-envision"  # TODO: Remove on 1.0.0
+DEST_SHARED_DIR_OLD_BEFORE_0_13_0="$DEST_USR_OLD_BEFORE_0_13_0/share/lucidglyph"  # TODO: Remove on 1.0.0
 DEST_SHARED_DIR_USR="$DEST_USR_USR/share/lucidglyph"
 DEST_INFO_FILE="info"
 DEST_UNINSTALL_FILE="uninstaller.sh"
@@ -151,12 +151,12 @@ load_info_file () {
     if [[ ! -f "$info_file_path" ]]; then
         # Backwards compatibility
         # TODO: Remove on 1.0.0
-        if [[ -f "$DEST_SHARED_DIR_OLD2/$DEST_INFO_FILE" ]]; then
+        if [[ -f "$DEST_SHARED_DIR_OLD_BEFORE_0_13_0/$DEST_INFO_FILE" ]]; then
             # Load the <0.13.0 info file
-            info_file_path="$DEST_SHARED_DIR_OLD2/$DEST_INFO_FILE"
-        elif [[ -f "$DEST_SHARED_DIR_OLD/$DEST_INFO_FILE" ]]; then
+            info_file_path="$DEST_SHARED_DIR_OLD_BEFORE_0_13_0/$DEST_INFO_FILE"
+        elif [[ -f "$DEST_SHARED_DIR_OLD_BEFORE_0_8_0/$DEST_INFO_FILE" ]]; then
             # Load the 0.7.0 state (info) file
-            info_file_path="$DEST_SHARED_DIR_OLD/$DEST_INFO_FILE"
+            info_file_path="$DEST_SHARED_DIR_OLD_BEFORE_0_8_0/$DEST_INFO_FILE"
         elif compgen -G "$DEST_FONTCONFIG_DIR/*freetype-envision*" > /dev/null \
             || compgen -G "$DEST_FONTCONFIG_DIR/*$NAME*" > /dev/null; then
         cat <<EOF
@@ -169,7 +169,7 @@ EOF
         fi
     fi
 
-    [[ ! -f $DEST_SHARED_DIR/$DEST_INFO_FILE ]] && return 0
+    [[ ! -f "$info_file_path" ]] && return 0
 
     while read -r line; do
         # Parse all key="value"
@@ -319,16 +319,16 @@ call_uninstaller () {
     local lib_dir="$DEST_LIB_DIR"
 
     # TODO: Remove on 1.0.0
-    if verlt ${PARSED_METADATA[version]} "0.13.0"; then
-        # Backward compatibility with versions below 0.13.0
-        #
-        # Uses old path to system shared dir
-        lib_dir="$DEST_SHARED_DIR_OLD2"
-    elif [[ ${PARSED_METADATA[version]} == "0.7.0" ]]; then
+    if [[ ${PARSED_METADATA[version]} == "0.7.0" ]]; then
         # Backward compatibility with version 0.7.0
         #
         # Before the project rename
-        lib_dir="$DEST_SHARED_DIR_OLD"
+        lib_dir="$DEST_SHARED_DIR_OLD_BEFORE_0_8_0"
+    elif verlt ${PARSED_METADATA[version]} "0.13.0"; then
+        # Backward compatibility with versions below 0.13.0
+        #
+        # Uses old path to system shared dir
+        lib_dir="$DEST_SHARED_DIR_OLD_BEFORE_0_13_0"
     fi
 
 
