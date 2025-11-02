@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-set -e
+set -eo pipefail
+
 
 NAME="lucidglyph"
 VERSION="0.13.0"
@@ -230,18 +231,15 @@ enable_fontconfig="$ENABLE_FONTCONFIG"
 EOF
     append_metadata uninstall <<EOF
 #!/bin/bash
-set -e
 printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
 printf -- "- %-40s%s" "Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
 rm -rf "$DEST_LIB_DIR"
 EOF
-    if [[ $G_IS_PER_USER == true ]]; then
-        append_metadata uninstall <<EOF
-rmdir "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
-rmdir "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
+    # Get parent since shared dir already removed
+    [[ $G_IS_PER_USER == true ]] && append_metadata uninstall <<EOF
+rmdir --ignore-fail-on-non-empty -p "$(dirname $DEST_SHARED_DIR)"
 EOF
-    fi
     append_metadata uninstall <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
@@ -259,16 +257,14 @@ install_environment () {
 printf -- "- %-40s%s" "Cleaning the environment entries "
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
-    if [[ $G_IS_PER_USER == true ]]; then
-        append_metadata uninstall <<EOF
+    [[ $G_IS_PER_USER == true ]] && append_metadata uninstall <<EOF
 [[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
 EOF
-    fi
     append_metadata uninstall <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
-    if [[ $G_IS_PER_USER == false ]]; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
+    if [[ $G_IS_PER_USER == false ]] && [[ ! -d $DEST_CONF ]]; then mkdir -p "$DEST_CONF"; fi
 
     {
         printf "$MARKER_START\n"
@@ -314,13 +310,9 @@ rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
 EOF
     done
 
-    if [[ $G_IS_PER_USER == true ]]; then
-        append_metadata uninstall <<EOF
-rmdir "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
-rmdir "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
-rmdir "$(dirname $(dirname $DEST_FONTCONFIG_DIR))" 2>/dev/null || true
+    [[ $G_IS_PER_USER == true ]] && append_metadata uninstall <<EOF
+rmdir --ignore-fail-on-non-empty -p "$DEST_FONTCONFIG_DIR"
 EOF
-    fi
 
     append_metadata uninstall <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
