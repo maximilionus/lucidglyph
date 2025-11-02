@@ -83,16 +83,24 @@ To activate this mode, pass the `--user` (or `-u`) argument on main script run:
 ## Notes
 ### Font Recommendations
 Below are two lists of fonts that are recommended (and not) for UI usage with
-lucidglyph installed. Fonts in the "Avoid" list are generally not recommended
-for UI usage due to poor legibility at small sizes, but you still can use them.
+lucidglyph installed. Fonts in the "Not Recommended" list are generally not
+recommended for UI usage due to poor legibility at small sizes, but you still
+can use them.
 
 Recommended:
 - Inter
 - Adwaita Sans
 
-Avoid:
-- Noto Sans
+Not Recommended:
 - Cantarell
+- Noto Sans
+
+
+### Font Hinting
+This project does not assign the hinting settings forcefully, only "suggesting"
+the system to use the "Slight" hinting if no other option is set. This is the
+intended behavior since hinting settings are usually really taste-dependent, so
+the final choice should be left to the end user.
 
 
 ### Chromium
@@ -211,6 +219,11 @@ man sway-output | grep -A8 "output <name> subpixel"
    - Enforce grayscale anti-aliasing (disable sub-pixel). Grayscale
      anti-aliasing should be enforced in the system to make the stem-darkening
      from the above work properly.
+
+   - Suggest the client to use the "Slight" font hinting style, which is the
+     preferred style for both preserving the original geometry and providing
+     legibility. Only applied if the target system misses any hinting
+     configuration.
 
    - Stem-darkening fallback through emboldening. This rule compensates the
      lack of stem-darkening on very small glyph sizes (caused by

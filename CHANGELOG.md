@@ -5,6 +5,9 @@
   important to note that there is a significant chance that some software may
   not support this feature.
 
+- New fallback Fontconfig rule to suggest usage of "Slight" style font hinting
+  if no other configuration is found.
+
 - To comply with
   [FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard),
   script will now use `/usr/local/` directories instead of `/usr/`, placing all
