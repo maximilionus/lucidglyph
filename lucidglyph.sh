@@ -185,12 +185,20 @@ EOF
     done < "$info_file_path"
 }
 
-# Append the content from HEREDOC to "$1" file.
+# Append the redirected content to metadata files.
 # Only works if ENABLE_METADATA is set to true.
 append_metadata () {
+    local mode="$1"
+
     [[ $ENABLE_METADATA == false ]] && return 0
 
-    path="$1"
+    local path=""
+    case "$mode" in
+        info) path="$DEST_SHARED_DIR/$DEST_INFO_FILE" ;;
+        uninstall) path="$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" ;;
+        *) printf "${C_YELLOW}Warning: append_metadata wrong argument.${C_RESET}" ;;
+    esac
+
     cat >> "$path"
 }
 
@@ -210,11 +218,11 @@ install_metadata () {
     chmod +x "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE"
     printf "${C_GREEN}Done${C_RESET}\n"
 
-    append_metadata "$DEST_SHARED_DIR/$DEST_INFO_FILE" <<EOF
+    append_metadata info <<EOF
 version="$VERSION"
 is_user_mode="$IS_PER_USER"
 EOF
-    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata uninstall <<EOF
 #!/bin/bash
 set -e
 printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
@@ -223,12 +231,12 @@ rm -rf "$DEST_SHARED_DIR"
 rm -rf "$DEST_LIB_DIR"
 EOF
     if [[ $IS_PER_USER == true ]]; then
-        append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
+        append_metadata uninstall <<EOF
 rmdir "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
 rmdir "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
 EOF
     fi
-    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata uninstall <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 }
@@ -241,16 +249,16 @@ install_environment () {
         return 0
     fi
 
-    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata uninstall <<EOF
 printf -- "- %-40s%s" "Cleaning the environment entries "
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
     if [[ $IS_PER_USER == true ]]; then
-        append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
+        append_metadata uninstall <<EOF
 [[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
 EOF
     fi
-    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata uninstall <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
@@ -289,26 +297,26 @@ install_fontconfig () {
 
     mkdir -p "$DEST_FONTCONFIG_DIR"
 
-    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata uninstall <<EOF
 printf -- "- %-40s%s" "Removing the fontconfig rules "
 EOF
 
     for f in $FONTCONFIG_DIR/*.conf; do
         install -m 644 "$f" "$DEST_FONTCONFIG_DIR/$(basename $f)"
-        append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
+        append_metadata uninstall <<EOF
 rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
 EOF
     done
 
     if [[ $IS_PER_USER == true ]]; then
-        append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
+        append_metadata uninstall <<EOF
 rmdir "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
 rmdir "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
 rmdir "$(dirname $(dirname $DEST_FONTCONFIG_DIR))" 2>/dev/null || true
 EOF
     fi
 
-    append_metadata "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" <<EOF
+    append_metadata uninstall <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
     printf "${C_GREEN}Done${C_RESET}\n"
