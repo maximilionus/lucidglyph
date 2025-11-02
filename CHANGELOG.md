@@ -8,9 +8,10 @@
 - New fallback Fontconfig rule to suggest usage of "Slight" style font hinting
   if no other configuration is found.
 
-- User preferences are now being preserved on project upgrade. Currently
-  preserved settings are `ENABLE_ENVIRONMENT` and `ENABLE_FONTCONFIG`. Only
-  works with enabled metadata.
+- Some user preferences are now being preserved on project upgrades. Currently
+  preserved settings are `ENABLE_ENVIRONMENT` and `ENABLE_FONTCONFIG`. This
+  feature only works starting with this release and does not migrate settings
+  from previous versions.
 
 - To comply with
   [FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard),
