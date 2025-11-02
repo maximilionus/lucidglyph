@@ -76,8 +76,8 @@ MARKER_WARNING="# !! DO NOT PUT ANY USER CONFIGURATIONS INSIDE THIS BLOCK !!"
 MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # Global variables
-declare -A PARSED_METADATA
-declare IS_PER_USER=false
+declare -A G_INFO
+declare G_IS_PER_USER=false
 
 
 # Check if version $2 >= $1
@@ -98,10 +98,10 @@ ask_confirmation() {
 }
 
 check_root () {
-    if [[ $(/usr/bin/id -u) != 0 ]] &&  [[ $IS_PER_USER == false ]]; then
+    if [[ $(/usr/bin/id -u) != 0 ]] &&  [[ $G_IS_PER_USER == false ]]; then
         printf "${C_RED}This action requires the root privileges${C_RESET}\n"
         exit 1
-    elif [[ $(/usr/bin/id -u) == 0 ]] && [[ $IS_PER_USER == true ]]; then
+    elif [[ $(/usr/bin/id -u) == 0 ]] && [[ $G_IS_PER_USER == true ]]; then
         printf "${C_YELLOW}"
         cat <<EOF
 Warning: You are attempting to perform a per-user operation as the root user.
@@ -171,6 +171,7 @@ EOF
 
     [[ ! -f "$info_file_path" ]] && return 0
 
+    # Parse the local file
     while read -r line; do
         # Parse all key="value"
         regex='^([a-zA-Z_][a-zA-Z0-9_]*)="([^"]*)"$'
@@ -178,11 +179,15 @@ EOF
         if [[ $line =~ $regex ]]; then
             local key="${BASH_REMATCH[1]}"
             local value="${BASH_REMATCH[2]}"
-            PARSED_METADATA["$key"]="$value"
+            G_INFO["$key"]="$value"
         else
             printf "${C_YELLOW}Warning: Skipping the invalid metadata entry:${C_RESET} \"$line\".\n"
         fi
     done < "$info_file_path"
+
+    # Preserve the settings from previous install, only on upgrade
+    ENABLE_ENVIRONMENT="${G_INFO[enable_environment]:=$ENABLE_ENVIRONMENT}"
+    ENABLE_FONTCONFIG="${G_INFO[enable_fontconfig]:=$ENABLE_FONTCONFIG}"
 }
 
 # Append the redirected content to metadata files.
@@ -220,7 +225,8 @@ install_metadata () {
 
     append_metadata info <<EOF
 version="$VERSION"
-is_user_mode="$IS_PER_USER"
+enable_environment="$ENABLE_ENVIRONMENT"
+enable_fontconfig="$ENABLE_FONTCONFIG"
 EOF
     append_metadata uninstall <<EOF
 #!/bin/bash
@@ -230,7 +236,7 @@ printf -- "- %-40s%s" "Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
 rm -rf "$DEST_LIB_DIR"
 EOF
-    if [[ $IS_PER_USER == true ]]; then
+    if [[ $G_IS_PER_USER == true ]]; then
         append_metadata uninstall <<EOF
 rmdir "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || true
 rmdir "$(dirname $(dirname $DEST_SHARED_DIR))" 2>/dev/null || true
@@ -253,7 +259,7 @@ install_environment () {
 printf -- "- %-40s%s" "Cleaning the environment entries "
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
-    if [[ $IS_PER_USER == true ]]; then
+    if [[ $G_IS_PER_USER == true ]]; then
         append_metadata uninstall <<EOF
 [[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
 EOF
@@ -262,14 +268,14 @@ EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
-    if [[ $IS_PER_USER == false ]]; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
+    if [[ $G_IS_PER_USER == false ]]; then [[ ! -d $DEST_CONF ]] && mkdir -p "$DEST_CONF"; fi
 
     {
         printf "$MARKER_START\n"
         printf "$MARKER_WARNING\n"
 
         prefix=""
-        if [[ $IS_PER_USER == true ]]; then
+        if [[ $G_IS_PER_USER == true ]]; then
             case "$SHELL" in
                 # *fish)  prefix="set --export " ;;  # TODO
                 *)      prefix="export " ;;
@@ -308,7 +314,7 @@ rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
 EOF
     done
 
-    if [[ $IS_PER_USER == true ]]; then
+    if [[ $G_IS_PER_USER == true ]]; then
         append_metadata uninstall <<EOF
 rmdir "$DEST_FONTCONFIG_DIR" 2>/dev/null || true
 rmdir "$(dirname $DEST_FONTCONFIG_DIR)" 2>/dev/null || true
@@ -327,12 +333,12 @@ call_uninstaller () {
     local lib_dir="$DEST_LIB_DIR"
 
     # TODO: Remove on 1.0.0
-    if [[ ${PARSED_METADATA[version]} == "0.7.0" ]]; then
+    if [[ ${G_INFO[version]} == "0.7.0" ]]; then
         # Backward compatibility with version 0.7.0
         #
         # Before the project rename
         lib_dir="$DEST_SHARED_DIR_OLD_BEFORE_0_8_0"
-    elif verlt ${PARSED_METADATA[version]} "0.13.0"; then
+    elif verlt ${G_INFO[version]} "0.13.0"; then
         # Backward compatibility with versions below 0.13.0
         #
         # Uses old path to system shared dir
@@ -351,7 +357,7 @@ call_uninstaller () {
     # https://github.com/maximilionus/lucidglyph/issues/19
     #
     # TODO: Remove on 1.0.0
-    if [[ $IS_PER_USER == true ]] && verlt ${PARSED_METADATA[version]} "0.12.0"
+    if [[ $G_IS_PER_USER == true ]] && verlt ${G_INFO[version]} "0.12.0"
     then
         sed -i 's/rm -d/rmdir/g' "$lib_dir/$DEST_UNINSTALL_FILE"
     fi
@@ -386,7 +392,7 @@ EOF
 cmd_install () {
     load_info_file
 
-    if [[ ${PARSED_METADATA[version]} == $VERSION ]]; then
+    if [[ ${G_INFO[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
 
         if ask_confirmation "Do you wish to reinstall it?"; then
@@ -395,8 +401,8 @@ cmd_install () {
         else
             exit 0
         fi
-    elif [[ ! -z ${PARSED_METADATA[version]} ]]; then
-        printf "${C_GREEN}Detected $NAME version ${PARSED_METADATA[version]} on the target system.${C_RESET}\n"
+    elif [[ ! -z ${G_INFO[version]} ]]; then
+        printf "${C_GREEN}Detected $NAME version ${G_INFO[version]} on the target system.${C_RESET}\n"
 
         if ask_confirmation "Do you wish to upgrade to version $VERSION?"; then
             check_root
@@ -435,7 +441,7 @@ EOF
 
     load_info_file
 
-    if (( ! ${#PARSED_METADATA[@]} )); then
+    if (( ! ${#G_INFO[@]} )); then
         printf "${C_RED}Project is not installed.${C_RESET}\n"
         exit 1
     fi
@@ -459,11 +465,11 @@ positional_args=()
 while [[ $# -gt 0 ]]; do
     case $1 in
         -s|--system)
-            IS_PER_USER=false
+            G_IS_PER_USER=false
             shift
             ;;
         -u|--user)
-            IS_PER_USER=true
+            G_IS_PER_USER=true
             shift
             ;;
         -*|--*)
@@ -536,7 +542,7 @@ fi
 # since it relies on a huge amount of modern bash functionality. So... You can
 # not install the project without actually having modern bash shell available on
 # target system :)
-if [[ $IS_PER_USER == true ]]; then
+if [[ $G_IS_PER_USER == true ]]; then
     shell_config="$(get_shell_conf)"
     if [[ -z $shell_config ]]; then
         printf "${C_RED}"
