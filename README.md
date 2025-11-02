@@ -3,7 +3,8 @@ Tuning the Linux font rendering stack for a more visually pleasing output.
 
 Includes tweaks for FreeType, fontconfig, and other components. See
 [Overall](#overall) with [Details](#details) for more information, and
-[Notes](#notes) for the list of known issues and possible mitigations.
+[Notes](#notes) for the list of after-install recommendations and known issues
+with their possible mitigations.
 
 Visual comparison is available on the project's
 [wiki page](https://github.com/maximilionus/lucidglyph/wiki/Comparison).
