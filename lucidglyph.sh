@@ -98,6 +98,10 @@ ask_confirmation() {
     [[ ! $REPLY =~ ^[Nn]$ ]]
 }
 
+show_header () {
+    printf "${C_BOLD}$NAME, version $VERSION${C_RESET}\n"
+}
+
 check_root () {
     if [[ $(/usr/bin/id -u) != 0 ]] &&  [[ $G_IS_PER_USER == false ]]; then
         printf "${C_RED}This action requires the root privileges${C_RESET}\n"
@@ -358,10 +362,6 @@ call_uninstaller () {
     "$lib_dir/$DEST_UNINSTALL_FILE"
 }
 
-show_header () {
-    printf "${C_BOLD}$NAME, version $VERSION${C_RESET}\n"
-}
-
 cmd_help () {
     cat <<EOF
 usage: $0 [OPTIONS] [COMMAND]
@@ -379,6 +379,35 @@ COMMANDS:
 OPTIONS:
   -s, --system (default)  Operate in system-wide mode
   -u, --user              Operate in per-user mode (experimental feature)
+
+ENVIRONMENT VARIABLES - MODULES:
+  ENABLE_METADATA     Store the information for further operations
+                      like upgrades and uninstalls.
+                      Default: true.
+
+  ENABLE_ENVIRONMENT  Responsible for appending the environment entries like
+            (stored)  variables.
+                      Default: true.
+
+  ENABLE_FONTCONFIG   Install the Fontconfig rules of this project.
+           (stored)   Default: true.
+
+Note: Variables marked with "(stored)" will be preserved on project update.
+
+ENVIRONMENT VARIABLES - UTILITY:
+  SHOW_HEADER    Show the script header on execution.
+                 Default: true.
+
+  DESTDIR        Overwrite the target directory for script to work with.
+                 Default: unset.
+
+  DEST_CONF,     Set the paths to configuration directories.
+  DEST_CONF_USR  Default: "/etc" for system-wide and "~/.config" for
+                 per-user.
+
+  DEST_USR,      Set the paths to shared directories.
+  DEST_USR_USR   Default: "/usr/local" for system-wide and "~/.local/share" for
+                 per-user.
 EOF
 }
 
