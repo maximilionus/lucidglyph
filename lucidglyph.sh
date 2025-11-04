@@ -231,6 +231,7 @@ enable_fontconfig="$ENABLE_FONTCONFIG"
 EOF
     append_metadata uninstall <<EOF
 #!/bin/bash
+set -e
 printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
 printf -- "- %-40s%s" "Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
