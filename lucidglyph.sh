@@ -78,6 +78,7 @@ MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # Global variables
 declare -A G_INFO
+declare -a blacklisted_modules=()
 declare G_IS_PER_USER=false
 
 
@@ -119,6 +120,25 @@ EOF
             exit 1
         fi
     fi
+}
+
+load_mod_blacklist() {
+    if [[ -n "$BLACKLISTED_MODULES" ]]; then
+        read -r -a user_blacklist <<< "$BLACKLISTED_MODULES"
+        blacklisted_modules=("${blacklisted_modules[@]}" "${user_blacklist[@]}")
+    fi
+}
+
+is_mod_blacklisted() {
+    local module="${1#src/}"
+
+    for i in "${blacklisted_modules[@]}"; do
+        if  [[ "$i" == "$module" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
 }
 
 # Get configuration path the for current user's shell.
@@ -284,6 +304,8 @@ EOF
         fi
 
         for f in $ENVIRONMENT_DIR/*.conf; do
+            if is_mod_blacklisted "$f"; then continue; fi
+
             printf "$prefix"
             cat "$f"
         done
@@ -309,6 +331,8 @@ printf -- "- %-40s%s" "Removing the fontconfig rules "
 EOF
 
     for f in $FONTCONFIG_DIR/*.conf; do
+        if is_mod_blacklisted "$f"; then continue; fi
+
         install -m 644 "$f" "$DEST_FONTCONFIG_DIR/$(basename $f)"
         append_metadata uninstall <<EOF
 rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
@@ -413,6 +437,7 @@ EOF
 
 cmd_install () {
     load_info_file
+    load_mod_blacklist
 
     if [[ ${G_INFO[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
