@@ -129,8 +129,12 @@ load_mod_blacklist() {
     fi
 }
 
+# Check if the module is blacklisted both internally and externally.
+#
+# ARGUMENTS:
+# 1 - Relative path to the module file (with or without $SRC_DIR).
 is_mod_blacklisted() {
-    local module="${1#src/}"
+    local module="${1#$SRC_DIR/}"
 
     for i in "${blacklisted_modules[@]}"; do
         if  [[ "$i" == "$module" ]]; then
