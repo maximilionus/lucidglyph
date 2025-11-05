@@ -24,7 +24,8 @@ VERSION="0.13.0"
 SRC_DIR=src
 
 # Display the header with project name and version on start
-SHOW_HEADER=${SHOW_HEADER:=true}
+SHOW_HEADER=${SHOW_HEADER:-true}
+BLACKLISTED_MODULES="${BLACKLISTED_MODULES:-}"
 
 # Filesystem configuration
 DEST_CONF="${DESTDIR:-}${DEST_CONF:-/etc}"
@@ -78,7 +79,7 @@ MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # Global variables
 declare -A G_INFO
-declare -a blacklisted_modules=()
+declare -a blacklisted_modules=()  # Internal module blacklist
 declare G_IS_PER_USER=false
 
 
@@ -123,9 +124,19 @@ EOF
 }
 
 load_mod_blacklist() {
+    if (( ${#blacklisted_modules[@]} != 0 )); then
+        printf "${C_DIM}Internally blacklisted modules:\n"
+        printf '    %s\n' "${blacklisted_modules[@]}"
+        printf "$C_RESET"
+    fi
+
     if [[ -n "$BLACKLISTED_MODULES" ]]; then
         read -r -a user_blacklist <<< "$BLACKLISTED_MODULES"
         blacklisted_modules=("${blacklisted_modules[@]}" "${user_blacklist[@]}")
+
+        printf "${C_DIM}Externally blacklisted modules:\n"
+        printf '    %s\n' "${user_blacklist[@]}"
+        printf "$C_RESET"
     fi
 }
 
@@ -215,8 +226,14 @@ EOF
     done < "$info_file_path"
 
     # Preserve the settings from previous install, only on upgrade
-    ENABLE_ENVIRONMENT="${G_INFO[enable_environment]:=$ENABLE_ENVIRONMENT}"
-    ENABLE_FONTCONFIG="${G_INFO[enable_fontconfig]:=$ENABLE_FONTCONFIG}"
+    #
+    # TODO: Needs improvement in detecting user-provided env. variables, so it
+    # doesn't forcefully overwrite them with info file ones.
+    [[ -n "${G_INFO[ext_blacklisted_modules]}" ]] &&
+        BLACKLISTED_MODULES="${G_INFO[ext_blacklisted_modules]}"
+
+    ENABLE_ENVIRONMENT="${G_INFO[enable_environment]:-$ENABLE_ENVIRONMENT}"
+    ENABLE_FONTCONFIG="${G_INFO[enable_fontconfig]:-$ENABLE_FONTCONFIG}"
 }
 
 # Append the redirected content to metadata files.
@@ -254,6 +271,7 @@ install_metadata () {
 
     append_metadata info <<EOF
 version="$VERSION"
+ext_blacklisted_modules="${BLACKLISTED_MODULES[@]}"
 enable_environment="$ENABLE_ENVIRONMENT"
 enable_fontconfig="$ENABLE_FONTCONFIG"
 EOF
