@@ -381,18 +381,20 @@ OPTIONS:
   -u, --user              Operate in per-user mode (experimental feature)
 
 ENVIRONMENT VARIABLES - MODULES:
-  ENABLE_METADATA     Store the information for further operations
-                      like upgrades and uninstalls.
-                      Default: true.
-
-  ENABLE_ENVIRONMENT  Responsible for appending the environment entries like
-            (stored)  variables.
-                      Default: true.
-
-  ENABLE_FONTCONFIG   Install the Fontconfig rules of this project.
-           (stored)   Default: true.
-
 Note: Variables marked with "(stored)" will be preserved on project update.
+
+  ENABLE_METADATA     Module group responsible for storing the information for
+                      further operations like upgrades and uninstalls.
+                      Default: true.
+
+  (stored)
+  ENABLE_ENVIRONMENT  Module group responsible for appending the environment
+                      entries for global configurations of some software.
+                      Default: true.
+
+  (stored)
+  ENABLE_FONTCONFIG   Module group that contains the set of Fontconfig rules.
+                      Default: true.
 
 ENVIRONMENT VARIABLES - UTILITY:
   SHOW_HEADER    Show the script header on execution.
