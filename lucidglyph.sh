@@ -21,11 +21,10 @@ set -eo pipefail
 
 NAME="lucidglyph"
 VERSION="0.13.0"
-SRC_DIR=src
+SRC_DIR="src"
 
 # Display the header with project name and version on start
 SHOW_HEADER=${SHOW_HEADER:-true}
-BLACKLISTED_MODULES="${BLACKLISTED_MODULES:-}"
 
 # Filesystem configuration
 DEST_CONF="${DESTDIR:-}${DEST_CONF:-/etc}"
@@ -34,6 +33,12 @@ DEST_USR_OLD_BEFORE_0_13_0="${DESTDIR:-}/usr"  # TODO: Remove on 1.0.0
 
 DEST_CONF_USR="${DESTDIR:-$HOME}${DEST_CONF_USR:-/.config}"
 DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
+
+# External (user) module blacklist
+#
+# Will be overwritten by the blacklist variable from Metadata/Info file if the
+# last one is not empty.
+BLACKLISTED_MODULES="${BLACKLISTED_MODULES:-}"
 
 # Metadata group
 #     Installation information and uninstaller script.
@@ -427,20 +432,33 @@ OPTIONS:
   -u, --user              Operate in per-user mode (experimental feature)
 
 ENVIRONMENT VARIABLES - MODULES:
-Note: Variables marked with "(stored)" will be preserved on project update.
-
-  ENABLE_METADATA     Module group responsible for storing the information for
-                      further operations like upgrades and uninstalls.
-                      Default: true.
+Note: Variables marked with "(stored)" will be preserved on project updates.
 
   (stored)
-  ENABLE_ENVIRONMENT  Module group responsible for appending the environment
-                      entries for global configurations of some software.
-                      Default: true.
+  BLACKLISTED_MODULES  An external blacklist consisting of space-separated
+                       names of modules installation of which must be
+                       prevented.
+                       Default: unset.
+
+                       Example: "environment/lucidglyph-freetype-properties.conf fontconfig/11-lucidglyph-grayscale.conf"
+
+                       The example above will disable these modules in the
+                       corresponding order:
+                       - src/environment/lucidglyph-freetype-properties.conf
+                       - src/fontconfig/11-lucidglyph-grayscale.conf
 
   (stored)
-  ENABLE_FONTCONFIG   Module group that contains the set of Fontconfig rules.
-                      Default: true.
+  ENABLE_ENVIRONMENT   Module group responsible for appending the environment
+                       entries for global configurations of some software.
+                       Default: true.
+
+  (stored)
+  ENABLE_FONTCONFIG    Module group that contains the set of Fontconfig rules.
+                       Default: true.
+
+  ENABLE_METADATA      Module group responsible for storing the information for
+                       further operations like upgrades and uninstalls.
+                       Default: true.
 
 ENVIRONMENT VARIABLES - UTILITY:
   SHOW_HEADER    Show the script header on execution.
