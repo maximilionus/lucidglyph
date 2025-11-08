@@ -21,7 +21,7 @@ set -eo pipefail
 
 NAME="lucidglyph"
 VERSION="0.13.0"
-SRC_DIR="src"
+MODULES_DIR="modules"
 
 # Display the header with project name and version on start
 SHOW_HEADER=${SHOW_HEADER:-true}
@@ -59,13 +59,13 @@ DEST_UNINSTALL_FILE="uninstaller.sh"
 #     Variables that need to be exported to the system environment.
 ENABLE_ENVIRONMENT=${ENABLE_ENVIRONMENT:=true}  # Set this env variable to false
                                                 # to completely disable this group.
-ENVIRONMENT_DIR="$SRC_DIR/environment"
+ENVIRONMENT_DIR="$MODULES_DIR/environment"
 DEST_ENVIRONMENT="$DEST_CONF/environment"
 
 # Fontconfig group
 ENABLE_FONTCONFIG=${ENABLE_FONTCONFIG:=true}  # Set this env variable to false
                                               # to completely disable this group.
-FONTCONFIG_DIR="$SRC_DIR/fontconfig"
+FONTCONFIG_DIR="$MODULES_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="$DEST_CONF/fonts/conf.d"
 DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
 
@@ -148,9 +148,9 @@ load_mod_blacklist() {
 # Check if the module is blacklisted both internally and externally.
 #
 # ARGUMENTS:
-# 1 - Relative path to the module file (with or without $SRC_DIR).
+# 1 - Relative path to the module file (with or without $MODULES_DIR).
 is_mod_blacklisted() {
-    local module="${1#$SRC_DIR/}"
+    local module="${1#$MODULES_DIR/}"
 
     for i in "${blacklisted_modules[@]}"; do
         if  [[ "$i" == "$module" ]]; then
@@ -444,8 +444,8 @@ Note: Variables marked with "(stored)" will be preserved on project updates.
 
                        The example above will disable these modules in the
                        corresponding order:
-                       - src/environment/lucidglyph-freetype-properties.conf
-                       - src/fontconfig/11-lucidglyph-grayscale.conf
+                       - $MODULES_DIR/environment/lucidglyph-freetype-properties.conf
+                       - $MODULES_DIR/fontconfig/11-lucidglyph-grayscale.conf
 
   (stored)
   ENABLE_ENVIRONMENT   Module group responsible for appending the environment
