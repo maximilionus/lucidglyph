@@ -423,7 +423,7 @@ For further information and usage details, please refer to the project
 documentation provided in the README file.
 
 COMMANDS:
-  install  Install, re-install or upgrade the project
+  install  Install, reinstall or upgrade the project
   remove   Remove the installed project
   help     Show this help message
 
@@ -436,14 +436,14 @@ Note: Variables marked with "(stored)" will be preserved on project updates.
 
   (stored)
   BLACKLISTED_MODULES  An external blacklist consisting of space-separated
-                       names of modules installation of which must be
-                       prevented.
+                       names of modules from the "$MODULES_DIR/" directory,
+                       installation of which must be prevented.
                        Default: unset.
 
                        Example: "environment/lucidglyph-freetype-properties.conf fontconfig/11-lucidglyph-grayscale.conf"
 
-                       The example above will disable these modules in the
-                       corresponding order:
+                       The above example will prevent modules from being
+                       installed in the corresponding order:
                        - $MODULES_DIR/environment/lucidglyph-freetype-properties.conf
                        - $MODULES_DIR/fontconfig/11-lucidglyph-grayscale.conf
 
