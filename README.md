@@ -165,9 +165,10 @@ see if you are being affected by this issue and get a temporary solution.
 
 
 ### Kitty Terminal
-Rendering dark fonts on light backgrounds _(light themes)_ in Kitty appears to
-discard most of the applied emboldening _(stem-darkening, see
-[Details](#details))_, making the fonts look thin again.
+Rendering of some fonts dark (foreground) on light (background) _(aka light
+themes)_ in Kitty may discard most of the applied stem-darkening _(see
+[Details](#details))_ due to the nature of gamma correction. The lack of
+darkening is easily detectable visually by very thin-appearing glyphs.
 
 To remedy this issue, append this modified
 [`text_composition_strategy`](https://sw.kovidgoyal.net/kitty/conf/#opt-kitty.text_composition_strategy)
@@ -176,6 +177,9 @@ parameter to Kitty's user configuration file:
 ```conf
 text_composition_strategy 1.7 0
 ```
+
+> Decrease or increase the value `1.7` to decrease or increase the thickness
+> effect, respectively.
 
 
 ### Sway Window Manager
