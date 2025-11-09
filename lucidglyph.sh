@@ -443,7 +443,7 @@ Note: Variables marked with "(stored)" will be preserved on project updates.
                        Example: "environment/lucidglyph-freetype-properties.conf fontconfig/11-lucidglyph-grayscale.conf"
 
                        The above example will prevent modules from being
-                       installed in the corresponding order:
+                       installed in the respective order:
                        - $MODULES_DIR/environment/lucidglyph-freetype-properties.conf
                        - $MODULES_DIR/fontconfig/11-lucidglyph-grayscale.conf
 
