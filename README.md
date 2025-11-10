@@ -83,18 +83,26 @@ To activate this mode, pass the `--user` (or `-u`) argument on main script run:
 
 ## Notes
 ### Font Recommendations
-Below are two lists of fonts that are recommended (and not) for UI usage with
-lucidglyph installed. Fonts in the "Not Recommended" list are generally not
-recommended for UI usage due to poor legibility at small sizes, but you still
-can use them.
+Below are the lists of fonts that are recommended (and not) for use with
+lucidglyph installed. These are subjective, opinionated suggestions, not strict
+guidelines - hence, lucidglyph does not enforce any font overwrites by itself.
 
+Fonts in the "Not Recommended" group are generally not recommended for usage
+due to poor legibility and improper geometry at small sizes after darkening.
+
+#### Sans-serif
 Recommended:
-- Inter
-- Adwaita Sans
+- Inter, Adwaita Sans
+- Noto Sans
 
 Not Recommended:
 - Cantarell
-- Noto Sans
+
+#### Monospace
+Recommended:
+- DejaVu Sans Mono
+- MesloLG, Menlo
+- Iosevka (Extended)
 
 
 ### Font Hinting
