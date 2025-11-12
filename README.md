@@ -102,7 +102,7 @@ Not Recommended:
 Recommended:
 - DejaVu Sans Mono
 - MesloLG, Menlo
-- Iosevka (Extended)
+- JetBrains Mono
 
 
 ### Font Hinting
