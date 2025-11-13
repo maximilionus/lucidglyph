@@ -34,12 +34,6 @@ DEST_USR_OLD_BEFORE_0_13_0="${DESTDIR:-}/usr"  # TODO: Remove on 1.0.0
 DEST_CONF_USR="${DESTDIR:-$HOME}${DEST_CONF_USR:-/.config}"
 DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
 
-# External (user) module blacklist
-#
-# Will be overwritten by the blacklist variable from Metadata/Info file if the
-# last one is not empty.
-BLACKLISTED_MODULES="${BLACKLISTED_MODULES:-}"
-
 # Metadata group
 #     Installation information and uninstaller script.
 #
@@ -84,8 +78,9 @@ MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # Global variables
 declare -A G_INFO
-declare -a blacklisted_modules=()  # Internal module blacklist
 declare G_IS_PER_USER=false
+declare -a G_BLACKLISTED_MODULES=()       # Internal hardcoded module blacklist
+declare -a G_BLACKLISTED_MODULES_USER=()  # User blacklist. Populated through `--blacklist` argument.
 
 
 # Check if version $2 >= $1
@@ -111,7 +106,7 @@ show_header () {
 
 check_root () {
     if [[ $(/usr/bin/id -u) != 0 ]] &&  [[ $G_IS_PER_USER == false ]]; then
-        printf "${C_RED}This action requires the root privileges${C_RESET}\n"
+        printf "${C_RED}Error:${C_RESET} This action requires the root privileges\n" >&2
         exit 1
     elif [[ $(/usr/bin/id -u) == 0 ]] && [[ $G_IS_PER_USER == true ]]; then
         printf "${C_YELLOW}"
@@ -128,31 +123,29 @@ EOF
     fi
 }
 
-load_mod_blacklist() {
-    if (( ${#blacklisted_modules[@]} != 0 )); then
-        printf "${C_DIM}Internally blacklisted modules:\n"
-        printf '    %s\n' "${blacklisted_modules[@]}"
+list_blacklist() {
+    if (( ${#G_BLACKLISTED_MODULES[@]} != 0 )); then
+        printf "${C_DIM}System blacklisted modules:\n"
+        printf '    %s\n' "${G_BLACKLISTED_MODULES[@]}"
         printf "$C_RESET"
     fi
 
-    if [[ -n "$BLACKLISTED_MODULES" ]]; then
-        read -r -a user_blacklist <<< "$BLACKLISTED_MODULES"
-        blacklisted_modules=("${blacklisted_modules[@]}" "${user_blacklist[@]}")
-
-        printf "${C_DIM}Externally blacklisted modules:\n"
-        printf '    %s\n' "${user_blacklist[@]}"
+    if (( ${#G_BLACKLISTED_MODULES_USER[@]} != 0 )); then
+        printf "${C_DIM}User blacklisted modules:\n"
+        printf '    %s\n' "${G_BLACKLISTED_MODULES_USER[@]}"
         printf "$C_RESET"
     fi
 }
 
-# Check if the module is blacklisted both internally and externally.
+# Check if the module is blacklisted by system or user.
 #
 # ARGUMENTS:
 # 1 - Relative path to the module file (with or without $MODULES_DIR).
 is_mod_blacklisted() {
     local module="${1#$MODULES_DIR/}"
+    local blacklist=("${G_BLACKLISTED_MODULES[@]}" "${G_BLACKLISTED_MODULES_USER[@]}")
 
-    for i in "${blacklisted_modules[@]}"; do
+    for i in "${blacklist[@]}"; do
         if  [[ "$i" == "$module" ]]; then
             return 0
         fi
@@ -234,8 +227,8 @@ EOF
     #
     # TODO: Needs improvement in detecting user-provided env. variables, so it
     # doesn't forcefully overwrite them with info file ones.
-    [[ -n "${G_INFO[ext_blacklisted_modules]}" ]] &&
-        BLACKLISTED_MODULES="${G_INFO[ext_blacklisted_modules]}"
+    [[ -n "${G_INFO[blacklisted_modules_user]}" ]] &&
+        G_BLACKLISTED_MODULES_USER="${G_INFO[blacklisted_modules_user]}"
 
     ENABLE_ENVIRONMENT="${G_INFO[enable_environment]:-$ENABLE_ENVIRONMENT}"
     ENABLE_FONTCONFIG="${G_INFO[enable_fontconfig]:-$ENABLE_FONTCONFIG}"
@@ -276,7 +269,7 @@ install_metadata () {
 
     append_metadata info <<EOF
 version="$VERSION"
-ext_blacklisted_modules="${BLACKLISTED_MODULES[@]}"
+blacklisted_modules_user="${G_BLACKLISTED_MODULES_USER[@]}"
 enable_environment="$ENABLE_ENVIRONMENT"
 enable_fontconfig="$ENABLE_FONTCONFIG"
 EOF
@@ -395,7 +388,7 @@ call_uninstaller () {
 
 
     if [[ ! -f "$lib_dir/$DEST_UNINSTALL_FILE" ]]; then
-        printf "${C_RED}Uninstaller script not found, installation corrupted${C_RESET}\n"
+        printf "${C_RED}Error:${C_RESET} Uninstaller script not found, installation corrupted\n" >&2
         exit 1
     fi
 
@@ -422,43 +415,45 @@ Tuning the Linux font rendering stack for a more visually pleasing output.
 For further information and usage details, please refer to the project
 documentation provided in the README file.
 
+Note: Entries below marked with "(stored)" will be preserved on project updates.
+
 COMMANDS:
   install  Install, reinstall or upgrade the project
   remove   Remove the installed project
   help     Show this help message
 
 OPTIONS:
-  -s, --system (default)  Operate in system-wide mode
-  -u, --user              Operate in per-user mode (experimental feature)
+  -s, --system (default)  Operate in system-wide mode.
+                          Commands: install, remove.
+  -u, --user              Operate in per-user mode (experimental feature).
+                          Commands: install, remove.
+  (stored)
+  -b, --blacklist <name>  Blacklist the module. One module name per argument.
+                          Ignored on updates if the blacklist was already
+                          defined for a previous install.
+                          Commands: install.
+                          Example:
+                              -b environment/lucidglyph-freetype-properties.conf \\
+                              -b fontconfig/11-lucidglyph-grayscale.conf"
+
+                              The above example will prevent modules from being
+                              installed in the respective order:
+                              - $MODULES_DIR/environment/lucidglyph-freetype-properties.conf
+                              - $MODULES_DIR/fontconfig/11-lucidglyph-grayscale.conf
 
 ENVIRONMENT VARIABLES - MODULES:
-Note: Variables marked with "(stored)" will be preserved on project updates.
+  (stored)
+  ENABLE_ENVIRONMENT  Module group responsible for appending the environment
+                      entries for global configurations of some software.
+                      Default: true.
 
   (stored)
-  BLACKLISTED_MODULES  An external blacklist consisting of space-separated
-                       names of modules from the "$MODULES_DIR/" directory,
-                       installation of which must be prevented.
-                       Default: unset.
+  ENABLE_FONTCONFIG   Module group that contains the set of Fontconfig rules.
+                      Default: true.
 
-                       Example: "environment/lucidglyph-freetype-properties.conf fontconfig/11-lucidglyph-grayscale.conf"
-
-                       The above example will prevent modules from being
-                       installed in the respective order:
-                       - $MODULES_DIR/environment/lucidglyph-freetype-properties.conf
-                       - $MODULES_DIR/fontconfig/11-lucidglyph-grayscale.conf
-
-  (stored)
-  ENABLE_ENVIRONMENT   Module group responsible for appending the environment
-                       entries for global configurations of some software.
-                       Default: true.
-
-  (stored)
-  ENABLE_FONTCONFIG    Module group that contains the set of Fontconfig rules.
-                       Default: true.
-
-  ENABLE_METADATA      Module group responsible for storing the information for
-                       further operations like upgrades and uninstalls.
-                       Default: true.
+  ENABLE_METADATA     Module group responsible for storing the information for
+                      further operations like upgrades and uninstalls.
+                      Default: true.
 
 ENVIRONMENT VARIABLES - UTILITY:
   SHOW_HEADER    Show the script header on execution.
@@ -479,7 +474,7 @@ EOF
 
 cmd_install () {
     load_info_file
-    load_mod_blacklist
+    list_blacklist
 
     if [[ ${G_INFO[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
@@ -520,18 +515,14 @@ EOF
 
 cmd_remove () {
     if [[ $ENABLE_METADATA == false ]]; then
-        printf "${C_RED}"
-        cat <<EOF
-Functionality not available with disabled metadata
-EOF
-        printf "${C_RESET}"
+        printf "${C_RED}Error:${C_RESET} Functionality not available with disabled metadata" >&2
         exit 1
     fi
 
     load_info_file
 
     if (( ! ${#G_INFO[@]} )); then
-        printf "${C_RED}Project is not installed.${C_RESET}\n"
+        printf "${C_RED}Error:${C_RESET} Project is not installed.\n" >&2
         exit 1
     fi
 
@@ -561,8 +552,17 @@ while [[ $# -gt 0 ]]; do
             G_IS_PER_USER=true
             shift
             ;;
+        -b|--blacklist)
+            if [[ -n "$2" ]]; then
+                G_BLACKLISTED_MODULES_USER+=("$2")
+                shift 2
+            else
+                printf "${C_RED}Error:${C_RESET} $1 requires a module name\n" >&2
+                exit 1
+            fi
+            ;;
         -*|--*)
-            printf "${C_YELLOW}Unknown option${C_RESET} $1\n"
+            printf "${C_RED}Error:${C_RESET} Unknown option \"$1\"\n" >&2
             exit 1
             ;;
         *)
@@ -634,11 +634,7 @@ fi
 if [[ $G_IS_PER_USER == true ]]; then
     shell_config="$(get_shell_conf)"
     if [[ -z $shell_config ]]; then
-        printf "${C_RED}"
-        cat <<EOF
-Per-user operational mode is only supported on bash, zsh and ksh shells.
-EOF
-        printf "${C_RESET}"
+        printf "${C_RED}Error:${C_RESET} Per-user operational mode is only supported on bash, zsh and ksh shells.\n"
         exit 1
     fi
 
@@ -667,7 +663,7 @@ case "$1" in
         cmd_help
         ;;
     *)
-        printf "${C_RED}Unknown command${C_RESET} $1\n"
-        printf "Use ${C_BOLD}help${C_RESET} command to get usage information\n"
+        printf "${C_RED}Error:${C_RESET} Unknown command $1\n" >&2
+        printf "Use ${C_BOLD}help${C_RESET} command to get usage information\n" >&2
         exit 1
 esac
