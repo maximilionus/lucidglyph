@@ -414,21 +414,24 @@ Tuning the Linux font rendering stack for a more visually pleasing output.
 For further information and usage details, please refer to the project
 documentation provided in the README file.
 
-Note: Entries below marked with "(stored)" will be preserved on project updates.
+Note: Entries below marked with "Stored" will be preserved between project
+updates unless overwritten by the user.
 
 COMMANDS:
-  install  Install, reinstall or upgrade the project
+  install  Install, reinstall, or upgrade the project
   remove   Remove the installed project
   help     Show this help message
 
 OPTIONS:
   -s, --system (default)  Operate in system-wide mode.
                           Commands: install, remove.
+
   -u, --user              Operate in per-user mode (experimental feature).
                           Commands: install, remove.
-  (stored)
-  -b, --blacklist <name>  Blacklist the module. One module name per argument.
+
+  -b, --blacklist <arg>   Blacklist the module. One module name per option.
                           Commands: install.
+                          Stored.
                           Example:
                               -b environment/lucidglyph-freetype-properties.conf \\
                               -b fontconfig/11-lucidglyph-grayscale.conf
@@ -439,14 +442,14 @@ OPTIONS:
                               - $MODULES_DIR/fontconfig/11-lucidglyph-grayscale.conf
 
 ENVIRONMENT VARIABLES - MODULES:
-  (stored)
   ENABLE_ENVIRONMENT  Module group responsible for appending the environment
                       entries for global configurations of some software.
                       Default: true.
+                      Stored.
 
-  (stored)
   ENABLE_FONTCONFIG   Module group that contains the set of Fontconfig rules.
                       Default: true.
+                      Stored.
 
   ENABLE_METADATA     Module group responsible for storing the information for
                       further operations like upgrades and uninstalls.
@@ -456,7 +459,7 @@ ENVIRONMENT VARIABLES - UTILITY:
   SHOW_HEADER    Show the script header on execution.
                  Default: true.
 
-  DESTDIR        Overwrite the target directory for script to work with.
+  DESTDIR        Overwrite the target directory for the script to work with.
                  Default: unset.
 
   DEST_CONF,     Set the paths to configuration directories.
