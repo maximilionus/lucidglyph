@@ -223,12 +223,11 @@ EOF
         fi
     done < "$info_file_path"
 
-    # Preserve the settings from previous install, only on upgrade
-    #
-    # TODO: Needs improvement in detecting user-provided env. variables, so it
-    # doesn't forcefully overwrite them with info file ones.
-    [[ -n "${G_INFO[blacklisted_modules_user]}" ]] &&
-        G_BLACKLISTED_MODULES_USER="${G_INFO[blacklisted_modules_user]}"
+    # Preserve the settings from previous install, only on upgrade, and only if
+    # no new blacklist was provided by user.
+    (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) \
+        && [[ -n "${G_INFO[blacklisted_modules_user]}" ]] \
+        && read -r -a G_BLACKLISTED_MODULES_USER <<< "${G_INFO[blacklisted_modules_user]}"
 
     ENABLE_ENVIRONMENT="${G_INFO[enable_environment]:-$ENABLE_ENVIRONMENT}"
     ENABLE_FONTCONFIG="${G_INFO[enable_fontconfig]:-$ENABLE_FONTCONFIG}"
@@ -429,12 +428,10 @@ OPTIONS:
                           Commands: install, remove.
   (stored)
   -b, --blacklist <name>  Blacklist the module. One module name per argument.
-                          Ignored on updates if the blacklist was already
-                          defined for a previous install.
                           Commands: install.
                           Example:
                               -b environment/lucidglyph-freetype-properties.conf \\
-                              -b fontconfig/11-lucidglyph-grayscale.conf"
+                              -b fontconfig/11-lucidglyph-grayscale.conf
 
                               The above example will prevent modules from being
                               installed in the respective order:
