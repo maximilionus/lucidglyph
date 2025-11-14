@@ -88,18 +88,20 @@ lucidglyph installed. These are subjective, opinionated suggestions, not strict
 guidelines - hence, lucidglyph does not enforce any font overwrites by itself.
 
 Fonts in the "Not Recommended" group are generally not recommended for usage
-due to poor legibility and improper geometry at small sizes after darkening.
+due to poor legibility and improper geometry at small sizes after
+stem-darkening _(see [Details](#details))_.
 
-#### Sans-serif
-Recommended:
+**Serif:**
+- Noto Serif
+
+**Sans-serif:**
 - Inter, Adwaita Sans
 - Noto Sans
 
-Not Recommended:
-- Cantarell
+> Not Recommended:
+> - Cantarell
 
-#### Monospace
-Recommended:
+**Monospace:**
 - DejaVu Sans Mono
 - MesloLG, Menlo
 - JetBrains Mono
@@ -109,7 +111,7 @@ Recommended:
 This project does not assign the hinting settings forcefully, only "suggesting"
 the system to use the "Slight" hinting if no other option is set. This is the
 intended behavior since hinting settings are usually really taste-dependent, so
-the final choice should be left to the end user.
+the final choice was left to the end user.
 
 
 ### Chromium
