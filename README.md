@@ -39,12 +39,11 @@ Visual comparison is available on the project's
    sudo ./lucidglyph.sh install
    ```
 
-   > See [User mode](#user-mode) for per-user installation
+   > See [User mode](#user-mode) for per-user installation.
 4. Reboot to apply the changes.
 
 ### Remove
-1. Execute the same script from [Install](#install) section above with elevated
-   permissions:
+1. Execute the same script from section above with elevated permissions:
 
    ```sh
    sudo ./lucidglyph.sh remove
