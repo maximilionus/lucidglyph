@@ -17,6 +17,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 set -eo pipefail
+shopt -s nullglob
 
 
 NAME="lucidglyph"
@@ -38,8 +39,7 @@ DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
 #     Installation information and uninstaller script.
 #
 #     Disable this group when used in package manager.
-ENABLE_METADATA=${ENABLE_METADATA:=true}  # Set this env variable to false
-                                          # to completely disable this group.
+ENABLE_METADATA=${ENABLE_METADATA:=true}
 
 DEST_LIB_DIR="$DEST_USR/lib/lucidglyph"
 DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
@@ -51,14 +51,13 @@ DEST_UNINSTALL_FILE="uninstaller.sh"
 
 # Environment group
 #     Variables that need to be exported to the system environment.
-ENABLE_ENVIRONMENT=${ENABLE_ENVIRONMENT:=true}  # Set this env variable to false
-                                                # to completely disable this group.
+ENABLE_ENVIRONMENT=${ENABLE_ENVIRONMENT:=true}
+
 ENVIRONMENT_DIR="$MODULES_DIR/environment"
 DEST_ENVIRONMENT="$DEST_CONF/environment"
 
 # Fontconfig group
-ENABLE_FONTCONFIG=${ENABLE_FONTCONFIG:=true}  # Set this env variable to false
-                                              # to completely disable this group.
+ENABLE_FONTCONFIG=${ENABLE_FONTCONFIG:=true}
 FONTCONFIG_DIR="$MODULES_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="$DEST_CONF/fonts/conf.d"
 DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
@@ -79,8 +78,8 @@ MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 # Global variables
 declare -A G_INFO
 declare G_IS_PER_USER=false
-declare -a G_BLACKLISTED_MODULES=()       # Internal hardcoded module blacklist
-declare -a G_BLACKLISTED_MODULES_USER=()  # User blacklist. Populated through `--blacklist` argument.
+declare -a G_BLACKLISTED_MODULES=()       # Hardcoded system module blacklist
+declare -a G_BLACKLISTED_MODULES_USER=()  # User blacklist. Populated through `--blacklist` option.
 
 
 # Check if version $2 >= $1
@@ -146,7 +145,8 @@ is_mod_blacklisted() {
     local blacklist=("${G_BLACKLISTED_MODULES[@]}" "${G_BLACKLISTED_MODULES_USER[@]}")
 
     for i in "${blacklist[@]}"; do
-        if  [[ "$i" == "$module" ]]; then
+        # Unquoted $i to glob the possible patterns
+        if  [[ "$module" == $i ]]; then
             return 0
         fi
     done
@@ -429,12 +429,14 @@ OPTIONS:
   -u, --user              Operate in per-user mode (experimental feature).
                           Commands: install, remove.
 
-  -b, --blacklist <arg>   Blacklist the module. One module name per option.
+  -b, --blacklist <arg>   Module blacklist pattern. One pattern per option.
+                          Pattern should be provided in literal string format
+                          (single quotes).
                           Commands: install.
                           Stored.
                           Example:
-                              -b environment/lucidglyph-freetype-properties.conf \\
-                              -b fontconfig/11-lucidglyph-grayscale.conf
+                              -b 'environment/*freetype-properties*' \\
+                              -b 'fontconfig/*grayscale*'
 
                               The above example will prevent modules from being
                               installed in the respective order:
