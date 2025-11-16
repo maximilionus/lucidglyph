@@ -227,7 +227,7 @@ EOF
     # no new blacklist was provided by user.
     (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) \
         && [[ -n "${G_INFO[blacklisted_modules_user]}" ]] \
-        && read -r -a G_BLACKLISTED_MODULES_USER <<< "${G_INFO[blacklisted_modules_user]}"
+        && IFS=, read -r -a G_BLACKLISTED_MODULES_USER <<< "${G_INFO[blacklisted_modules_user]}"
 
     ENABLE_ENVIRONMENT="${G_INFO[enable_environment]:-$ENABLE_ENVIRONMENT}"
     ENABLE_FONTCONFIG="${G_INFO[enable_fontconfig]:-$ENABLE_FONTCONFIG}"
@@ -268,7 +268,7 @@ install_metadata () {
 
     append_metadata info <<EOF
 version="$VERSION"
-blacklisted_modules_user="${G_BLACKLISTED_MODULES_USER[@]}"
+blacklisted_modules_user="$(printf -v str '%s,' "${G_BLACKLISTED_MODULES_USER[@]}"; echo "${str%,}")"
 enable_environment="$ENABLE_ENVIRONMENT"
 enable_fontconfig="$ENABLE_FONTCONFIG"
 EOF
