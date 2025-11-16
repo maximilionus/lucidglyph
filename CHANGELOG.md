@@ -8,10 +8,15 @@
 - New fallback Fontconfig rule to suggest usage of "Slight" style font hinting
   if no other configuration is found.
 
+- New blacklist option that allows disabling individual project modules. The
+  blacklist should be provided through the `--blacklist` (`-b`) option, one
+  module name (or glob mask) per option. For more information, see the script
+  `help` command output.
+
 - Some user preferences are now being preserved on project upgrades. Currently
-  preserved settings are `ENABLE_ENVIRONMENT` and `ENABLE_FONTCONFIG`. This
-  feature only works starting with this release and does not migrate settings
-  from previous versions.
+  preserved settings are `ENABLE_ENVIRONMENT`, `ENABLE_FONTCONFIG`, and
+  `--blacklist`. This feature only works starting with this release and does
+  not migrate settings from previous versions.
 
 - To comply with
   [FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard),
