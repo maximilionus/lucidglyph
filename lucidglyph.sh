@@ -66,6 +66,7 @@ DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
 C_RESET="\e[0m"
 C_BOLD="\e[1m"
 C_DIM="\e[2m"
+C_WHITE="\e[0;37m"
 C_GREEN="\e[0;32m"
 C_YELLOW="\e[0;33m"
 C_RED="\e[0;31m"
@@ -122,17 +123,32 @@ EOF
     fi
 }
 
-list_blacklist() {
+blacklist_checkup() {
     if (( ${#G_BLACKLISTED_MODULES[@]} != 0 )); then
         printf "${C_DIM}System blacklisted modules:\n"
         printf '    %s\n' "${G_BLACKLISTED_MODULES[@]}"
         printf "$C_RESET"
     fi
 
-    if (( ${#G_BLACKLISTED_MODULES_USER[@]} != 0 )); then
-        printf "${C_DIM}User blacklisted modules:\n"
-        printf '    %s\n' "${G_BLACKLISTED_MODULES_USER[@]}"
-        printf "$C_RESET"
+    (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) && return 0
+
+    printf "${C_DIM}User blacklisted modules:\n"
+
+    local bs_correct=true
+    for i in "${G_BLACKLISTED_MODULES_USER[@]}"; do
+        printf -- '- %s' "$i"
+
+        if ! compgen -G "$MODULES_DIR/$i" > /dev/null; then
+            printf " ${C_YELLOW}(Warning: module does not exist!)${C_WHITE}"
+            bs_correct=false
+        fi
+
+        printf "\n"
+    done
+    printf "$C_RESET"
+
+    if [[ "$bs_correct" == false ]]; then
+        ask_confirmation "One or more blacklist entries doesn't seem to be correct. Continue?"
     fi
 }
 
@@ -476,7 +492,7 @@ EOF
 
 cmd_install () {
     load_info_file
-    list_blacklist
+    blacklist_checkup
 
     if [[ ${G_INFO[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
