@@ -83,14 +83,15 @@ declare -a G_BLACKLISTED_MODULES=()       # Hardcoded system module blacklist
 declare -a G_BLACKLISTED_MODULES_USER=()  # User blacklist. Populated through `--blacklist` option.
 
 
-# Check if version $2 >= $1
-verlte() {
-    [  "$1" = "`echo -e \"$1\n$2\" | sort -V | head -n1`" ]
+# Check if version $1 > $2
+ver_gt() {
+    [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -n1)" != "$1" ]]
 }
 
-# Check if version $2 > $1
-verlt() {
-    [ "$1" = "$2" ] && return 1 || verlte $1 $2
+# Check if version $1 >= $2
+ver_ge() {
+    [[ "$1" == "$2" ]] && return 0
+    ver_gt "$1" "$2"
 }
 
 ask_confirmation() {
@@ -244,7 +245,7 @@ EOF
     done < "$info_file_path"
 
     # Load preserved settings for >= 0.13.0
-    if verlte "0.13.0" "${G_INFO[version]}"; then return 0; fi
+    if ver_ge "0.13.0" "${G_INFO[version]}"; then return 0; fi
 
     (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) \
         && [[ -n "${G_INFO[blacklisted_modules_user]}" ]] \
@@ -395,17 +396,19 @@ EOF
 call_uninstaller () {
     local lib_dir="$DEST_LIB_DIR"
 
-    # TODO: Remove on 1.0.0
-    if [[ ${G_INFO[version]} == "0.7.0" ]]; then
-        # Backward compatibility with version 0.7.0
-        #
-        # Before the project rename
-        lib_dir="$DEST_SHARED_DIR_OLD_BEFORE_0_8_0"
-    elif verlt ${G_INFO[version]} "0.13.0"; then
-        # Backward compatibility with versions below 0.13.0
-        #
-        # Uses old path to system shared dir
-        lib_dir="$DEST_SHARED_DIR_OLD_BEFORE_0_13_0"
+    if [[ "$G_IS_PER_USER" == false ]]; then
+        # TODO: Remove on 1.0.0
+        if [[ ${G_INFO[version]} == "0.7.0" ]]; then
+            # Backward compatibility with version 0.7.0
+            #
+            # Before the project rename
+            lib_dir="$DEST_SHARED_DIR_OLD_BEFORE_0_8_0"
+        elif ver_gt "0.13.0" ${G_INFO[version]}; then
+            # Backward compatibility with versions below 0.13.0
+            #
+            # Uses old path to system shared dir
+            lib_dir="$DEST_SHARED_DIR_OLD_BEFORE_0_13_0"
+        fi
     fi
 
 
@@ -420,7 +423,7 @@ call_uninstaller () {
     # https://github.com/maximilionus/lucidglyph/issues/19
     #
     # TODO: Remove on 1.0.0
-    if [[ $G_IS_PER_USER == true ]] && verlt ${G_INFO[version]} "0.12.0"
+    if [[ $G_IS_PER_USER == true ]] && ver_gt "0.12.0" ${G_INFO[version]}
     then
         sed -i 's/rm -d/rmdir/g' "$lib_dir/$DEST_UNINSTALL_FILE"
     fi
