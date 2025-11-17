@@ -198,6 +198,10 @@ get_shell_conf() {
 
 # Parse and load the installation information
 load_info_file () {
+    # Empty the array that could be already loaded
+    unset G_INFO
+    declare -gA G_INFO
+
     local info_file_path="$DEST_SHARED_DIR/$DEST_INFO_FILE"
 
     [[ $ENABLE_METADATA == false ]] && return 0
