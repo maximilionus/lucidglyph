@@ -498,29 +498,29 @@ EOF
 }
 
 cmd_install () {
+    check_root
     load_info_file
     blacklist_checkup
 
+    local needs_reinstall=false
+    local confirm_msg=""
     if [[ ${G_INFO[version]} == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
 
-        if ask_confirmation "Do you wish to reinstall it?"; then
-            check_root
-            call_uninstaller
-        else
-            exit 0
-        fi
+        needs_reinstall=true
+        confirm_msg="Do you wish to reinstall it?"
     elif [[ ! -z ${G_INFO[version]} ]]; then
         printf "${C_GREEN}Detected $NAME version ${G_INFO[version]} on the target system.${C_RESET}\n"
 
-        if ask_confirmation "Do you wish to upgrade to version $VERSION?"; then
-            check_root
-            call_uninstaller
-        else
-            exit 1
-        fi
-    else
-        check_root
+        needs_reinstall=true
+        confirm_msg="Do you wish to upgrade to version $VERSION?"
+    fi
+
+    if [[ "$needs_reinstall" == true ]]; then
+        if ! ask_confirmation "$confirm_msg"; then exit 1; fi
+
+        call_uninstaller
+        load_info_file # Empty the info array
     fi
 
     printf "Setting up\n"
