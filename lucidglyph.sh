@@ -578,6 +578,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         -u|--user)
             G_IS_PER_USER=true
+            printf "${C_DIM}Operating in per-user mode (experimental).${C_RESET}\n"
             shift
             ;;
         -b|--blacklist)
