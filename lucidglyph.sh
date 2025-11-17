@@ -239,12 +239,15 @@ EOF
         fi
     done < "$info_file_path"
 
-    # Preserve the settings from previous install, only on upgrade, and only if
-    # no new blacklist was provided by user.
+    # Load preserved settings for >= 0.13.0
+    if verlte "0.13.0" "${G_INFO[version]}"; then return 0; fi
+
     (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) \
         && [[ -n "${G_INFO[blacklisted_modules_user]}" ]] \
         && IFS=, read -r -a G_BLACKLISTED_MODULES_USER <<< "${G_INFO[blacklisted_modules_user]}"
 
+    # TODO: Loading these values needs to be somehow enhanced so the user could
+    # overwrite them instead of forcefully assigning them here.
     ENABLE_ENVIRONMENT="${G_INFO[enable_environment]:-$ENABLE_ENVIRONMENT}"
     ENABLE_FONTCONFIG="${G_INFO[enable_fontconfig]:-$ENABLE_FONTCONFIG}"
 }
