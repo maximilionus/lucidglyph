@@ -534,9 +534,8 @@ cmd_install () {
     printf "\n${C_BOLD}${C_GREEN}Success!${C_RESET} ${C_BOLD}Reboot to apply the changes.${C_RESET}\n"
     printf "\n${C_DIM}"
     cat <<EOF
-See the "Notes" section in README file for a more thorough explanation of the
-potential problems that might need manual intervention or are just not fixable
-currently.
+See the "Notes" section in the README file for a more thorough explanation of
+project modules and potential issues that may arise.
 EOF
     printf "${C_RESET}"
 }
