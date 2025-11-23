@@ -460,14 +460,6 @@ OPTIONS:
                           (single quotes).
                           Commands: install.
                           Stored.
-                          Example:
-                              -b 'environment/*freetype-properties*' \\
-                              -b 'fontconfig/*grayscale*'
-
-                              The above example will prevent modules from being
-                              installed in the respective order:
-                              - $MODULES_DIR/environment/lucidglyph-freetype-properties.conf
-                              - $MODULES_DIR/fontconfig/11-lucidglyph-grayscale.conf
 
 ENVIRONMENT VARIABLES - MODULES:
   ENABLE_ENVIRONMENT  Module group responsible for appending the environment

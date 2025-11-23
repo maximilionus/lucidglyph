@@ -79,6 +79,26 @@ To activate this mode, pass the `--user` (or `-u`) argument on main script run:
 ./lucidglyph.sh --user [COMMAND]
 ```
 
+### Blacklisting Modules
+Specific modules can be blacklisted individually, disabling the desired parts
+of the project.
+
+The blacklist should be provided through the `--blacklist` (`-b`) option when
+calling the `install` command and will be automatically preserved between
+updates. One `--blacklist` option can hold only one module name or glob pattern
+provided in literal string format (single quotes).
+
+The below example will prevent modules from being installed in the respective
+order:
+- `modules/environment/lucidglyph-freetype-properties.conf`
+- `modules/fontconfig/11-lucidglyph-grayscale.conf`
+
+```sh
+sudo ./lucidglyph.sh install \
+    -b 'environment/*freetype-properties*' \
+    -b 'fontconfig/*grayscale*'
+```
+
 
 ## Notes
 ### Font Recommendations
