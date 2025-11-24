@@ -79,7 +79,7 @@ To activate this mode, pass the `--user` (or `-u`) argument on main script run:
 ./lucidglyph.sh --user [COMMAND]
 ```
 
-### Blacklisting Modules
+### Blacklist
 Specific modules can be blacklisted individually, disabling the desired parts
 of the project.
 

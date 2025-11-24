@@ -245,7 +245,7 @@ EOF
     done < "$info_file_path"
 
     # Load preserved settings for >= 0.13.0
-    if ver_ge "0.13.0" "${G_INFO[version]}"; then return 0; fi
+    if ver_gt "0.13.0" "${G_INFO[version]}"; then return 0; fi
 
     (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) \
         && [[ -n "${G_INFO[blacklisted_modules_user]}" ]] \
