@@ -22,12 +22,14 @@ shopt -s nullglob
 
 NAME="lucidglyph"
 VERSION="0.13.0"
-MODULES_DIR="modules"
 
 # Display the header with project name and version on start
 SHOW_HEADER=${SHOW_HEADER:-true}
 
 # Filesystem configuration
+SRC_DIR="src"
+MODULES_DIR="$SRC_DIR/modules"
+
 DEST_CONF="${DESTDIR:-}${DEST_CONF:-/etc}"
 DEST_USR="${DESTDIR:-}${DEST_USR:-/usr/local}"
 DEST_USR_OLD_BEFORE_0_13_0="${DESTDIR:-}/usr"  # TODO: Remove on 1.0.0
