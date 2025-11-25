@@ -32,7 +32,7 @@ MODULES_DIR="$SRC_DIR/modules"
 
 DEST_CONF="${DESTDIR:-}${DEST_CONF:-/etc}"
 DEST_USR="${DESTDIR:-}${DEST_USR:-/usr/local}"
-DEST_USR_OLD_BEFORE_0_13_0="${DESTDIR:-}/usr"  # TODO: Remove on 1.0.0
+DEST_USR_OLD_BEFORE_0_13_0="${DESTDIR:-}/usr"  # TODO: Remove in 1.0.0
 
 DEST_CONF_USR="${DESTDIR:-$HOME}${DEST_CONF_USR:-/.config}"
 DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
@@ -45,10 +45,12 @@ ENABLE_METADATA=${ENABLE_METADATA:=true}
 
 DEST_LIB_DIR="$DEST_USR/lib/lucidglyph"
 DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
-DEST_SHARED_DIR_OLD_BEFORE_0_8_0="$DEST_USR_OLD_BEFORE_0_13_0/share/freetype-envision"  # TODO: Remove on 1.0.0
-DEST_SHARED_DIR_OLD_BEFORE_0_13_0="$DEST_USR_OLD_BEFORE_0_13_0/share/lucidglyph"  # TODO: Remove on 1.0.0
+DEST_SHARED_DIR_OLD_BEFORE_0_8_0="$DEST_USR_OLD_BEFORE_0_13_0/share/freetype-envision"  # TODO: Remove in 1.0.0
+DEST_SHARED_DIR_OLD_BEFORE_0_13_0="$DEST_USR_OLD_BEFORE_0_13_0/share/lucidglyph"  # TODO: Remove in 1.0.0
 DEST_SHARED_DIR_USR="$DEST_USR_USR/share/lucidglyph"
-DEST_INFO_FILE="info"
+DEST_INFO_FILE="info" # TODO: Remove in 1.0.0
+DEST_VERSION_FILE="version"
+DEST_BLACKLISTED_MODULES_FILE="blacklisted_modules"
 DEST_UNINSTALL_FILE="uninstaller.sh"
 
 # Environment group
@@ -79,10 +81,12 @@ MARKER_WARNING="# !! DO NOT PUT ANY USER CONFIGURATIONS INSIDE THIS BLOCK !!"
 MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # Global variables
-declare -A G_INFO
 declare G_IS_PER_USER=false
 declare -a G_BLACKLISTED_MODULES=()       # Hardcoded system module blacklist
 declare -a G_BLACKLISTED_MODULES_USER=()  # User blacklist. Populated through `--blacklist` option.
+
+declare G_M_VERSION
+declare -a G_M_BLACKLISTED_MODULES
 
 
 # Check if version $1 > $2
@@ -132,6 +136,10 @@ blacklist_checkup() {
         printf '    %s\n' "${G_BLACKLISTED_MODULES[@]}"
         printf "$C_RESET"
     fi
+
+    (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) \
+        && (( "${#G_M_BLACKLISTED_MODULES[@]}" > 0 )) \
+        && G_BLACKLISTED_MODULES_USER=("${G_M_BLACKLISTED_MODULES[@]}")
 
     (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) && return 0
 
@@ -200,10 +208,10 @@ get_shell_conf() {
 }
 
 # Parse and load the installation information
+# Deprecated in 0.13.0, TODO: Remove in 1.0.0
 load_info_file () {
     # Empty the array that could be already loaded
-    unset G_INFO
-    declare -gA G_INFO
+    declare -A info_aarr
 
     local info_file_path="$DEST_SHARED_DIR/$DEST_INFO_FILE"
 
@@ -211,7 +219,7 @@ load_info_file () {
 
     if [[ ! -f "$info_file_path" ]]; then
         # Backwards compatibility
-        # TODO: Remove on 1.0.0
+        # TODO: Remove in 1.0.0
         if [[ -f "$DEST_SHARED_DIR_OLD_BEFORE_0_13_0/$DEST_INFO_FILE" ]]; then
             # Load the <0.13.0 info file
             info_file_path="$DEST_SHARED_DIR_OLD_BEFORE_0_13_0/$DEST_INFO_FILE"
@@ -240,23 +248,32 @@ EOF
         if [[ $line =~ $regex ]]; then
             local key="${BASH_REMATCH[1]}"
             local value="${BASH_REMATCH[2]}"
-            G_INFO["$key"]="$value"
+            info_aarr["$key"]="$value"
         else
             printf "${C_YELLOW}Warning: Skipping the invalid metadata entry:${C_RESET} \"$line\".\n"
         fi
     done < "$info_file_path"
 
-    # Load preserved settings for >= 0.13.0
-    if ver_gt "0.13.0" "${G_INFO[version]}"; then return 0; fi
+    # Compatibility layer, load the values to new format
+    G_M_VERSION="${info_aarr[version]}"
+}
 
-    (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) \
-        && [[ -n "${G_INFO[blacklisted_modules_user]}" ]] \
-        && IFS=, read -r -a G_BLACKLISTED_MODULES_USER <<< "${G_INFO[blacklisted_modules_user]}"
+load_metadata_files () {
+    [[ $ENABLE_METADATA == false ]] && return 0
 
-    # TODO: Loading these values needs to be somehow enhanced so the user could
-    # overwrite them instead of forcefully assigning them here.
-    ENABLE_ENVIRONMENT="${G_INFO[enable_environment]:-$ENABLE_ENVIRONMENT}"
-    ENABLE_FONTCONFIG="${G_INFO[enable_fontconfig]:-$ENABLE_FONTCONFIG}"
+    # Load the legacy metadata format (before 0.13.0)
+    if [[ ! -f "$DEST_SHARED_DIR/$DEST_VERSION_FILE" ]]; then
+        load_info_file
+        return 0
+    fi
+
+    if [[ ! -d "$DEST_SHARED_DIR" ]]; then return 0; fi
+
+    # Load
+    [[ -f "$DEST_SHARED_DIR/$DEST_VERSION_FILE" ]] \
+        && G_M_VERSION="$(cat $DEST_SHARED_DIR/$DEST_VERSION_FILE)"
+    [[ -f "$DEST_SHARED_DIR/$DEST_BLACKLISTED_MODULES_FILE" ]] \
+        && mapfile -t G_M_BLACKLISTED_MODULES < "$DEST_SHARED_DIR/$DEST_BLACKLISTED_MODULES_FILE"
 }
 
 # Append the redirected content to metadata files.
@@ -268,7 +285,8 @@ append_metadata () {
 
     local path=""
     case "$mode" in
-        info) path="$DEST_SHARED_DIR/$DEST_INFO_FILE" ;;
+        version) path="$DEST_SHARED_DIR/$DEST_VERSION_FILE" ;;
+        blacklisted_modules) path="$DEST_SHARED_DIR/$DEST_BLACKLISTED_MODULES_FILE" ;;
         uninstall) path="$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" ;;
         *) printf "${C_YELLOW}Warning: append_metadata wrong argument.${C_RESET}" ;;
     esac
@@ -285,19 +303,16 @@ install_metadata () {
     fi
 
     mkdir -p "$DEST_SHARED_DIR"
-    touch "$DEST_SHARED_DIR/$DEST_INFO_FILE"
+    touch "$DEST_SHARED_DIR/$DEST_VERSION_FILE"
+    touch "$DEST_SHARED_DIR/$DEST_BLACKLISTED_MODULES_FILE"
 
     mkdir -p "$DEST_LIB_DIR"
     touch "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE"
     chmod +x "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE"
     printf "${C_GREEN}Done${C_RESET}\n"
 
-    append_metadata info <<EOF
-version="$VERSION"
-blacklisted_modules_user="$(printf -v str '%s,' "${G_BLACKLISTED_MODULES_USER[@]}"; echo "${str%,}")"
-enable_environment="$ENABLE_ENVIRONMENT"
-enable_fontconfig="$ENABLE_FONTCONFIG"
-EOF
+    append_metadata version <<< "$VERSION"
+    printf '%s\n' "${G_BLACKLISTED_MODULES_USER[@]}" | append_metadata blacklisted_modules
     append_metadata uninstall <<EOF
 #!/bin/bash
 set -e
@@ -399,13 +414,13 @@ call_uninstaller () {
     local lib_dir="$DEST_LIB_DIR"
 
     if [[ "$G_IS_PER_USER" == false ]]; then
-        # TODO: Remove on 1.0.0
-        if [[ ${G_INFO[version]} == "0.7.0" ]]; then
+        # TODO: Remove in 1.0.0
+        if [[ $G_M_VERSION == "0.7.0" ]]; then
             # Backward compatibility with version 0.7.0
             #
             # Before the project rename
             lib_dir="$DEST_SHARED_DIR_OLD_BEFORE_0_8_0"
-        elif ver_gt "0.13.0" ${G_INFO[version]}; then
+        elif ver_gt "0.13.0" $G_M_VERSION; then
             # Backward compatibility with versions below 0.13.0
             #
             # Uses old path to system shared dir
@@ -424,8 +439,8 @@ call_uninstaller () {
     #
     # https://github.com/maximilionus/lucidglyph/issues/19
     #
-    # TODO: Remove on 1.0.0
-    if [[ $G_IS_PER_USER == true ]] && ver_gt "0.12.0" ${G_INFO[version]}
+    # TODO: Remove in 1.0.0
+    if [[ $G_IS_PER_USER == true ]] && ver_gt "0.12.0" $G_M_VERSION
     then
         sed -i 's/rm -d/rmdir/g' "$lib_dir/$DEST_UNINSTALL_FILE"
     fi
@@ -496,18 +511,18 @@ EOF
 
 cmd_install () {
     check_root
-    load_info_file
+    load_metadata_files
     blacklist_checkup
 
     local needs_reinstall=false
     local confirm_msg=""
-    if [[ ${G_INFO[version]} == $VERSION ]]; then
+    if [[ $G_M_VERSION == $VERSION ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
 
         needs_reinstall=true
         confirm_msg="Do you wish to reinstall it?"
-    elif [[ ! -z ${G_INFO[version]} ]]; then
-        printf "${C_GREEN}Detected $NAME version ${G_INFO[version]} on the target system.${C_RESET}\n"
+    elif [[ ! -z $G_M_VERSION ]]; then
+        printf "${C_GREEN}Detected $NAME version $G_M_VERSION on the target system.${C_RESET}\n"
 
         needs_reinstall=true
         confirm_msg="Do you wish to upgrade to version $VERSION?"
@@ -517,7 +532,6 @@ cmd_install () {
         if ! ask_confirmation "$confirm_msg"; then exit 1; fi
 
         call_uninstaller
-        load_info_file # Empty the info array
     fi
 
     printf "Setting up\n"
@@ -540,9 +554,9 @@ cmd_remove () {
         exit 1
     fi
 
-    load_info_file
+    load_metadata_files
 
-    if (( ! ${#G_INFO[@]} )); then
+    if [[ -z "$G_M_VERSION" ]]; then
         printf "${C_RED}Error:${C_RESET} Project is not installed.\n" >&2
         exit 1
     fi
