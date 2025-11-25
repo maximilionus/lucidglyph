@@ -14,9 +14,8 @@
   `help` command output.
 
 - Some user preferences are now being preserved on project upgrades. Currently
-  preserved settings are `ENABLE_ENVIRONMENT`, `ENABLE_FONTCONFIG`, and
-  `--blacklist`. This feature only works starting with this release and does
-  not migrate settings from previous versions.
+  preserved setting is `--blacklist` option. This feature only works starting
+  with this release and does not migrate settings from previous versions.
 
 - To comply with
   [FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard),
