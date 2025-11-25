@@ -48,10 +48,10 @@ DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
 DEST_SHARED_DIR_OLD_BEFORE_0_8_0="$DEST_USR_OLD_BEFORE_0_13_0/share/freetype-envision"  # TODO: Remove in 1.0.0
 DEST_SHARED_DIR_OLD_BEFORE_0_13_0="$DEST_USR_OLD_BEFORE_0_13_0/share/lucidglyph"  # TODO: Remove in 1.0.0
 DEST_SHARED_DIR_USR="$DEST_USR_USR/share/lucidglyph"
-DEST_INFO_FILE="info" # TODO: Remove in 1.0.0
-DEST_VERSION_FILE="version"
-DEST_BLACKLISTED_MODULES_FILE="blacklisted_modules"
-DEST_UNINSTALL_FILE="uninstaller.sh"
+M_INFO_FILE="info" # TODO: Remove in 1.0.0
+M_VERSION_FILE="version"
+M_BLACKLISTED_MODULES_FILE="blacklisted_modules"
+M_DEST_UNINSTALL_FILE="uninstaller.sh"
 
 # Environment group
 #     Variables that need to be exported to the system environment.
@@ -213,19 +213,19 @@ load_info_file () {
     # Empty the array that could be already loaded
     declare -A info_aarr
 
-    local info_file_path="$DEST_SHARED_DIR/$DEST_INFO_FILE"
+    local info_file_path="$DEST_SHARED_DIR/$M_INFO_FILE"
 
     [[ $ENABLE_METADATA == false ]] && return 0
 
     if [[ ! -f "$info_file_path" ]]; then
         # Backwards compatibility
         # TODO: Remove in 1.0.0
-        if [[ -f "$DEST_SHARED_DIR_OLD_BEFORE_0_13_0/$DEST_INFO_FILE" ]]; then
+        if [[ -f "$DEST_SHARED_DIR_OLD_BEFORE_0_13_0/$M_INFO_FILE" ]]; then
             # Load the <0.13.0 info file
-            info_file_path="$DEST_SHARED_DIR_OLD_BEFORE_0_13_0/$DEST_INFO_FILE"
-        elif [[ -f "$DEST_SHARED_DIR_OLD_BEFORE_0_8_0/$DEST_INFO_FILE" ]]; then
+            info_file_path="$DEST_SHARED_DIR_OLD_BEFORE_0_13_0/$M_INFO_FILE"
+        elif [[ -f "$DEST_SHARED_DIR_OLD_BEFORE_0_8_0/$M_INFO_FILE" ]]; then
             # Load the 0.7.0 state (info) file
-            info_file_path="$DEST_SHARED_DIR_OLD_BEFORE_0_8_0/$DEST_INFO_FILE"
+            info_file_path="$DEST_SHARED_DIR_OLD_BEFORE_0_8_0/$M_INFO_FILE"
         elif compgen -G "$DEST_FONTCONFIG_DIR/*freetype-envision*" > /dev/null \
             || compgen -G "$DEST_FONTCONFIG_DIR/*$NAME*" > /dev/null; then
         cat <<EOF
@@ -262,7 +262,7 @@ load_metadata_files () {
     [[ $ENABLE_METADATA == false ]] && return 0
 
     # Load the legacy metadata format (before 0.13.0)
-    if [[ ! -f "$DEST_SHARED_DIR/$DEST_VERSION_FILE" ]]; then
+    if [[ ! -f "$DEST_SHARED_DIR/$M_VERSION_FILE" ]]; then
         load_info_file
         return 0
     fi
@@ -270,10 +270,12 @@ load_metadata_files () {
     if [[ ! -d "$DEST_SHARED_DIR" ]]; then return 0; fi
 
     # Load
-    [[ -f "$DEST_SHARED_DIR/$DEST_VERSION_FILE" ]] \
-        && G_M_VERSION="$(cat $DEST_SHARED_DIR/$DEST_VERSION_FILE)"
-    [[ -f "$DEST_SHARED_DIR/$DEST_BLACKLISTED_MODULES_FILE" ]] \
-        && mapfile -t G_M_BLACKLISTED_MODULES < "$DEST_SHARED_DIR/$DEST_BLACKLISTED_MODULES_FILE"
+    [[ -f "$DEST_SHARED_DIR/$M_VERSION_FILE" ]] \
+        && G_M_VERSION="$(cat $DEST_SHARED_DIR/$M_VERSION_FILE)"
+    [[ -f "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE" ]] \
+        && mapfile -t G_M_BLACKLISTED_MODULES < <(grep -v '^$' "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE")
+        # Grepping is required to ignore the empty lines, so the list can be
+        # correctly counted later.
 }
 
 # Append the redirected content to metadata files.
@@ -285,9 +287,9 @@ append_metadata () {
 
     local path=""
     case "$mode" in
-        version) path="$DEST_SHARED_DIR/$DEST_VERSION_FILE" ;;
-        blacklisted_modules) path="$DEST_SHARED_DIR/$DEST_BLACKLISTED_MODULES_FILE" ;;
-        uninstall) path="$DEST_LIB_DIR/$DEST_UNINSTALL_FILE" ;;
+        version) path="$DEST_SHARED_DIR/$M_VERSION_FILE" ;;
+        blacklisted_modules) path="$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE" ;;
+        uninstall) path="$DEST_LIB_DIR/$M_DEST_UNINSTALL_FILE" ;;
         *) printf "${C_YELLOW}Warning: append_metadata wrong argument.${C_RESET}" ;;
     esac
 
@@ -303,12 +305,12 @@ install_metadata () {
     fi
 
     mkdir -p "$DEST_SHARED_DIR"
-    touch "$DEST_SHARED_DIR/$DEST_VERSION_FILE"
-    touch "$DEST_SHARED_DIR/$DEST_BLACKLISTED_MODULES_FILE"
+    touch "$DEST_SHARED_DIR/$M_VERSION_FILE"
+    touch "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE"
 
     mkdir -p "$DEST_LIB_DIR"
-    touch "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE"
-    chmod +x "$DEST_LIB_DIR/$DEST_UNINSTALL_FILE"
+    touch "$DEST_LIB_DIR/$M_DEST_UNINSTALL_FILE"
+    chmod +x "$DEST_LIB_DIR/$M_DEST_UNINSTALL_FILE"
     printf "${C_GREEN}Done${C_RESET}\n"
 
     append_metadata version <<< "$VERSION"
@@ -429,7 +431,7 @@ call_uninstaller () {
     fi
 
 
-    if [[ ! -f "$lib_dir/$DEST_UNINSTALL_FILE" ]]; then
+    if [[ ! -f "$lib_dir/$M_DEST_UNINSTALL_FILE" ]]; then
         printf "${C_RED}Error:${C_RESET} Uninstaller script not found, installation corrupted\n" >&2
         exit 1
     fi
@@ -442,10 +444,10 @@ call_uninstaller () {
     # TODO: Remove in 1.0.0
     if [[ $G_IS_PER_USER == true ]] && ver_gt "0.12.0" $G_M_VERSION
     then
-        sed -i 's/rm -d/rmdir/g' "$lib_dir/$DEST_UNINSTALL_FILE"
+        sed -i 's/rm -d/rmdir/g' "$lib_dir/$M_DEST_UNINSTALL_FILE"
     fi
 
-    "$lib_dir/$DEST_UNINSTALL_FILE"
+    "$lib_dir/$M_DEST_UNINSTALL_FILE"
 }
 
 cmd_help () {
