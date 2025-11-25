@@ -90,8 +90,8 @@ provided in literal string format (single quotes).
 
 The below example will prevent modules from being installed in the respective
 order:
-- `modules/environment/lucidglyph-freetype-properties.conf`
-- `modules/fontconfig/11-lucidglyph-grayscale.conf`
+- `src/modules/environment/lucidglyph-freetype-properties.conf`
+- `src/modules/fontconfig/11-lucidglyph-grayscale.conf`
 
 ```sh
 sudo ./lucidglyph.sh install \
