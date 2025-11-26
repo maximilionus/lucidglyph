@@ -11,7 +11,7 @@
 - New blacklist option that allows disabling individual project modules. The
   blacklist should be provided through the `--blacklist` (`-b`) option, one
   module name (or glob mask) per option. For more information, see the
-  [Blacklist](../README.md#blacklist) section in README.
+  "Blacklist" section in README.
 
 - Some user preferences are now being preserved on project upgrades. Currently
   preserved settings are environment variables `ENABLE_ENVIRONMENT`,
