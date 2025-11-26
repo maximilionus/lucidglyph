@@ -14,8 +14,10 @@
   `help` command output.
 
 - Some user preferences are now being preserved on project upgrades. Currently
-  preserved setting is `--blacklist` option. This feature only works starting
-  with this release and does not migrate settings from previous versions.
+  preserved settings are environment variables `ENABLE_ENVIRONMENT`,
+  `ENABLE_FONTCONFIG`, and `--blacklist` option. This feature only works
+  starting with this release and does not migrate settings from previous
+  versions.
 
 - To comply with
   [FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard),
@@ -25,7 +27,7 @@
 
 - Improved after-install notice in script.
 
-- Multiple small fixes and enhancements for script logic and output.
+- Multiple enhancements for project logic, output, and metadata management.
 
 
 ## Release 0.12.0

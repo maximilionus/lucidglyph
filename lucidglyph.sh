@@ -41,7 +41,7 @@ DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
 #     Installation information and uninstaller script.
 #
 #     Disable this group when used in package manager.
-ENABLE_METADATA=${ENABLE_METADATA:=true}
+ENABLE_METADATA=${ENABLE_METADATA:-}
 
 DEST_LIB_DIR="$DEST_USR/lib/lucidglyph"
 DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
@@ -51,17 +51,19 @@ DEST_SHARED_DIR_USR="$DEST_USR_USR/share/lucidglyph"
 M_INFO_FILE="info" # TODO: Remove in 1.0.0
 M_VERSION_FILE="version"
 M_BLACKLISTED_MODULES_FILE="blacklisted_modules"
+M_ENABLE_ENVIRONMENT_FILE="enable_environment"
+M_ENABLE_FONTCONFIG_FILE="enable_fontconfig"
 M_DEST_UNINSTALL_FILE="uninstaller.sh"
 
 # Environment group
 #     Variables that need to be exported to the system environment.
-ENABLE_ENVIRONMENT=${ENABLE_ENVIRONMENT:=true}
+ENABLE_ENVIRONMENT=${ENABLE_ENVIRONMENT:-}
 
 ENVIRONMENT_DIR="$MODULES_DIR/environment"
 DEST_ENVIRONMENT="$DEST_CONF/environment"
 
 # Fontconfig group
-ENABLE_FONTCONFIG=${ENABLE_FONTCONFIG:=true}
+ENABLE_FONTCONFIG=${ENABLE_FONTCONFIG:-}
 FONTCONFIG_DIR="$MODULES_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="$DEST_CONF/fonts/conf.d"
 DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
@@ -207,7 +209,7 @@ get_shell_conf() {
     esac
 }
 
-# Parse and load the installation information
+# Parse and load the old installation information.
 # Deprecated in 0.13.0, TODO: Remove in 1.0.0
 load_info_file () {
     # Empty the array that could be already loaded
@@ -258,6 +260,7 @@ EOF
     G_M_VERSION="${info_aarr[version]}"
 }
 
+# Process the local metadata files, loading the values.
 load_metadata_files () {
     [[ $ENABLE_METADATA == false ]] && return 0
 
@@ -272,6 +275,12 @@ load_metadata_files () {
     # Load
     [[ -f "$DEST_SHARED_DIR/$M_VERSION_FILE" ]] \
         && G_M_VERSION="$(cat $DEST_SHARED_DIR/$M_VERSION_FILE)"
+
+    [[ -f "$DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE" && -z "$ENABLE_ENVIRONMENT" ]] \
+        && ENABLE_ENVIRONMENT="$(cat $DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE)"
+    [[ -f "$DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE" && -z "$ENABLE_FONTCONFIG" ]] \
+        && ENABLE_FONTCONFIG="$(cat $DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE)"
+
     [[ -f "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE" ]] \
         && mapfile -t G_M_BLACKLISTED_MODULES < <(grep -v '^$' "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE")
         # Grepping is required to ignore the empty lines, so the list can be
@@ -289,6 +298,8 @@ append_metadata () {
     case "$mode" in
         version) path="$DEST_SHARED_DIR/$M_VERSION_FILE" ;;
         blacklisted_modules) path="$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE" ;;
+        enable_environment) path="$DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE" ;;
+        enable_fontconfig) path="$DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE" ;;
         uninstall) path="$DEST_LIB_DIR/$M_DEST_UNINSTALL_FILE" ;;
         *) printf "${C_YELLOW}Warning: append_metadata wrong argument.${C_RESET}" ;;
     esac
@@ -307,6 +318,8 @@ install_metadata () {
     mkdir -p "$DEST_SHARED_DIR"
     touch "$DEST_SHARED_DIR/$M_VERSION_FILE"
     touch "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE"
+    touch "$DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE"
+    touch "$DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE"
 
     mkdir -p "$DEST_LIB_DIR"
     touch "$DEST_LIB_DIR/$M_DEST_UNINSTALL_FILE"
@@ -314,6 +327,8 @@ install_metadata () {
     printf "${C_GREEN}Done${C_RESET}\n"
 
     append_metadata version <<< "$VERSION"
+    append_metadata enable_environment <<< "$ENABLE_ENVIRONMENT"
+    append_metadata enable_fontconfig <<< "$ENABLE_FONTCONFIG"
     printf '%s\n' "${G_BLACKLISTED_MODULES_USER[@]}" | append_metadata blacklisted_modules
     append_metadata uninstall <<EOF
 #!/bin/bash
