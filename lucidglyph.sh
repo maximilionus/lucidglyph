@@ -114,17 +114,16 @@ show_header () {
 }
 
 check_root () {
-    if [[ $(/usr/bin/id -u) != 0 ]] &&  [[ $G_IS_PER_USER == false ]]; then
+    if [[ "$(/usr/bin/id -u)" != 0 && "$G_IS_PER_USER" == false ]]; then
         printf "${C_RED}Error:${C_RESET} This action requires the root privileges\n" >&2
         exit 1
-    elif [[ $(/usr/bin/id -u) == 0 ]] && [[ $G_IS_PER_USER == true ]]; then
-        printf "${C_YELLOW}"
+    elif [[ "$(/usr/bin/id -u)" == 0 && "$G_IS_PER_USER" == true ]]; then
         cat <<EOF
-Warning: You are attempting to perform a per-user operation as the root user.
-This is probably a mistake, as it will cause the utility to work with the root
-user instead of the regular user. Please confirm that this is intentional.
+You are attempting to perform a per-user operation as the root user. This is
+likely an error, as the utility will then operate with the root user instead of
+the regular user. Please confirm that this is intentional.
+
 EOF
-        printf "${C_RESET}"
 
         if ! ask_confirmation "Do you wish to continue?"; then
             exit 1
@@ -151,20 +150,20 @@ mod_blacklist_checkup() {
 
     printf "${C_DIM}User blacklisted modules:\n"
 
-    local bs_correct
+    local is_wrong
     for i in "${G_BLACKLISTED_MODULES_USER[@]}"; do
         printf -- '- %s' "$i"
 
         if ! compgen -G "$MODULES_DIR/$i" > /dev/null; then
             printf " ${C_YELLOW}(Warning: module does not exist!)${C_WHITE}"
-            bs_correct=1
+            is_wrong=1
         fi
 
         printf "\n"
     done
     printf "$C_RESET"
 
-    if [[ ! -z "$bs_correct" ]]; then
+    if [[ ! -z "$is_wrong" ]]; then
         ask_confirmation "One or more blacklist entries doesn't seem to be correct. Continue?"
     fi
 }
@@ -251,7 +250,7 @@ EOF
         # Parse all key="value"
         regex='^([a-zA-Z_][a-zA-Z0-9_]*)="([^"]*)"$'
 
-        if [[ $line =~ $regex ]]; then
+        if [[ "$line" =~ $regex ]]; then
             local key="${BASH_REMATCH[1]}"
             local value="${BASH_REMATCH[2]}"
             info_aarr["$key"]="$value"
@@ -277,18 +276,24 @@ load_metadata_files () {
     if [[ ! -d "$DEST_SHARED_DIR" ]]; then return 0; fi
 
     # Load
-    [[ -f "$DEST_SHARED_DIR/$M_VERSION_FILE" ]] \
-        && G_M_VERSION="$(cat $DEST_SHARED_DIR/$M_VERSION_FILE)"
+    if [[ -f "$DEST_SHARED_DIR/$M_VERSION_FILE" ]]; then
+        G_M_VERSION="$(cat $DEST_SHARED_DIR/$M_VERSION_FILE)"
+    fi
 
-    [[ -f "$DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE" && -z "$ENABLE_ENVIRONMENT" ]] \
-        && ENABLE_ENVIRONMENT="$(cat $DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE)"
-    [[ -f "$DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE" && -z "$ENABLE_FONTCONFIG" ]] \
-        && ENABLE_FONTCONFIG="$(cat $DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE)"
+    if [[ -f "$DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE" && -z "$ENABLE_ENVIRONMENT" ]]
+    then
+        ENABLE_ENVIRONMENT="$(cat "$DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE")"
+    fi
 
-    [[ -f "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE" ]] \
-        && mapfile -t G_M_BLACKLISTED_MODULES < <(grep -v '^$' "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE")
-        # Grepping is required to ignore the empty lines, so the list can be
-        # correctly counted later.
+    if [[ -f "$DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE" && -z "$ENABLE_FONTCONFIG" ]]
+    then
+        ENABLE_FONTCONFIG="$(cat "$DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE")"
+    fi
+
+    if [[ -f "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE" ]]; then
+        # Trim the empty lines with grep so the array can then be counted correctly.
+        mapfile -t G_M_BLACKLISTED_MODULES < <(grep -v '^$' "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE")
+    fi
 }
 
 # Append the redirected content to metadata files.
@@ -314,7 +319,7 @@ append_metadata () {
 install_metadata () {
     printf -- "- %-40s%s" "Storing the installation metadata"
 
-    if [[ $ENABLE_METADATA == false ]]; then
+    if [[ "$ENABLE_METADATA" == false ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
         return 0
     fi
@@ -354,7 +359,7 @@ EOF
 install_environment () {
     printf -- "- %-40s%s" "Appending the environment entries "
 
-    if [[ $ENABLE_ENVIRONMENT == false ]]; then
+    if [[ "$ENABLE_ENVIRONMENT" == false ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
         return 0
     fi
@@ -370,14 +375,14 @@ EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
-    if [[ $G_IS_PER_USER == false ]] && [[ ! -d $DEST_CONF ]]; then mkdir -p "$DEST_CONF"; fi
+    if [[ "$G_IS_PER_USER" == false && ! -d "$DEST_CONF" ]]; then mkdir -p "$DEST_CONF"; fi
 
     {
         printf "$MARKER_START\n"
         printf "$MARKER_WARNING\n"
 
         prefix=""
-        if [[ $G_IS_PER_USER == true ]]; then
+        if [[ "$G_IS_PER_USER" == true ]]; then
             case "$SHELL" in
                 # *fish)  prefix="set --export " ;;  # TODO
                 *)      prefix="export " ;;
@@ -400,7 +405,7 @@ EOF
 install_fontconfig () {
     printf -- "- %-40s%s" "Installing the fontconfig rules "
 
-    if [[ $ENABLE_FONTCONFIG == false ]]; then
+    if [[ "$ENABLE_FONTCONFIG" == false ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
         return 0
     fi
@@ -436,7 +441,7 @@ call_uninstaller () {
 
     if [[ "$G_IS_PER_USER" == false ]]; then
         # TODO: Remove in 1.0.0
-        if [[ $G_M_VERSION == "0.7.0" ]]; then
+        if [[ "$G_M_VERSION" == "0.7.0" ]]; then
             # Backward compatibility with version 0.7.0
             #
             # Before the project rename
@@ -461,7 +466,7 @@ call_uninstaller () {
     # https://github.com/maximilionus/lucidglyph/issues/19
     #
     # TODO: Remove in 1.0.0
-    if [[ $G_IS_PER_USER == true ]] && ver_gt "0.12.0" $G_M_VERSION
+    if [[ "$G_IS_PER_USER" == true ]] && ver_gt "0.12.0" "$G_M_VERSION"
     then
         sed -i 's/rm -d/rmdir/g' "$lib_dir/$M_DEST_UNINSTALL_FILE"
     fi
@@ -536,21 +541,21 @@ cmd_install () {
     mod_blacklist_init
     mod_blacklist_checkup
 
-    local needs_reinstall=false
-    local confirm_msg=""
-    if [[ $G_M_VERSION == $VERSION ]]; then
+    local needs_reinstall
+    local confirm_msg
+    if [[ "$G_M_VERSION" == "$VERSION" ]]; then
         printf "${C_GREEN}Current version is already installed.${C_RESET}\n"
 
-        needs_reinstall=true
+        needs_reinstall=1
         confirm_msg="Do you wish to reinstall it?"
-    elif [[ ! -z $G_M_VERSION ]]; then
+    elif [[ ! -z "$G_M_VERSION" ]]; then
         printf "${C_GREEN}Detected $NAME version $G_M_VERSION on the target system.${C_RESET}\n"
 
-        needs_reinstall=true
+        needs_reinstall=1
         confirm_msg="Do you wish to upgrade to version $VERSION?"
     fi
 
-    if [[ "$needs_reinstall" == true ]]; then
+    if [[ ! -z "$needs_reinstall" ]]; then
         if ! ask_confirmation "$confirm_msg"; then exit 1; fi
 
         call_uninstaller
@@ -571,7 +576,7 @@ EOF
 }
 
 cmd_remove () {
-    if [[ $ENABLE_METADATA == false ]]; then
+    if [[ "$ENABLE_METADATA" == false ]]; then
         printf "${C_RED}Error:${C_RESET} Functionality not available with disabled metadata" >&2
         exit 1
     fi
@@ -651,7 +656,7 @@ esac
 
 # Deprecate project modes
 # TODO: Remove in 1.0.0
-if [[ $2 =~ ^(normal|full)$ ]]; then
+if [[ "$2" =~ ^(normal|full)$ ]]; then
     printf "$C_YELLOW"
     cat <<EOF
 --------
@@ -669,7 +674,7 @@ EOF
 fi
 
 # Check system compatibility
-if [[ $( uname -s ) != Linux* ]]; then
+if [[ "$( uname -s )" != Linux* ]]; then
     printf "$C_YELLOW"
     cat <<EOF
 Warning: You are trying to run this script on the unsupported platform. Proceed
@@ -689,9 +694,9 @@ fi
 # since it relies on a huge amount of modern bash functionality. So... You can
 # not install the project without actually having modern bash shell available on
 # target system :)
-if [[ $G_IS_PER_USER == true ]]; then
+if [[ "$G_IS_PER_USER" == true ]]; then
     shell_config="$(get_shell_conf)"
-    if [[ -z $shell_config ]]; then
+    if [[ -z "$shell_config" ]]; then
         printf "${C_RED}Error:${C_RESET} Per-user operational mode is only supported on bash, zsh and ksh shells.\n"
         exit 1
     fi
