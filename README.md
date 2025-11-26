@@ -88,6 +88,9 @@ calling the `install` command and will be automatically preserved between
 updates. One `--blacklist` option can hold only one module name or glob pattern
 provided in literal string format (single quotes).
 
+You can get the names of the modules by inspecting the contents of the
+`src/modules/` directory.
+
 The below example will prevent modules from being installed in the respective
 order:
 - `src/modules/environment/lucidglyph-freetype-properties.conf`
