@@ -132,35 +132,39 @@ EOF
     fi
 }
 
-blacklist_checkup() {
+mod_blacklist_init() {
+    if (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) \
+        && (( "${#G_M_BLACKLISTED_MODULES[@]}" > 0 ))
+    then
+        G_BLACKLISTED_MODULES_USER=("${G_M_BLACKLISTED_MODULES[@]}")
+    fi
+}
+
+mod_blacklist_checkup() {
     if (( ${#G_BLACKLISTED_MODULES[@]} != 0 )); then
         printf "${C_DIM}System blacklisted modules:\n"
         printf '    %s\n' "${G_BLACKLISTED_MODULES[@]}"
         printf "$C_RESET"
     fi
 
-    (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) \
-        && (( "${#G_M_BLACKLISTED_MODULES[@]}" > 0 )) \
-        && G_BLACKLISTED_MODULES_USER=("${G_M_BLACKLISTED_MODULES[@]}")
-
     (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) && return 0
 
     printf "${C_DIM}User blacklisted modules:\n"
 
-    local bs_correct=true
+    local bs_correct
     for i in "${G_BLACKLISTED_MODULES_USER[@]}"; do
         printf -- '- %s' "$i"
 
         if ! compgen -G "$MODULES_DIR/$i" > /dev/null; then
             printf " ${C_YELLOW}(Warning: module does not exist!)${C_WHITE}"
-            bs_correct=false
+            bs_correct=1
         fi
 
         printf "\n"
     done
     printf "$C_RESET"
 
-    if [[ "$bs_correct" == false ]]; then
+    if [[ ! -z "$bs_correct" ]]; then
         ask_confirmation "One or more blacklist entries doesn't seem to be correct. Continue?"
     fi
 }
@@ -529,7 +533,8 @@ EOF
 cmd_install () {
     check_root
     load_metadata_files
-    blacklist_checkup
+    mod_blacklist_init
+    mod_blacklist_checkup
 
     local needs_reinstall=false
     local confirm_msg=""
