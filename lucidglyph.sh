@@ -50,7 +50,7 @@ DEST_SHARED_DIR_OLD_BEFORE_0_13_0="$DEST_USR_OLD_BEFORE_0_13_0/share/lucidglyph"
 DEST_SHARED_DIR_USR="$DEST_USR_USR/share/lucidglyph"
 M_INFO_FILE="info" # TODO: Remove in 1.0.0
 M_VERSION_FILE="version"
-M_BLACKLISTED_MODULES_FILE="blacklisted_modules"
+M_MODULES_BLACKLIST_FILE="modules_blacklist"
 M_DEST_UNINSTALL_FILE="uninstaller.sh"
 
 # Environment group
@@ -83,11 +83,11 @@ MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # Global variables
 declare G_IS_PER_USER=false
-declare -a G_BLACKLISTED_MODULES=()       # Hardcoded system module blacklist
-declare -a G_BLACKLISTED_MODULES_USER=()  # User blacklist. Populated through `--blacklist` option.
+declare -a G_MODULES_BLACKLIST=()       # Hardcoded system module blacklist
+declare -a G_MODULES_BLACKLIST_USER=()  # User blacklist. Populated through `--blacklist` option.
 
 declare G_M_VERSION
-declare -a G_M_BLACKLISTED_MODULES
+declare -a G_M_MODULES_BLACKLIST
 
 
 # Check if version $1 > $2
@@ -131,26 +131,26 @@ EOF
 }
 
 mod_blacklist_init() {
-    if (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) \
-        && (( "${#G_M_BLACKLISTED_MODULES[@]}" > 0 ))
+    if (( ${#G_MODULES_BLACKLIST_USER[@]} == 0 )) \
+        && (( "${#G_M_MODULES_BLACKLIST[@]}" > 0 ))
     then
-        G_BLACKLISTED_MODULES_USER=("${G_M_BLACKLISTED_MODULES[@]}")
+        G_MODULES_BLACKLIST_USER=("${G_M_MODULES_BLACKLIST[@]}")
     fi
 }
 
 mod_blacklist_checkup() {
-    if (( ${#G_BLACKLISTED_MODULES[@]} != 0 )); then
-        printf "${C_DIM}System blacklisted modules:\n"
-        printf '    %s\n' "${G_BLACKLISTED_MODULES[@]}"
+    if (( ${#G_MODULES_BLACKLIST[@]} != 0 )); then
+        printf "${C_DIM}Built-in modules blacklist:\n"
+        printf '    %s\n' "${G_MODULES_BLACKLIST[@]}"
         printf "$C_RESET"
     fi
 
-    (( ${#G_BLACKLISTED_MODULES_USER[@]} == 0 )) && return 0
+    (( ${#G_MODULES_BLACKLIST_USER[@]} == 0 )) && return 0
 
-    printf "${C_DIM}User blacklisted modules:\n"
+    printf "${C_DIM}User modules blacklist:\n"
 
     local is_wrong
-    for i in "${G_BLACKLISTED_MODULES_USER[@]}"; do
+    for i in "${G_MODULES_BLACKLIST_USER[@]}"; do
         printf -- '- %s' "$i"
 
         if ! compgen -G "$MODULES_DIR/$i" > /dev/null; then
@@ -173,7 +173,7 @@ mod_blacklist_checkup() {
 # 1 - Relative path to the module file (with or without $MODULES_DIR).
 is_mod_blacklisted() {
     local module="${1#$MODULES_DIR/}"
-    local blacklist=("${G_BLACKLISTED_MODULES[@]}" "${G_BLACKLISTED_MODULES_USER[@]}")
+    local blacklist=("${G_MODULES_BLACKLIST[@]}" "${G_MODULES_BLACKLIST_USER[@]}")
 
     for i in "${blacklist[@]}"; do
         # Unquoted $i to glob the possible patterns
@@ -279,9 +279,9 @@ load_metadata_files () {
         G_M_VERSION="$(cat $DEST_SHARED_DIR/$M_VERSION_FILE)"
     fi
 
-    if [[ -f "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE" ]]; then
+    if [[ -f "$DEST_SHARED_DIR/$M_MODULES_BLACKLIST_FILE" ]]; then
         # Trim the empty lines with grep so the array can then be counted correctly.
-        mapfile -t G_M_BLACKLISTED_MODULES < <(grep -v '^$' "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE")
+        mapfile -t G_M_MODULES_BLACKLIST < <(grep -v '^$' "$DEST_SHARED_DIR/$M_MODULES_BLACKLIST_FILE")
     fi
 }
 
@@ -295,7 +295,7 @@ append_metadata () {
     local path=""
     case "$mode" in
         version) path="$DEST_SHARED_DIR/$M_VERSION_FILE" ;;
-        blacklisted_modules) path="$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE" ;;
+        modules_blacklist) path="$DEST_SHARED_DIR/$M_MODULES_BLACKLIST_FILE" ;;
         uninstall) path="$DEST_LIB_DIR/$M_DEST_UNINSTALL_FILE" ;;
         *) printf "${C_YELLOW}Warning: append_metadata wrong argument.${C_RESET}" ;;
     esac
@@ -313,7 +313,7 @@ install_metadata () {
 
     mkdir -p "$DEST_SHARED_DIR"
     touch "$DEST_SHARED_DIR/$M_VERSION_FILE"
-    touch "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE"
+    touch "$DEST_SHARED_DIR/$M_MODULES_BLACKLIST_FILE"
 
     mkdir -p "$DEST_LIB_DIR"
     touch "$DEST_LIB_DIR/$M_DEST_UNINSTALL_FILE"
@@ -321,7 +321,7 @@ install_metadata () {
     printf "${C_GREEN}Done${C_RESET}\n"
 
     append_metadata version <<< "$VERSION"
-    printf '%s\n' "${G_BLACKLISTED_MODULES_USER[@]}" | append_metadata blacklisted_modules
+    printf '%s\n' "${G_MODULES_BLACKLIST_USER[@]}" | append_metadata modules_blacklist
     append_metadata uninstall <<EOF
 #!/bin/bash
 set -e
@@ -683,7 +683,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         -b|--blacklist)
             if [[ -n "$2" ]]; then
-                G_BLACKLISTED_MODULES_USER+=("$2")
+                G_MODULES_BLACKLIST_USER+=("$2")
                 shift 2
             else
                 printf "${C_RED}Error:${C_RESET} $1 requires a module name\n" >&2
