@@ -41,7 +41,7 @@ DEST_USR_USR="${DESTDIR:-$HOME}${DEST_USR_USR:-/.local}"
 #     Installation information and uninstaller script.
 #
 #     Disable this group when used in package manager.
-ENABLE_METADATA=${ENABLE_METADATA:-}
+DISABLE_METADATA=${DISABLE_METADATA:-}
 
 DEST_LIB_DIR="$DEST_USR/lib/lucidglyph"
 DEST_SHARED_DIR="$DEST_USR/share/lucidglyph"
@@ -51,19 +51,18 @@ DEST_SHARED_DIR_USR="$DEST_USR_USR/share/lucidglyph"
 M_INFO_FILE="info" # TODO: Remove in 1.0.0
 M_VERSION_FILE="version"
 M_BLACKLISTED_MODULES_FILE="blacklisted_modules"
-M_ENABLE_ENVIRONMENT_FILE="enable_environment"
-M_ENABLE_FONTCONFIG_FILE="enable_fontconfig"
 M_DEST_UNINSTALL_FILE="uninstaller.sh"
 
 # Environment group
 #     Variables that need to be exported to the system environment.
-ENABLE_ENVIRONMENT=${ENABLE_ENVIRONMENT:-}
+DISABLE_ENVIRONMENT=${DISABLE_ENVIRONMENT:-} # TODO: Remove in 1.0.0
 
 ENVIRONMENT_DIR="$MODULES_DIR/environment"
 DEST_ENVIRONMENT="$DEST_CONF/environment"
 
 # Fontconfig group
-ENABLE_FONTCONFIG=${ENABLE_FONTCONFIG:-}
+DISABLE_FONTCONFIG=${DISABLE_FONTCONFIG:-} # TODO: Remove in 1.0.0
+
 FONTCONFIG_DIR="$MODULES_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="$DEST_CONF/fonts/conf.d"
 DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
@@ -220,7 +219,7 @@ load_info_file () {
 
     local info_file_path="$DEST_SHARED_DIR/$M_INFO_FILE"
 
-    [[ $ENABLE_METADATA == false ]] && return 0
+    [[ ! -z $DISABLE_METADATA ]] && return 0
 
     if [[ ! -f "$info_file_path" ]]; then
         # Backwards compatibility
@@ -265,7 +264,7 @@ EOF
 
 # Process the local metadata files, loading the values.
 load_metadata_files () {
-    [[ $ENABLE_METADATA == false ]] && return 0
+    [[ ! -z $DISABLE_METADATA ]] && return 0
 
     # Load the legacy metadata format (before 0.13.0)
     if [[ ! -f "$DEST_SHARED_DIR/$M_VERSION_FILE" ]]; then
@@ -280,16 +279,6 @@ load_metadata_files () {
         G_M_VERSION="$(cat $DEST_SHARED_DIR/$M_VERSION_FILE)"
     fi
 
-    if [[ -f "$DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE" && -z "$ENABLE_ENVIRONMENT" ]]
-    then
-        ENABLE_ENVIRONMENT="$(cat "$DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE")"
-    fi
-
-    if [[ -f "$DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE" && -z "$ENABLE_FONTCONFIG" ]]
-    then
-        ENABLE_FONTCONFIG="$(cat "$DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE")"
-    fi
-
     if [[ -f "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE" ]]; then
         # Trim the empty lines with grep so the array can then be counted correctly.
         mapfile -t G_M_BLACKLISTED_MODULES < <(grep -v '^$' "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE")
@@ -297,18 +286,16 @@ load_metadata_files () {
 }
 
 # Append the redirected content to metadata files.
-# Only works if ENABLE_METADATA is set to true.
+# Only works if DISABLE_METADATA is unset.
 append_metadata () {
     local mode="$1"
 
-    [[ $ENABLE_METADATA == false ]] && return 0
+    [[ ! -z $DISABLE_METADATA ]] && return 0
 
     local path=""
     case "$mode" in
         version) path="$DEST_SHARED_DIR/$M_VERSION_FILE" ;;
         blacklisted_modules) path="$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE" ;;
-        enable_environment) path="$DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE" ;;
-        enable_fontconfig) path="$DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE" ;;
         uninstall) path="$DEST_LIB_DIR/$M_DEST_UNINSTALL_FILE" ;;
         *) printf "${C_YELLOW}Warning: append_metadata wrong argument.${C_RESET}" ;;
     esac
@@ -319,7 +306,7 @@ append_metadata () {
 install_metadata () {
     printf -- "- %-40s%s" "Storing the installation metadata"
 
-    if [[ "$ENABLE_METADATA" == false ]]; then
+    if [[ ! -z "$DISABLE_METADATA" ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
         return 0
     fi
@@ -327,8 +314,6 @@ install_metadata () {
     mkdir -p "$DEST_SHARED_DIR"
     touch "$DEST_SHARED_DIR/$M_VERSION_FILE"
     touch "$DEST_SHARED_DIR/$M_BLACKLISTED_MODULES_FILE"
-    touch "$DEST_SHARED_DIR/$M_ENABLE_ENVIRONMENT_FILE"
-    touch "$DEST_SHARED_DIR/$M_ENABLE_FONTCONFIG_FILE"
 
     mkdir -p "$DEST_LIB_DIR"
     touch "$DEST_LIB_DIR/$M_DEST_UNINSTALL_FILE"
@@ -336,8 +321,6 @@ install_metadata () {
     printf "${C_GREEN}Done${C_RESET}\n"
 
     append_metadata version <<< "$VERSION"
-    append_metadata enable_environment <<< "$ENABLE_ENVIRONMENT"
-    append_metadata enable_fontconfig <<< "$ENABLE_FONTCONFIG"
     printf '%s\n' "${G_BLACKLISTED_MODULES_USER[@]}" | append_metadata blacklisted_modules
     append_metadata uninstall <<EOF
 #!/bin/bash
@@ -359,7 +342,8 @@ EOF
 install_environment () {
     printf -- "- %-40s%s" "Appending the environment entries "
 
-    if [[ "$ENABLE_ENVIRONMENT" == false ]]; then
+    # TODO: Remove in 1.0.0
+    if [[ "$DISABLE_ENVIRONMENT" == false ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
         return 0
     fi
@@ -405,7 +389,8 @@ EOF
 install_fontconfig () {
     printf -- "- %-40s%s" "Installing the fontconfig rules "
 
-    if [[ "$ENABLE_FONTCONFIG" == false ]]; then
+    # TODO: Remove in 1.0.0
+    if [[ ! -z "$DISABLE_FONTCONFIG" ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
         return 0
     fi
@@ -505,18 +490,9 @@ OPTIONS:
                           Stored.
 
 ENVIRONMENT VARIABLES - MODULES:
-  ENABLE_ENVIRONMENT  Module group responsible for appending the environment
-                      entries for global configurations of some software.
-                      Default: true.
-                      Stored.
-
-  ENABLE_FONTCONFIG   Module group that contains the set of Fontconfig rules.
-                      Default: true.
-                      Stored.
-
-  ENABLE_METADATA     Module group responsible for storing the information for
-                      further operations like upgrades and uninstalls.
-                      Default: true.
+  DISABLE_METADATA  Do not store any information for further operations like
+                    upgrades or uninstalls. Assign any value to activate.
+                    Default: empty (false).
 
 ENVIRONMENT VARIABLES - UTILITY:
   SHOW_HEADER    Show the script header on execution.
@@ -576,7 +552,7 @@ EOF
 }
 
 cmd_remove () {
-    if [[ "$ENABLE_METADATA" == false ]]; then
+    if [[ "$DISABLE_METADATA" == false ]]; then
         printf "${C_RED}Error:${C_RESET} Functionality not available with disabled metadata" >&2
         exit 1
     fi
@@ -600,6 +576,91 @@ cmd_remove () {
 cd "$(dirname "$0")"
 
 [[ $SHOW_HEADER == true ]] && show_header
+
+if [[ "$( uname -s )" != Linux* ]]; then
+    cat <<EOF
+$(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
+You are trying to run this script on the unsupported platform. Proceed at your
+own risk.
+$(printf "$C_YELLOW")---------------$(printf "$C_RESET")
+
+EOF
+    if ! ask_confirmation "Do you wish to continue?"; then
+        exit 1
+    fi
+fi
+
+# Deprecate short commands.
+# TODO: Remove in 1.0.0
+case "$1" in
+    i|r|h)
+        cat <<EOF
+$(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
+Arguments "i", "r" and "h" (short commands) are considered deprecated since
+version 0.5.0 and will be removed in version 1.0.0.
+$(printf "$C_YELLOW")---------------$(printf "$C_RESET")
+EOF
+        ;;
+esac
+
+# Deprecate project modes
+# TODO: Remove in 1.0.0
+if [[ "$2" =~ ^(normal|full)$ ]]; then
+    cat <<EOF
+$(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
+Arguments "normal" and "full" (mode selection) are considered deprecated since
+version 0.7.0 and will be removed in version 1.0.0.
+
+Only one mode is available from now on. Please avoid providing the second
+argument.
+
+Whatever argument is specified in this call now will result in a normal mode
+installation.
+$(printf "$C_YELLOW")---------------$(printf "$C_RESET")
+EOF
+fi
+
+# Deprecate old ENABLE_* env. vars
+# TODO: Remove in 1.0.0
+if [[ "$ENABLE_METADATA" == false ]]; then
+    cat <<EOF
+$(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
+Environment variable "ENABLE_METADATA" has been replaced by "DISABLE_METADATA",
+with the original variable considered deprecated since version 0.13.0 and
+marked for removal in version 1.0.0.
+
+Provided variable will be reassigned correspondingly:
+    ENABLE_METADATA=false  -->  DISABLE_METADATA=1
+$(printf "$C_YELLOW")---------------$(printf "$C_RESET")
+EOF
+fi
+
+if [[ "$ENABLE_ENVIRONMENT" == false ]] || [[ "$ENABLE_FONTCONFIG" == false ]]
+then
+    cat <<EOF
+$(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
+Environment variables "ENABLE_ENVIRONMENT" and "ENABLE_FONTCONFIG" are
+considered deprecated since version 0.13.0 and marked for removal in version
+1.0.0.
+
+This feature was replaced with module blacklisting. See README "Usage" section
+for more information.
+$(printf "$C_YELLOW")---------------$(printf "$C_RESET")
+EOF
+
+    if [[ "$ENABLE_METADATA" == false ]]; then
+        DISABLE_METADATA=1
+        unset ENABLE_METADATA
+    fi
+    if [[ "$ENABLE_ENVIRONMENT" == false ]]; then
+        DISABLE_ENVIRONMENT=1
+        unset ENABLE_ENVIRONMENT
+    fi
+    if [[ "$ENABLE_FONTCONFIG" == false ]]; then
+        DISABLE_FONTCONFIG=1
+        unset ENABLE_FONTCONFIG
+    fi
+fi
 
 # Parse optional args
 positional_args=()
@@ -639,61 +700,9 @@ done
 set -- "${positional_args[@]}"
 unset positional_args
 
-# Deprecate short commands.
-# TODO: Remove in 1.0.0
-case "$1" in
-    i|r|h)
-        printf "$C_YELLOW"
-        cat <<EOF
---------
-Warning: Arguments 'i', 'r' and 'h' (short commands) are considered deprecated
-from version '0.5.0' and will be removed in '1.0.0' project release.
---------
-EOF
-        printf "$C_RESET"
-        ;;
-esac
-
-# Deprecate project modes
-# TODO: Remove in 1.0.0
-if [[ "$2" =~ ^(normal|full)$ ]]; then
-    printf "$C_YELLOW"
-    cat <<EOF
---------
-Warning: Arguments 'normal' and 'full' (mode selection) are considered
-deprecated from version '0.7.0' and will be removed in '1.0.0' project release.
-
-Only one mode is available from now on. Please avoid providing the second
-argument.
-
-Whatever argument is specified in this call now will result in a normal mode
-installation.
---------
-EOF
-    printf "$C_RESET"
-fi
-
-# Check system compatibility
-if [[ "$( uname -s )" != Linux* ]]; then
-    printf "$C_YELLOW"
-    cat <<EOF
-Warning: You are trying to run this script on the unsupported platform. Proceed
-at your own risk.
-
-EOF
-    printf "$C_RESET"
-    if ! ask_confirmation "Do you wish to continue?"; then
-        exit 1
-    fi
-fi
-
-# Note
-#
 # While this project supports the fully functional Korn Shell (ksh)
 # installations, it's quite impossible to run the installer itself through ksh
-# since it relies on a huge amount of modern bash functionality. So... You can
-# not install the project without actually having modern bash shell available on
-# target system :)
+# since it relies on a huge amount of modern bash functionality :)
 if [[ "$G_IS_PER_USER" == true ]]; then
     shell_config="$(get_shell_conf)"
     if [[ -z "$shell_config" ]]; then
