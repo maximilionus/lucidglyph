@@ -343,7 +343,7 @@ install_environment () {
     printf -- "- %-40s%s" "Appending the environment entries "
 
     # TODO: Remove in 1.0.0
-    if [[ "$DISABLE_ENVIRONMENT" == false ]]; then
+    if [[ ! -z "$DISABLE_ENVIRONMENT" ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
         return 0
     fi
@@ -629,22 +629,11 @@ Environment variable "ENABLE_METADATA" has been replaced by "DISABLE_METADATA",
 with the original variable considered deprecated since version 0.13.0 and
 marked for removal in version 1.0.0.
 
-Provided variable will be reassigned correspondingly:
+From now on, to disable metadata, assign any value to the "DISABLE_METADATA"
+environment variable.
+
+Provided variable will now be automatically reassigned correspondingly:
     ENABLE_METADATA=false  -->  DISABLE_METADATA=1
-$(printf "$C_YELLOW")---------------$(printf "$C_RESET")
-EOF
-fi
-
-if [[ "$ENABLE_ENVIRONMENT" == false ]] || [[ "$ENABLE_FONTCONFIG" == false ]]
-then
-    cat <<EOF
-$(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
-Environment variables "ENABLE_ENVIRONMENT" and "ENABLE_FONTCONFIG" are
-considered deprecated since version 0.13.0 and marked for removal in version
-1.0.0.
-
-This feature was replaced with module blacklisting. See README "Usage" section
-for more information.
 $(printf "$C_YELLOW")---------------$(printf "$C_RESET")
 EOF
 
@@ -652,6 +641,22 @@ EOF
         DISABLE_METADATA=1
         unset ENABLE_METADATA
     fi
+fi
+
+if [[ "$ENABLE_ENVIRONMENT" == "false" || ! -z "$DISABLE_ENVIRONMENT" ]] || \
+   [[ "$ENABLE_FONTCONFIG" == "false" || ! -z "$DISABLE_FONTCONFIG" ]]
+then
+    cat <<EOF
+$(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
+Environment variables "ENABLE_ENVIRONMENT"/"DISABLE_ENVIRONMENT" and
+"ENABLE_FONTCONFIG"/"DISABLE_FONTCONFIG" are considered deprecated since
+version 0.13.0 and marked for removal in version 1.0.0.
+
+This feature was replaced with module blacklisting. See README for more
+information.
+$(printf "$C_YELLOW")---------------$(printf "$C_RESET")
+EOF
+
     if [[ "$ENABLE_ENVIRONMENT" == false ]]; then
         DISABLE_ENVIRONMENT=1
         unset ENABLE_ENVIRONMENT

@@ -17,7 +17,7 @@
   preserved setting is `--blacklist` option. This feature only works starting
   with this release and does not migrate settings from previous versions.
 
-- Environment variable `ENABLE_METADATA` has been replaced by
+- Environment variable `ENABLE_METADATA` has been replaced with
   `DISABLE_METADATA`, with the original variable considered deprecated and
   marked for removal in version `1.0.0`. Variable should be reassigned
   correspondingly from `ENABLE_METADATA=false` to `DISABLE_METADATA=1`.
