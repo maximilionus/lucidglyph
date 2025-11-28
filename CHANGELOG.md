@@ -1,4 +1,4 @@
-## Release 0.13.0 - Development
+## Release 0.13.0
 - New stem-darkening enhancement through Fontconfig "embolden" feature. This
   feature compensates the lack of stem-darkening on very small glyph sizes
   caused by [#9](https://github.com/maximilionus/lucidglyph/issues/9). It is
@@ -17,16 +17,6 @@
   preserved setting is `--blacklist` option. This feature only works starting
   with this release and does not migrate settings from previous versions.
 
-- Environment variable `ENABLE_METADATA` has been replaced with
-  `DISABLE_METADATA`, with the original variable considered deprecated and
-  marked for removal in version `1.0.0`. Variable should be reassigned
-  correspondingly from `ENABLE_METADATA=false` to `DISABLE_METADATA=1`.
-
-- Environment variables `ENABLE_ENVIRONMENT` and `ENABLE_FONTCONFIG` are
-  considered deprecated and marked for removal in version `1.0.0`. This feature
-  was replaced with module blacklisting. See README "Usage" section for more
-  information.
-
 - To comply with
   [FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard),
   script will now use `/usr/local/` directories instead of `/usr/`, placing all
@@ -35,7 +25,16 @@
 
 - Improved after-install notice in script.
 
-- Multiple enhancements for project logic, output, and metadata management.
+- Multiple enhancements for script logic, output, and metadata management.
+
+- Environment variable `ENABLE_METADATA` has been replaced by
+  `DISABLE_METADATA`, with the original variable considered deprecated and
+  marked for removal in version `1.0.0`. Variable should be reassigned
+  correspondingly from `ENABLE_METADATA=false` to `DISABLE_METADATA=1`.
+
+- Environment variables `ENABLE_ENVIRONMENT` and `ENABLE_FONTCONFIG` are
+  considered deprecated and marked for removal in version `1.0.0`. This feature
+  was replaced with module blacklisting. See README for more information.
 
 
 ## Release 0.12.0
