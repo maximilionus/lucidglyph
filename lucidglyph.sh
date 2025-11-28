@@ -263,7 +263,7 @@ EOF
 }
 
 # Process the local metadata files, loading the values.
-load_metadata_files () {
+load_metadata () {
     [[ ! -z $DISABLE_METADATA ]] && return 0
 
     # Load the legacy metadata format (before 0.13.0)
@@ -498,7 +498,8 @@ ENVIRONMENT VARIABLES - UTILITY:
   SHOW_HEADER    Show the script header on execution.
                  Default: true.
 
-  DESTDIR        Overwrite the target directory for the script to work with.
+  DESTDIR        Relocate the whole installation by prepending the path from
+                 this variable.
                  Default: unset.
 
   DEST_CONF,     Set the paths to configuration directories.
@@ -513,7 +514,7 @@ EOF
 
 cmd_install () {
     check_root
-    load_metadata_files
+    load_metadata
     mod_blacklist_init
     mod_blacklist_checkup
 
@@ -557,7 +558,7 @@ cmd_remove () {
         exit 1
     fi
 
-    load_metadata_files
+    load_metadata
 
     if [[ -z "$G_M_VERSION" ]]; then
         printf "${C_RED}Error:${C_RESET} Project is not installed.\n" >&2
