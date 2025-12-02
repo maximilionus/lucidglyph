@@ -200,7 +200,7 @@ see if you are being affected by this issue and get a temporary solution.
 Rendering of some fonts dark (foreground) on light (background) _(aka light
 themes)_ in Kitty may discard most of the applied stem-darkening _(see
 [Details](#details))_ due to the nature of gamma correction. The lack of
-darkening is easily detectable visually by very thin-appearing glyphs.
+darkening is easily visually detectable by very thin-appearing glyphs.
 
 To remedy this issue, append this modified
 [`text_composition_strategy`](https://sw.kovidgoyal.net/kitty/conf/#opt-kitty.text_composition_strategy)
@@ -210,7 +210,7 @@ parameter to Kitty's user configuration file:
 text_composition_strategy 1.7 0
 ```
 
-> Decrease or increase the value `1.7` to decrease or increase the thickness
+> Decrease or increase the value `1.7` to decrease or increase the emboldening
 > effect, respectively.
 
 
@@ -239,17 +239,15 @@ man sway-output | grep -A8 "output <name> subpixel"
      darkening values), `type1`, `t1cid` and `cff` drivers. This feature
      improves visibility of the medium and small-sized fonts. Especially
      helpful on the low pixel density (LowPPI) outputs.
-     [More information](https://freetype.org/freetype2/docs/hinting/text-rendering-general.html)
+     [Basics Article](https://freetype.org/freetype2/docs/hinting/text-rendering-general.html)
      and
-     [usage documentation](https://freetype.org/freetype2/docs/reference/ft2-properties.html#no-stem-darkening).
+     [Usage Documentation](https://freetype.org/freetype2/docs/reference/ft2-properties.html#no-stem-darkening).
 
    - Disable synthesized bold fonts in Qt-based software. There is an issue
-     that causes bold glyphs to appear heavy in variable fonts. More
-     information:
-     Fedora reports (
-     [#1](https://bugzilla.redhat.com/show_bug.cgi?id=2179854),
-     [#2](https://pagure.io/fedora-kde/SIG/issue/461)
-     ),
+     that causes bold glyphs to appear heavy in variable fonts.
+     Red Hat reports:
+     [Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=2179854),
+     [Fedora tracker](https://pagure.io/fedora-kde/SIG/issue/461).
      [Qt report](https://bugreports.qt.io/browse/QTBUG-112136).
 
 - Rules for Fontconfig:
