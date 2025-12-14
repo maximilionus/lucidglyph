@@ -205,9 +205,9 @@ gets overwritten, causing an improper font rendering due to misconfigured
 anti-aliasing parameters.
 
 The problem arises due to a regression in the KDE Plasma text rendering stack,
-which forces an incorrect configuration when fractional scaling is used[^4].
+which forces an incorrect configuration when fractional scaling is used.
 
-This issue is already being tracked[^5] on the KDE tracker but still requires a
+This issue is already being tracked[^4] on the KDE tracker but still requires a
 manual intervention.
 
 To fix it:
@@ -295,5 +295,4 @@ man sway-output | grep -A8 "output <name> subpixel"
 [^1]: https://github.com/googlefonts/fontations/issues/1407
 [^2]: https://chromiumdash.appspot.com/commit/2fc1ae192a45eb6f1716e232dd1626317f8d299e
 [^3]: https://github.com/googlefonts/fontations/pull/1496#issuecomment-3004330901
-[^4]: https://github.com/maximilionus/lucidglyph/issues/12#issuecomment-3449078528
-[^5]: https://bugs.kde.org/show_bug.cgi?id=501715
+[^4]: https://bugs.kde.org/show_bug.cgi?id=501715
