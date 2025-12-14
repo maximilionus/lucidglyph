@@ -184,16 +184,21 @@ see if you are being affected by this issue and get a temporary solution.
 
 
 ### KDE Plasma
-By default, vanilla Plasma desktop environment does follow the fontconfig
+By default, the vanilla Plasma desktop environment does follow the fontconfig
 rules, including the anti-aliasing settings, but in some cases this behavior
-gets overwritten, presumably by above-level distro-specific configurations.
-This causes improper font rendering due to misconfigured anti-aliasing
-parameters.
+gets overwritten, causing an improper font rendering due to misconfigured
+anti-aliasing parameters.
 
-This issue is being tracked, but still requires manual user intervention.
+The problem arises due to a regression in the KDE Plasma text rendering stack,
+which forces an incorrect configuration when fractional scaling is used[^4].
 
-[Check this report](https://github.com/maximilionus/lucidglyph/issues/12) to
-see if you are being affected by this issue and get a temporary solution.
+This issue is already being tracked[^5] on the KDE tracker but still requires a
+manual intervention.
+
+To fix it:
+1. Open the System Settings
+2. Go to the "Appearance & Style" - "Text & Fonts"
+3. Ensure that "Sub-pixel rendering" is set to "None"
 
 
 ### Kitty Terminal
@@ -275,3 +280,5 @@ man sway-output | grep -A8 "output <name> subpixel"
 [^1]: https://github.com/googlefonts/fontations/issues/1407
 [^2]: https://chromiumdash.appspot.com/commit/2fc1ae192a45eb6f1716e232dd1626317f8d299e
 [^3]: https://github.com/googlefonts/fontations/pull/1496#issuecomment-3004330901
+[^4]: https://github.com/maximilionus/lucidglyph/issues/12#issuecomment-3449078528
+[^5]: https://bugs.kde.org/show_bug.cgi?id=501715
