@@ -177,10 +177,25 @@ While GNOME does use the grayscale anti-aliasing method by default, there are a
 few Linux distributions that change this setting to the sub-pixel method,
 making the font rendering appear incorrect after the tweaks from this project.
 
-This issue is being tracked, but still requires manual user intervention.
+To check if your system is configured properly:
+1. Open the terminal
+2. Execute the command below to query the current configuration:
+   ```bash
+   gsettings get org.gnome.desktop.interface font-antialiasing
+   ```
+3. If the output of the command above is looks like:
+   ```bash
+   'rgba'
+   ```
+4. Then execute the below command, to set a proper font anti-aliasing:
+   ```bash
+   gsettings set org.gnome.desktop.interface font-antialiasing grayscale
+   ```
 
-[Check this report](https://github.com/maximilionus/lucidglyph/issues/7) to
-see if you are being affected by this issue and get a temporary solution.
+To revert the above changes to a system defaults just execute this command:
+```bash
+gsettings reset org.gnome.desktop.interface font-antialiasing
+```
 
 
 ### KDE Plasma
