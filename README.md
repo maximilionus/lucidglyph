@@ -183,11 +183,11 @@ To check if your system is configured properly:
    ```bash
    gsettings get org.gnome.desktop.interface font-antialiasing
    ```
-3. If the output of the command above is looks like:
+3. If the output of the above command looks like this:
    ```bash
    'rgba'
    ```
-4. Then execute the below command, to set a proper font anti-aliasing:
+4. Then execute the command below to set a proper font anti-aliasing:
    ```bash
    gsettings set org.gnome.desktop.interface font-antialiasing grayscale
    ```
