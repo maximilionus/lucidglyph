@@ -141,7 +141,7 @@ mod_blacklist_init() {
 mod_blacklist_checkup() {
     if (( ${#G_MODULES_BLACKLIST[@]} != 0 )); then
         printf "${C_DIM}Built-in modules blacklist:\n"
-        printf '    %s\n' "${G_MODULES_BLACKLIST[@]}"
+        printf -- '- %s\n' "${G_MODULES_BLACKLIST[@]}"
         printf "$C_RESET"
     fi
 
@@ -438,7 +438,6 @@ call_uninstaller () {
             lib_dir="$DEST_SHARED_DIR_OLD_BEFORE_0_13_0"
         fi
     fi
-
 
     if [[ ! -f "$lib_dir/$M_DEST_UNINSTALL_FILE" ]]; then
         printf "${C_RED}Error:${C_RESET} Uninstaller script not found, installation corrupted\n" >&2
