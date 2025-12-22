@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Main script to install and control lucidglyph.
 # Copyright (C) 2023-2025  Max Gashutin <maximilionuss@gmail.com>
@@ -113,10 +113,10 @@ show_header () {
 }
 
 check_root () {
-    if [[ "$(/usr/bin/id -u)" != 0 && "$G_IS_PER_USER" == false ]]; then
+    if [[ "$(id -u)" != 0 && "$G_IS_PER_USER" == false ]]; then
         printf "${C_RED}Error:${C_RESET} This action requires the root privileges\n" >&2
         exit 1
-    elif [[ "$(/usr/bin/id -u)" == 0 && "$G_IS_PER_USER" == true ]]; then
+    elif [[ "$(id -u)" == 0 && "$G_IS_PER_USER" == true ]]; then
         cat <<EOF
 You are attempting to perform a per-user operation as the root user. This is
 likely an error, as the utility will then operate with the root user instead of
@@ -323,7 +323,7 @@ install_metadata () {
     append_metadata version <<< "$VERSION"
     printf '%s\n' "${G_MODULES_BLACKLIST_USER[@]}" | append_metadata modules_blacklist
     append_metadata uninstall <<EOF
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
 printf -- "- %-40s%s" "Removing the installation metadata "
