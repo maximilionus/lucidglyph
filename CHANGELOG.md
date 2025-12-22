@@ -1,3 +1,8 @@
+## Release 0.13.1 - Development
+- Improve script compatibility by relying on the environment paths for binaries
+  instead of the hardcoded values.
+
+
 ## Release 0.13.0
 - New stem-darkening enhancement through Fontconfig "embolden" feature. This
   feature compensates the lack of stem-darkening on very small glyph sizes

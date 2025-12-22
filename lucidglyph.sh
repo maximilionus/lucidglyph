@@ -21,7 +21,7 @@ shopt -s nullglob
 
 
 NAME="lucidglyph"
-VERSION="0.13.0"
+VERSION="0.13.1"
 
 # Display the header with project name and version on start
 SHOW_HEADER=${SHOW_HEADER:-true}
