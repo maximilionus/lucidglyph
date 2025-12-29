@@ -29,29 +29,32 @@ Visual comparison is available on the project's
 
 ## Usage
 ### Install
-1. Download the latest release from
-   [here](https://github.com/maximilionus/lucidglyph/releases/latest)
-   _(Assets - Source code)_ and unpack it.
-2. Open the terminal in the unpacked directory.
-3. Execute the command below with elevated permissions:
+Download the latest release from
+[the releases page](https://github.com/maximilionus/lucidglyph/releases/latest)
+_(Assets - Source code)_ and unpack it.
 
-   ```sh
-   sudo ./lucidglyph.sh install
-   ```
+Open the terminal in the unpacked directory and execute the command below with
+elevated permissions:
 
-   > See [User mode](#user-mode) for per-user installation.
-4. Reboot to apply the changes.
+```sh
+sudo ./lucidglyph.sh install
+```
+
+> See [User mode](#user-mode) for per-user installation.
+
+Then reboot to apply the changes.
 
 ### Remove
-1. Execute the same script from section above with elevated permissions:
+Use the same script from the section above with elevated permissions:
 
-   ```sh
-   sudo ./lucidglyph.sh remove
-   ```
-2. Reboot to apply the changes.
+```sh
+sudo ./lucidglyph.sh remove
+```
+
+Then reboot to apply the changes.
 
 ### Upgrade
-- Follow the steps from the [Install](#install) section above and the script will
+Follow the steps from the [Install](#install) section above and the script will
 request user confirmation to allow the upgrade.
 
 ### User Mode
