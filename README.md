@@ -252,7 +252,7 @@ For a more detailed explanation of this entry, please refer to the official
 SwayWM man page:
 
 ```shell
-man sway-output | grep -A8 "output <name> subpixel"
+man --pager='less -p "output <name> subpixel"' sway-output
 ```
 
 
