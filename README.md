@@ -289,7 +289,7 @@ man --pager='less -p "output <name> subpixel"' sway-output
      that there is a significant chance that some software may not support this
      feature.
 
-   - Replace "Droid Sans" family for Japanese and Chinese characters and force
+   - Replace "Droid Sans" family for Japanese and Chinese characters and suggest
      the environment to use other, commonly available, fonts. Stem-darkening
      does not work well with this typeface, causing characters over-emboldening.
 
