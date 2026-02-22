@@ -1,3 +1,8 @@
+## Development
+- Full x1-y1 stem-darkening in `autofitter` driver that fixes the improper shape
+  geometry of some fonts.
+
+
 ## Release 0.13.1
 - Improve script compatibility by relying on the environment paths instead of
   the hardcoded values.
