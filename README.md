@@ -260,14 +260,15 @@ man --pager='less -p "output <name> subpixel"' sway-output
 - Environment variables:
    - Stem-darkening (fonts emboldening) for `autofitter` (including custom
      darkening values), `type1`, `t1cid` and `cff` drivers. This feature
-     improves visibility of the medium and small-sized fonts. Especially helpful
-     on the low pixel density (LowPPI) outputs.
+     improves visibility of the medium and small-sized fonts. Especially
+     helpful on the low pixel density (LowPPI) outputs.
      [Basics Article](https://freetype.org/freetype2/docs/hinting/text-rendering-general.html)
      and
      [Usage Documentation](https://freetype.org/freetype2/docs/reference/ft2-properties.html#no-stem-darkening).
 
-   - Disable synthesized bold fonts in Qt-based software. There is an issue that
-     causes bold glyphs to appear heavy in variable fonts.  Red Hat reports:
+   - Disable synthesized bold fonts in Qt-based software. There is an issue
+     that causes bold glyphs to appear heavy in variable fonts.
+     Red Hat reports:
      [Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=2179854),
      [Fedora tracker](https://pagure.io/fedora-kde/SIG/issue/461).
      [Qt report](https://bugreports.qt.io/browse/QTBUG-112136).
@@ -282,16 +283,17 @@ man --pager='less -p "output <name> subpixel"' sway-output
      legibility. Only applied if the target system misses any hinting
      configuration.
 
-   - Stem-darkening fallback through emboldening. This rule compensates the lack
-     of stem-darkening on very small glyph sizes (caused by
+   - Stem-darkening fallback through emboldening. This rule compensates the
+     lack of stem-darkening on very small glyph sizes (caused by
      [#9](https://github.com/maximilionus/lucidglyph/issues/9)) by utilizing
      the built-in emboldening feature of Fontconfig. It is important to note
      that there is a significant chance that some software may not support this
      feature.
 
-   - Replace "Droid Sans" family for Japanese and Chinese characters and suggest
-     the environment to use other, commonly available, fonts. Stem-darkening
-     does not work well with this typeface, causing characters over-emboldening.
+   - Reject usage of "Droid Sans" family for Japanese and Chinese characters
+     and force the environment to use other fonts. Stem-darkening does not work
+     well with this typeface, causing characters over-emboldening.
+>>>>>>> parent of c929203 (fontconfig: Re-alias Droid Sans CJK)
 
 
 [^1]: https://github.com/googlefonts/fontations/issues/1407

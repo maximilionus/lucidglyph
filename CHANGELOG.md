@@ -1,8 +1,3 @@
-## Development
-- Replace Droid Sans CJK with other commonly available fonts, instead of
-  completely rejecting it's usage.
-
-
 ## Release 0.13.1
 - Improve script compatibility by relying on the environment paths instead of
   the hardcoded values.
