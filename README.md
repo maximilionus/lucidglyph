@@ -293,7 +293,6 @@ man --pager='less -p "output <name> subpixel"' sway-output
    - Reject usage of "Droid Sans" family for Japanese and Chinese characters
      and force the environment to use other fonts. Stem-darkening does not work
      well with this typeface, causing characters over-emboldening.
->>>>>>> parent of c929203 (fontconfig: Re-alias Droid Sans CJK)
 
 
 [^1]: https://github.com/googlefonts/fontations/issues/1407
