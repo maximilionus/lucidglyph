@@ -58,7 +58,8 @@ M_DEST_UNINSTALL_FILE="uninstaller.sh"
 DISABLE_ENVIRONMENT=${DISABLE_ENVIRONMENT:-} # TODO: Remove in 1.0.0
 
 ENVIRONMENT_DIR="$MODULES_DIR/environment"
-DEST_ENVIRONMENT="$DEST_CONF/environment"
+DEST_ENVIRONMENT_MONOLITH="$DEST_CONF/environment"
+DEST_ENVIRONMENT_DIR="$DEST_CONF/profile.d"
 
 # Fontconfig group
 DISABLE_FONTCONFIG=${DISABLE_FONTCONFIG:-} # TODO: Remove in 1.0.0
@@ -83,6 +84,7 @@ MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # Global variables
 declare G_IS_PER_USER=false
+declare G_MODULES_ENV_MONOLITH=""
 declare -a G_MODULES_BLACKLIST=()       # Hardcoded system module blacklist
 declare -a G_MODULES_BLACKLIST_USER=()  # User blacklist. Populated through `--blacklist` option.
 
@@ -340,7 +342,6 @@ EOF
 }
 
 install_environment () {
-    printf -- "- %-40s%s" "Appending the environment entries "
 
     # TODO: Remove in 1.0.0
     if [[ ! -z "$DISABLE_ENVIRONMENT" ]]; then
@@ -348,40 +349,59 @@ install_environment () {
         return 0
     fi
 
-    append_metadata uninstall <<EOF
+    if [[ -z "$G_MODULES_ENV_MONOLITH" && "$G_IS_PER_USER" == false ]]; then
+        printf -- "- %-40s%s" "Installing the environment modules "
+        append_metadata uninstall <<EOF
+printf -- "- %-40s%s" "Removing the environment modules "
+EOF
+
+        for f in $ENVIRONMENT_DIR/*.sh; do
+            if is_mod_blacklisted "$f"; then continue; fi
+
+            install -m 644 "$f" "$DEST_ENVIRONMENT_DIR/$(basename $f)"
+            append_metadata uninstall <<EOF
+rm -f "$DEST_ENVIRONMENT_DIR/$(basename $f)"
+EOF
+        done
+    else
+        # Monolithic modules install. TODO.
+        printf -- "- %-40s%s" "Appending the environment entries "
+        append_metadata uninstall <<EOF
 printf -- "- %-40s%s" "Cleaning the environment entries "
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
-    [[ $G_IS_PER_USER == true ]] && append_metadata uninstall <<EOF
+        [[ $G_IS_PER_USER == true ]] && append_metadata uninstall <<EOF
 [[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
 EOF
-    append_metadata uninstall <<EOF
+        append_metadata uninstall <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
-    if [[ "$G_IS_PER_USER" == false && ! -d "$DEST_CONF" ]]; then mkdir -p "$DEST_CONF"; fi
+        if [[ "$G_IS_PER_USER" == false && ! -d "$DEST_CONF" ]]; then mkdir -p "$DEST_CONF"; fi
 
-    {
-        printf "$MARKER_START\n"
-        printf "$MARKER_WARNING\n"
+        {
+            printf "$MARKER_START\n"
+            printf "$MARKER_WARNING\n"
 
-        prefix=""
-        if [[ "$G_IS_PER_USER" == true ]]; then
-            case "$SHELL" in
-                # *fish)  prefix="set --export " ;;  # TODO
-                *)      prefix="export " ;;
-            esac
-        fi
+            prefix=""
+            if [[ "$G_IS_PER_USER" == true ]]; then
+                case "$SHELL" in
+                    # *fish)  prefix="set --export " ;;  # TODO
+                    *)      prefix="export " ;;
+                esac
+            fi
 
-        for f in $ENVIRONMENT_DIR/*.conf; do
-            if is_mod_blacklisted "$f"; then continue; fi
+            # TODO: Remake this for new .sh
+            for f in $ENVIRONMENT_DIR/*.conf; do
+                if is_mod_blacklisted "$f"; then continue; fi
 
-            printf "$prefix"
-            cat "$f"
-        done
+                printf "$prefix"
+                cat "$f"
+            done
 
-        printf "$MARKER_END\n"
-    } >> "$DEST_ENVIRONMENT"
+            printf "$MARKER_END\n"
+        } >> "$DEST_ENVIRONMENT"
+    fi
 
     printf "${C_GREEN}Done${C_RESET}\n"
 }
@@ -486,6 +506,11 @@ OPTIONS:
                           Pattern should be provided in literal string format
                           (single quotes).
                           Commands: install.
+
+  --modules-env-monolith  Append the environment modules through the PAM
+                          configuration instead of using split shell profile.d
+                          modules.
+                          Commands: install (only system-wide).
                           Stored.
 
 ENVIRONMENT VARIABLES - MODULES:
@@ -690,6 +715,9 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             ;;
+        --modules-env-monolith)
+            G_MODULES_ENV_MONOLITH=1
+            ;;
         -*|--*)
             printf "${C_RED}Error:${C_RESET} Unknown option \"$1\"\n" >&2
             exit 1
@@ -715,7 +743,7 @@ if [[ "$G_IS_PER_USER" == true ]]; then
         exit 1
     fi
 
-    DEST_ENVIRONMENT="$shell_config"
+    DEST_ENVIRONMENT_MONOLITH="$shell_config"
     DEST_FONTCONFIG_DIR="$DEST_FONTCONFIG_DIR_USR"
     DEST_SHARED_DIR="$DEST_SHARED_DIR_USR"
     DEST_LIB_DIR="$DEST_SHARED_DIR_USR" # I hate this. But it works. For now.

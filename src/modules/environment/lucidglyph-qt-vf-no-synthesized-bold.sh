@@ -1,0 +1,1 @@
+export QT_NO_SYNTHESIZED_BOLD=1
