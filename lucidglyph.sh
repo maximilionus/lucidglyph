@@ -59,6 +59,8 @@ DISABLE_ENVIRONMENT=${DISABLE_ENVIRONMENT:-} # TODO: Remove in 1.0.0
 
 ENVIRONMENT_DIR="$MODULES_DIR/environment"
 DEST_ENVIRONMENT="$DEST_CONF/environment"
+DEST_ENVIRONMENT_SYSTEMD_DIR="$DEST_CONF/environment.d"
+DEST_ENVIRONMENT_SYSTEMD_DIR_USR="$DEST_CONF_USR/environment.d"
 
 # Fontconfig group
 DISABLE_FONTCONFIG=${DISABLE_FONTCONFIG:-} # TODO: Remove in 1.0.0
@@ -339,15 +341,7 @@ printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 }
 
-install_environment () {
-    printf -- "- %-40s%s" "Appending the environment entries "
-
-    # TODO: Remove in 1.0.0
-    if [[ ! -z "$DISABLE_ENVIRONMENT" ]]; then
-        printf "${C_YELLOW}Disabled${C_RESET}\n"
-        return 0
-    fi
-
+install_environment_classic () {
     append_metadata uninstall <<EOF
 printf -- "- %-40s%s" "Cleaning the environment entries "
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
@@ -382,6 +376,55 @@ EOF
 
         printf "$MARKER_END\n"
     } >> "$DEST_ENVIRONMENT"
+}
+
+# NOTE
+# Setting environment variables through systemd is not reliable since it depends
+# on the environment to actually source these values, therefore leaving all the
+# Desktop Manager-less sessions on their own.
+install_environment_systemd () {
+    mkdir -p "$DEST_ENVIRONMENT_SYSTEMD_DIR"
+
+    append_metadata uninstall <<EOF
+printf -- "- %-40s%s" "Cleaning the environment entries "
+EOF
+
+    for f in $ENVIRONMENT_DIR/*.conf; do
+        if is_mod_blacklisted "$f"; then continue; fi
+
+        install -m 644 "$f" "$DEST_ENVIRONMENT_SYSTEMD_DIR/$(basename $f)"
+        append_metadata uninstall <<EOF
+rm -f "$DEST_ENVIRONMENT_SYSTEMD_DIR/$(basename $f)"
+EOF
+    done
+
+    [[ $G_IS_PER_USER == true ]] && append_metadata uninstall <<EOF
+rmdir --ignore-fail-on-non-empty -p "$DEST_ENVIRONMENT_SYSTEMD_DIR"
+EOF
+
+    append_metadata uninstall <<EOF
+printf "${C_GREEN}Done${C_RESET}\n"
+EOF
+}
+
+install_environment () {
+    printf -- "- %-40s%s" "Appending the environment entries "
+
+    # TODO: Remove in 1.0.0
+    if [[ ! -z "$DISABLE_ENVIRONMENT" ]]; then
+        printf "${C_YELLOW}Disabled${C_RESET}\n"
+        return 0
+    fi
+
+    # TODO: Since installing env. entries through systemd is an experimental
+    # feature, it should NOT be used by default.
+    if [[ $(ps --no-headers -o comm 1) == "systemd" ]] && \
+       [[ $(systemctl --version | sed -nE "s/systemd ([0-9]+).*/\1/p") -ge 233 ]]
+    then
+        install_environment_systemd
+    else
+        install_environment_classic
+    fi
 
     printf "${C_GREEN}Done${C_RESET}\n"
 }
@@ -716,6 +759,7 @@ if [[ "$G_IS_PER_USER" == true ]]; then
     fi
 
     DEST_ENVIRONMENT="$shell_config"
+    DEST_ENVIRONMENT_SYSTEMD_DIR="$DEST_ENVIRONMENT_SYSTEMD_DIR_USR"
     DEST_FONTCONFIG_DIR="$DEST_FONTCONFIG_DIR_USR"
     DEST_SHARED_DIR="$DEST_SHARED_DIR_USR"
     DEST_LIB_DIR="$DEST_SHARED_DIR_USR" # I hate this. But it works. For now.
