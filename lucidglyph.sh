@@ -382,6 +382,8 @@ EOF
 # Setting environment variables through systemd is not reliable since it depends
 # on the environment to actually source these values, therefore leaving all the
 # Desktop Manager-less sessions on their own.
+#
+# Reference: https://github.com/systemd/systemd/issues/7641
 install_environment_systemd () {
     mkdir -p "$DEST_ENVIRONMENT_SYSTEMD_DIR"
 
