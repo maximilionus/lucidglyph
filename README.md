@@ -1,7 +1,7 @@
 ## About
 Tuning the Linux font rendering stack for a more visually pleasing output.
 
-Includes tweaks for FreeType, fontconfig, and other components. See
+Includes tweaks for FreeType, Fontconfig, and other components. See
 [Overall](#overall) with [Details](#details) for more information, and
 [Notes](#notes) for the list of after-install recommendations and known issues
 with their possible mitigations.
@@ -202,7 +202,7 @@ gsettings reset org.gnome.desktop.interface font-antialiasing
 
 
 ### KDE Plasma
-By default, the vanilla Plasma desktop environment does follow the fontconfig
+By default, the vanilla Plasma desktop environment does follow the Fontconfig
 rules, including the anti-aliasing settings, but in some cases this behavior
 gets overwritten, causing an improper font rendering due to misconfigured
 anti-aliasing parameters.
@@ -258,10 +258,10 @@ man --pager='less -p "output <name> subpixel"' sway-output
 
 ## Details
 - Environment variables:
-   - Stem-darkening (fonts emboldening) for `autofitter` (including custom
-     darkening values), `type1`, `t1cid` and `cff` drivers. This feature
-     improves visibility of the medium and small-sized fonts. Especially
-     helpful on the low pixel density (LowPPI) outputs.
+   - FreeType stem-darkening for `autofitter` (including custom darkening
+     values), `type1`, `t1cid` and `cff` drivers. This feature improves
+     visibility of the medium and small-sized fonts. Especially helpful on the
+     low pixel density (LowPPI) outputs.
      [Basics Article](https://freetype.org/freetype2/docs/hinting/text-rendering-general.html)
      and
      [Usage Documentation](https://freetype.org/freetype2/docs/reference/ft2-properties.html#no-stem-darkening).
@@ -283,12 +283,12 @@ man --pager='less -p "output <name> subpixel"' sway-output
      legibility. Only applied if the target system misses any hinting
      configuration.
 
-   - Additional emboldening. This rule supplements the main stem-darkening on
-     very small glyph sizes by utilizing the built-in emboldening feature of
-     Fontconfig. There is a significant chance that some software may not
-     support this feature.
+   - Additional emboldening. This rule supplements the main FreeType
+     stem-darkening on very small glyph sizes by utilizing the built-in
+     emboldening feature of Fontconfig. There is a significant chance that some
+     software may not support this feature.
 
-   - Automatic icon-type font detection. Switches off the fontconfig emboldening
+   - Automatic icon-type font detection. Switches off the Fontconfig emboldening
      and hinting for such fonts to prevent glyphs from stem-darkening
      "over-emboldening".
 
