@@ -283,12 +283,10 @@ man --pager='less -p "output <name> subpixel"' sway-output
      legibility. Only applied if the target system misses any hinting
      configuration.
 
-   - Stem-darkening fallback through emboldening. This rule compensates the
-     lack of stem-darkening on very small glyph sizes (caused by
-     [#9](https://github.com/maximilionus/lucidglyph/issues/9)) by utilizing
-     the built-in emboldening feature of Fontconfig. It is important to note
-     that there is a significant chance that some software may not support this
-     feature.
+   - Additional emboldening. This rule supplements the main stem-darkening on
+     very small glyph sizes by utilizing the built-in emboldening feature of
+     Fontconfig. There is a significant chance that some software may not
+     support this feature.
 
    - Automatic icon-type font detection. Switches off the fontconfig emboldening
      and hinting for such fonts to prevent glyphs from stem-darkening
