@@ -1,7 +1,9 @@
 ## Development
-- Full stem-darkening for the `autofitter` driver. This is a critical change
-  that provides the fix for the improper shape geometry of some fonts but
-  reintroduces the issue with icon-type fonts.
+- Full stem-darkening for the `autofitter` driver. Also provides the fix for the
+  improper shape geometry in some fonts.
+
+- Automatic icon-type font detection with required tweaks for a correct
+  rendering, supplementing the change from above.
 
 
 ## Release 0.13.1

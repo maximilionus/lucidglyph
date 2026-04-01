@@ -290,6 +290,10 @@ man --pager='less -p "output <name> subpixel"' sway-output
      that there is a significant chance that some software may not support this
      feature.
 
+   - Automatic icon-type font detection. Switches off the fontconfig emboldening
+     and hinting for such fonts to prevent glyphs from stem-darkening
+     "over-emboldening".
+
    - Reject usage of "Droid Sans" family for Japanese and Chinese characters
      and force the environment to use other fonts. Stem-darkening does not work
      well with this typeface, causing characters over-emboldening.
