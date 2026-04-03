@@ -70,7 +70,7 @@ DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
 # Colors
 C_RESET="\e[0m"
 C_BOLD="\e[1m"
-C_DIM="\e[2m"
+C_DARK_GRAY="\e[0;90m"
 C_WHITE="\e[0;37m"
 C_GREEN="\e[0;32m"
 C_YELLOW="\e[0;33m"
@@ -140,14 +140,14 @@ mod_blacklist_init() {
 
 mod_blacklist_checkup() {
     if (( ${#G_MODULES_BLACKLIST[@]} != 0 )); then
-        printf "${C_DIM}Built-in modules blacklist:\n"
+        printf "${C_DARK_GRAY}Built-in modules blacklist:\n"
         printf -- '- %s\n' "${G_MODULES_BLACKLIST[@]}"
         printf "$C_RESET"
     fi
 
     (( ${#G_MODULES_BLACKLIST_USER[@]} == 0 )) && return 0
 
-    printf "${C_DIM}User modules blacklist:\n"
+    printf "${C_DARK_GRAY}User modules blacklist:\n"
 
     local is_wrong
     for i in "${G_MODULES_BLACKLIST_USER[@]}"; do
@@ -543,7 +543,7 @@ cmd_install () {
     install_fontconfig
 
     printf "\n${C_BOLD}${C_GREEN}Success!${C_RESET} ${C_BOLD}Reboot to apply the changes.${C_RESET}\n"
-    printf "\n${C_DIM}"
+    printf "\n${C_DARK_GRAY}"
     cat <<EOF
 See the "Notes" section in the README file for a more thorough explanation of
 project modules and potential issues that may arise.
@@ -678,7 +678,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         -u|--user)
             G_IS_PER_USER=true
-            printf "${C_DIM}Operating in per-user mode (experimental).${C_RESET}\n"
+            printf "${C_DARK_GRAY}Operating in per-user mode (experimental).${C_RESET}\n"
             shift
             ;;
         -b|--blacklist)
