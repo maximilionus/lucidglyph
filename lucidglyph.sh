@@ -162,7 +162,7 @@ mod_blacklist_checkup() {
     done
     printf "$C_RESET"
 
-    if [[ ! -z "$is_wrong" ]]; then
+    if [[ -n "$is_wrong" ]]; then
         ask_confirmation "One or more blacklist entries doesn't seem to be correct. Continue?"
     fi
 }
@@ -219,7 +219,7 @@ load_info_file () {
 
     local info_file_path="$DEST_SHARED_DIR/$M_INFO_FILE"
 
-    [[ ! -z $DISABLE_METADATA ]] && return 0
+    [[ -n $DISABLE_METADATA ]] && return 0
 
     if [[ ! -f "$info_file_path" ]]; then
         # Backwards compatibility
@@ -264,7 +264,7 @@ EOF
 
 # Process the local metadata files, loading the values.
 load_metadata () {
-    [[ ! -z $DISABLE_METADATA ]] && return 0
+    [[ -n $DISABLE_METADATA ]] && return 0
 
     # Load the legacy metadata format (before 0.13.0)
     if [[ ! -f "$DEST_SHARED_DIR/$M_VERSION_FILE" ]]; then
@@ -290,7 +290,7 @@ load_metadata () {
 append_metadata () {
     local mode="$1"
 
-    [[ ! -z $DISABLE_METADATA ]] && return 0
+    [[ -n $DISABLE_METADATA ]] && return 0
 
     local path=""
     case "$mode" in
@@ -306,7 +306,7 @@ append_metadata () {
 install_metadata () {
     printf -- "- %-40s%s" "Storing the installation metadata"
 
-    if [[ ! -z "$DISABLE_METADATA" ]]; then
+    if [[ -n "$DISABLE_METADATA" ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
         return 0
     fi
@@ -343,7 +343,7 @@ install_environment () {
     printf -- "- %-40s%s" "Appending the environment entries "
 
     # TODO: Remove in 1.0.0
-    if [[ ! -z "$DISABLE_ENVIRONMENT" ]]; then
+    if [[ -n "$DISABLE_ENVIRONMENT" ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
         return 0
     fi
@@ -390,7 +390,7 @@ install_fontconfig () {
     printf -- "- %-40s%s" "Installing the fontconfig rules "
 
     # TODO: Remove in 1.0.0
-    if [[ ! -z "$DISABLE_FONTCONFIG" ]]; then
+    if [[ -n "$DISABLE_FONTCONFIG" ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
         return 0
     fi
@@ -524,14 +524,14 @@ cmd_install () {
 
         needs_reinstall=1
         confirm_msg="Do you wish to reinstall it?"
-    elif [[ ! -z "$G_M_VERSION" ]]; then
+    elif [[ -n "$G_M_VERSION" ]]; then
         printf "${C_GREEN}Detected $NAME version $G_M_VERSION on the target system.${C_RESET}\n"
 
         needs_reinstall=1
         confirm_msg="Do you wish to upgrade to version $VERSION?"
     fi
 
-    if [[ ! -z "$needs_reinstall" ]]; then
+    if [[ -n "$needs_reinstall" ]]; then
         if ! ask_confirmation "$confirm_msg"; then exit 1; fi
 
         call_uninstaller
@@ -643,8 +643,8 @@ EOF
     fi
 fi
 
-if [[ "$ENABLE_ENVIRONMENT" == "false" || ! -z "$DISABLE_ENVIRONMENT" ]] || \
-   [[ "$ENABLE_FONTCONFIG" == "false" || ! -z "$DISABLE_FONTCONFIG" ]]
+if [[ "$ENABLE_ENVIRONMENT" == "false" || -n "$DISABLE_ENVIRONMENT" ]] || \
+   [[ "$ENABLE_FONTCONFIG" == "false" || -n "$DISABLE_FONTCONFIG" ]]
 then
     cat <<EOF
 $(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
