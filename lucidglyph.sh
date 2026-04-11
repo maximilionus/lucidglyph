@@ -733,8 +733,11 @@ case "$1" in
         ;;
     # "h" is deprecated
     # TODO: Remove in 1.0.0
-    h|""|help)
+    h|help)
         cmd_help
+        ;;
+    "")
+        printf "Use ${C_BOLD}help${C_RESET} command to get usage information\n"
         ;;
     *)
         printf "${C_RED}Error:${C_RESET} Unknown command $1\n" >&2
