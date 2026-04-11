@@ -82,7 +82,7 @@ MARKER_WARNING="# !! DO NOT PUT ANY USER CONFIGURATIONS INSIDE THIS BLOCK !!"
 MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
 
 # Global variables
-declare G_IS_PER_USER=false
+declare G_IS_PER_USER=""
 declare -a G_MODULES_BLACKLIST=()       # Hardcoded system module blacklist
 declare -a G_MODULES_BLACKLIST_USER=()  # User blacklist. Populated through `--blacklist` option.
 
@@ -113,10 +113,10 @@ show_header () {
 }
 
 check_root () {
-    if [[ "$(id -u)" != 0 && "$G_IS_PER_USER" == false ]]; then
+    if [[ "$(id -u)" -ne 0 && -z "$G_IS_PER_USER" ]]; then
         printf "${C_RED}Error:${C_RESET} This action requires the root privileges\n" >&2
         exit 1
-    elif [[ "$(id -u)" == 0 && "$G_IS_PER_USER" == true ]]; then
+    elif [[ "$(id -u)" -eq 0 && -n "$G_IS_PER_USER" ]]; then
         cat <<EOF
 You are attempting to perform a per-user operation as the root user. This is
 likely an error, as the utility will then operate with the root user instead of
@@ -331,7 +331,7 @@ rm -rf "$DEST_SHARED_DIR"
 rm -rf "$DEST_LIB_DIR"
 EOF
     # Get parent since shared dir already removed
-    [[ $G_IS_PER_USER == true ]] && append_metadata uninstall <<EOF
+    [[ -n "$G_IS_PER_USER" ]] && append_metadata uninstall <<EOF
 rmdir --ignore-fail-on-non-empty -p "$(dirname $DEST_SHARED_DIR)"
 EOF
     append_metadata uninstall <<EOF
@@ -352,21 +352,21 @@ install_environment () {
 printf -- "- %-40s%s" "Cleaning the environment entries "
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
-    [[ $G_IS_PER_USER == true ]] && append_metadata uninstall <<EOF
+    [[ -n "$G_IS_PER_USER" ]] && append_metadata uninstall <<EOF
 [[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
 EOF
     append_metadata uninstall <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 
-    if [[ "$G_IS_PER_USER" == false && ! -d "$DEST_CONF" ]]; then mkdir -p "$DEST_CONF"; fi
+    if [[ -z "$G_IS_PER_USER" && ! -d "$DEST_CONF" ]]; then mkdir -p "$DEST_CONF"; fi
 
     {
         printf "$MARKER_START\n"
         printf "$MARKER_WARNING\n"
 
         prefix=""
-        if [[ "$G_IS_PER_USER" == true ]]; then
+        if [[ -n "$G_IS_PER_USER" ]]; then
             case "$SHELL" in
                 # *fish)  prefix="set --export " ;;  # TODO
                 *)      prefix="export " ;;
@@ -410,7 +410,7 @@ rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
 EOF
     done
 
-    [[ $G_IS_PER_USER == true ]] && append_metadata uninstall <<EOF
+    [[ -n "$G_IS_PER_USER" ]] && append_metadata uninstall <<EOF
 rmdir --ignore-fail-on-non-empty -p "$DEST_FONTCONFIG_DIR"
 EOF
 
@@ -424,7 +424,7 @@ EOF
 call_uninstaller () {
     local lib_dir="$DEST_LIB_DIR"
 
-    if [[ "$G_IS_PER_USER" == false ]]; then
+    if [[ -z "$G_IS_PER_USER" ]]; then
         # TODO: Remove in 1.0.0
         if [[ "$G_M_VERSION" == "0.7.0" ]]; then
             # Backward compatibility with version 0.7.0
@@ -450,7 +450,7 @@ call_uninstaller () {
     # https://github.com/maximilionus/lucidglyph/issues/19
     #
     # TODO: Remove in 1.0.0
-    if [[ "$G_IS_PER_USER" == true ]] && ver_gt "0.12.0" "$G_M_VERSION"
+    if [[ -n "$G_IS_PER_USER" ]] && ver_gt "0.12.0" "$G_M_VERSION"
     then
         sed -i 's/rm -d/rmdir/g' "$lib_dir/$M_DEST_UNINSTALL_FILE"
     fi
@@ -673,11 +673,11 @@ positional_args=()
 while [[ $# -gt 0 ]]; do
     case $1 in
         -s|--system)
-            G_IS_PER_USER=false
+            G_IS_PER_USER=
             shift
             ;;
         -u|--user)
-            G_IS_PER_USER=true
+            G_IS_PER_USER=1
             printf "${C_GRAY}Operating in per-user mode (experimental).${C_RESET}\n"
             shift
             ;;
@@ -705,10 +705,7 @@ done
 set -- "${positional_args[@]}"
 unset positional_args
 
-# While this project supports the fully functional Korn Shell (ksh)
-# installations, it's quite impossible to run the installer itself through ksh
-# since it relies on a huge amount of modern bash functionality :)
-if [[ "$G_IS_PER_USER" == true ]]; then
+if [[ -n "$G_IS_PER_USER" ]]; then
     shell_config="$(get_shell_conf)"
     if [[ -z "$shell_config" ]]; then
         printf "${C_RED}Error:${C_RESET} Per-user operational mode is only supported on bash, zsh and ksh shells.\n"
