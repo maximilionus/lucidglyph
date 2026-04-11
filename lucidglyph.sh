@@ -552,7 +552,7 @@ EOF
 }
 
 cmd_remove () {
-    if [[ "$DISABLE_METADATA" == false ]]; then
+    if [[ -n "$DISABLE_METADATA" ]]; then
         printf "${C_RED}Error:${C_RESET} Functionality not available with disabled metadata" >&2
         exit 1
     fi
