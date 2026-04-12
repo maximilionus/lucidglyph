@@ -24,7 +24,7 @@ NAME="lucidglyph"
 VERSION="0.14.0"
 
 # Display the header with project name and version on start
-SHOW_HEADER=${SHOW_HEADER:-true}
+DISABLE_HEADER="${DISABLE_HEADER:-}"
 
 # Filesystem configuration
 SRC_DIR="src"
@@ -494,20 +494,20 @@ ENVIRONMENT VARIABLES - MODULES:
                     Default: empty (false).
 
 ENVIRONMENT VARIABLES - UTILITY:
-  SHOW_HEADER    Show the script header on execution.
-                 Default: true.
+  DISABLE_HEADER  Do not show the script header on execution.
+                  Default: unset.
 
-  DESTDIR        Relocate the whole installation by prepending the path from
-                 this variable.
-                 Default: unset.
+  DESTDIR         Relocate the whole installation by prepending the path from
+                  this variable.
+                  Default: unset.
 
-  DEST_CONF,     Set the paths to configuration directories.
-  DEST_CONF_USR  Default: "/etc" for system-wide and "~/.config" for
-                 per-user.
+  DEST_CONF,      Set the paths to configuration directories.
+  DEST_CONF_USR   Default: "/etc" for system-wide and "~/.config" for
+                  per-user.
 
-  DEST_USR,      Set the paths to shared directories.
-  DEST_USR_USR   Default: "/usr/local" for system-wide and "~/.local/share" for
-                 per-user.
+  DEST_USR,       Set the paths to shared directories.
+  DEST_USR_USR    Default: "/usr/local" for system-wide and "~/.local/share" for
+                  per-user.
 EOF
 }
 
@@ -575,21 +575,6 @@ cmd_remove () {
 # Execution
 cd "$(dirname "$0")"
 
-[[ $SHOW_HEADER == true ]] && show_header
-
-if [[ "$( uname -s )" != Linux* ]]; then
-    cat <<EOF
-$(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
-You are trying to run this script on the unsupported platform. Proceed at your
-own risk.
-$(printf "$C_YELLOW")---------------$(printf "$C_RESET")
-
-EOF
-    if ! ask_confirmation "Do you wish to continue?"; then
-        exit 1
-    fi
-fi
-
 # Deprecate short commands.
 # TODO: Remove in 1.0.0
 case "$1" in
@@ -626,8 +611,8 @@ if [[ "$ENABLE_METADATA" == false ]]; then
     cat <<EOF
 $(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
 Environment variable "ENABLE_METADATA" has been replaced by "DISABLE_METADATA",
-with the original variable considered deprecated since version 0.13.0 and
-marked for removal in version 1.0.0.
+with the original variable considered deprecated since version 0.13.0 and marked
+for removal in version 1.0.0.
 
 From now on, to disable metadata, assign any value to the "DISABLE_METADATA"
 environment variable.
@@ -637,10 +622,8 @@ Provided variable will now be automatically reassigned correspondingly:
 $(printf "$C_YELLOW")---------------$(printf "$C_RESET")
 EOF
 
-    if [[ "$ENABLE_METADATA" == false ]]; then
-        DISABLE_METADATA=1
-        unset ENABLE_METADATA
-    fi
+    DISABLE_METADATA=1
+    unset ENABLE_METADATA
 fi
 
 if [[ "$ENABLE_ENVIRONMENT" == "false" || -n "$DISABLE_ENVIRONMENT" ]] || \
@@ -649,8 +632,8 @@ then
     cat <<EOF
 $(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
 Environment variables "ENABLE_ENVIRONMENT"/"DISABLE_ENVIRONMENT" and
-"ENABLE_FONTCONFIG"/"DISABLE_FONTCONFIG" are considered deprecated since
-version 0.13.0 and marked for removal in version 1.0.0.
+"ENABLE_FONTCONFIG"/"DISABLE_FONTCONFIG" are considered deprecated since version
+0.13.0 and marked for removal in version 1.0.0.
 
 This feature was replaced with module blacklisting. See README for more
 information.
@@ -664,6 +647,42 @@ EOF
     if [[ "$ENABLE_FONTCONFIG" == false ]]; then
         DISABLE_FONTCONFIG=1
         unset ENABLE_FONTCONFIG
+    fi
+fi
+
+# Replace SHOW_HEADER env. var.
+# TODO: Remove in 1.0.0
+if [[ "$SHOW_HEADER" == "false" ]]; then
+    cat <<EOF
+$(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
+Environment variable "SHOW_HEADER" has been replaced by "DISABLE_HEADER", with
+the original variable considered deprecated since version <TODO> and marked for
+removal in version 1.0.0.
+
+From now on, to disable the header message, assign any value to the
+"DISABLE_HEADER" environment variable.
+
+Provided variable will now be automatically reassigned correspondingly:
+    SHOW_HEADER=false  -->  DISABLE_HEADER=1
+$(printf "$C_YELLOW")---------------$(printf "$C_RESET")
+EOF
+
+    DISABLE_HEADER=1
+    unset SHOW_HEADER
+fi
+
+[[ -z "$DISABLE_HEADER" ]] && show_header
+
+if [[ "$( uname -s )" != Linux* ]]; then
+    cat <<EOF
+$(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
+You are trying to run this script on the unsupported platform. Proceed at your
+own risk.
+$(printf "$C_YELLOW")---------------$(printf "$C_RESET")
+
+EOF
+    if ! ask_confirmation "Do you wish to continue?"; then
+        exit 1
     fi
 fi
 
@@ -737,10 +756,10 @@ case "$1" in
         cmd_help
         ;;
     "")
-        printf "Use ${C_BOLD}help${C_RESET} command to get usage information\n"
+        printf "Use ${C_BOLD}help${C_RESET} command to get usage information.\n"
         ;;
     *)
-        printf "${C_RED}Error:${C_RESET} Unknown command $1\n" >&2
-        printf "Use ${C_BOLD}help${C_RESET} command to get usage information\n" >&2
+        printf "${C_RED}Error:${C_RESET} Unknown command $1.\n" >&2
+        printf "Use ${C_BOLD}help${C_RESET} command to get usage information.\n" >&2
         exit 1
 esac

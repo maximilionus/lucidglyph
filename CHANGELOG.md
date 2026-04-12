@@ -1,3 +1,10 @@
+## Development
+- Environment variable `SHOW_HEADER` has been replaced by `DISABLE_HEADER`, with
+  the original variable considered deprecated and marked for removal in version
+  `1.0.0`. Variable should be reassigned correspondingly from
+  `SHOW_HEADER=false` to `DISABLE_HEADER=1`.
+
+
 ## Release 0.14.0
 - Full stem-darkening in the `autofitter` driver. Additionally provides the fix
   for the improper glyph geometry in some fonts.
