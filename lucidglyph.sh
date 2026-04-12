@@ -491,11 +491,11 @@ OPTIONS:
 ENVIRONMENT VARIABLES - MODULES:
   DISABLE_METADATA  Do not store any information for further operations like
                     upgrades or uninstalls. Assign any value to activate.
-                    Default: empty (false).
+                    Default: unset (false).
 
 ENVIRONMENT VARIABLES - UTILITY:
   DISABLE_HEADER  Do not show the script header on execution.
-                  Default: unset.
+                  Default: unset (false).
 
   DESTDIR         Relocate the whole installation by prepending the path from
                   this variable.
@@ -607,7 +607,7 @@ fi
 
 # Deprecate old ENABLE_* env. vars
 # TODO: Remove in 1.0.0
-if [[ "$ENABLE_METADATA" == false ]]; then
+if [[ "$ENABLE_METADATA" == "false" ]]; then
     cat <<EOF
 $(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
 Environment variable "ENABLE_METADATA" has been replaced by "DISABLE_METADATA",
@@ -640,11 +640,11 @@ information.
 $(printf "$C_YELLOW")---------------$(printf "$C_RESET")
 EOF
 
-    if [[ "$ENABLE_ENVIRONMENT" == false ]]; then
+    if [[ "$ENABLE_ENVIRONMENT" == "false" ]]; then
         DISABLE_ENVIRONMENT=1
         unset ENABLE_ENVIRONMENT
     fi
-    if [[ "$ENABLE_FONTCONFIG" == false ]]; then
+    if [[ "$ENABLE_FONTCONFIG" == "false" ]]; then
         DISABLE_FONTCONFIG=1
         unset ENABLE_FONTCONFIG
     fi
