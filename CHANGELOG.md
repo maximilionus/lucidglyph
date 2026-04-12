@@ -1,6 +1,9 @@
 ## Development
 - Move the metadata cleanup to the final stage of the uninstaller.
 
+- Fix `DISABLE_METADATA` environment variable functionality on project removal.
+  Script will refuse to execute since metadata is non-existent.
+
 - Environment variable `SHOW_HEADER` has been replaced by `DISABLE_HEADER`, with
   the original variable considered deprecated and marked for removal in version
   `1.0.0`. Variable should be reassigned correspondingly from
