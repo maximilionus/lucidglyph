@@ -328,10 +328,16 @@ install_metadata () {
 
     append_metadata version <<< "$VERSION"
     printf '%s\n' "${G_MODULES_BLACKLIST_USER[@]}" | append_metadata modules_blacklist
+
     append_metadata uninstall <<EOF
 #!/usr/bin/env bash
 set -e
 printf "Using uninstaller for version ${C_BOLD}$VERSION${C_RESET}\n"
+EOF
+}
+
+finalize_metadata () {
+    append_metadata uninstall <<EOF
 printf -- "- %-40s%s" "Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
 rm -rf "$DEST_LIB_DIR"
@@ -547,6 +553,7 @@ cmd_install () {
     install_metadata
     install_environment
     install_fontconfig
+    finalize_metadata
 
     printf "\n${C_BOLD}${C_GREEN}Success!${C_RESET} ${C_BOLD}Reboot to apply the changes.${C_RESET}\n"
     printf "\n${C_GRAY}"
