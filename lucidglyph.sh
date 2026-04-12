@@ -22,6 +22,7 @@ shopt -s nullglob
 
 NAME="lucidglyph"
 VERSION="0.14.0"
+IS_RELEASE=
 
 # Display the header with project name and version on start
 DISABLE_HEADER="${DISABLE_HEADER:-}"
@@ -110,6 +111,11 @@ ask_confirmation() {
 
 show_header () {
     printf "${C_BOLD}$NAME, version $VERSION${C_RESET}\n"
+
+    if [[ -z "$IS_RELEASE" ]]; then
+        printf "${C_YELLOW}Warning:${C_RESET} You are using a development build.\n"
+        printf "%36s\n" "Expect things to get nasty."
+    fi
 }
 
 check_root () {
