@@ -1,10 +1,14 @@
 ## About
-Tuning the Linux font rendering stack for a more visually pleasing output.
+Improvements for the Linux font rendering stack.
 
 Includes tweaks for FreeType, Fontconfig, and other components. See
-[Overall](#overall) with [Details](#details) for more information, and
-[Notes](#notes) for the list of after-install recommendations and known issues
-with their possible mitigations.
+[Details](#details) for more information, and [Notes](#notes) for the list of
+after-install recommendations and known issues with their possible mitigations.
+
+**What it does?**
+- Improves clarity of medium and small fonts.
+- Ensures consistent rendering across displays with varying pixel densities.
+- Keeps system components and fonts intact. Only rendering tweaks.
 
 Visual comparison is available on the project's
 [wiki page](https://github.com/maximilionus/lucidglyph/wiki/Comparison).
@@ -18,13 +22,6 @@ Visual comparison is available on the project's
 > rendering cannot be guaranteed in some cases.
 
 > Previously known as **freetype-envision**
-
-### Overall
-- Improves visibility of the medium and small-sized fonts.
-- Adjusts the font environment to support new experimental features of the font
-  rendering stack.
-- Keeps the system components and font list intact. No additions or removals,
-  only rendering tweaks.
 
 
 ## Usage

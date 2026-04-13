@@ -474,7 +474,7 @@ cmd_help () {
     cat <<EOF
 usage: $0 [OPTIONS] [COMMAND]
 
-Tuning the Linux font rendering stack for a more visually pleasing output.
+Improvements for the Linux font rendering stack.
 
 For further information and usage details, please refer to the project
 documentation provided in the README file.
