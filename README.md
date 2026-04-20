@@ -150,11 +150,12 @@ access to the per-user font configuration directory. Replace `<PACKAGE-ID>` with
 the real package name:
 ```sh
 flatpak run --command=sh <PACKAGE-ID> \
-    -c '[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/fontconfig" ] && echo Access || echo Denied'
+    -c '[ ! -r "$HOME/.config/fontconfig" ] && echo "Access Denied"'
 ```
 
-If the command above outputs "Denied" then you will have to manually allow the
-sandbox to access the specified directory (read-only mode is sufficient).
+If the command above outputs "Access Denied" then you will have to manually
+allow the sandbox to access the specified directory (read-only mode is
+sufficient).
 
 This can be done either for this specific package:
 ```sh
@@ -167,6 +168,17 @@ flatpak override --user --filesystem=xdg-config/fontconfig:ro
 ```
 
 > Be careful since creating global overrides may brake some Flatpak software.
+
+To revert this specific change, execute:
+```sh
+flatpak override --user --nofilesystem=xdg-config/fontconfig <PACKAGE-ID>
+```
+
+Alternatively, reset all the package permissions to defaults, also cleaning the
+entry from `~/.local/share/flatpak/overrides/`, by executing:
+```
+flatpak override --user --reset <PACKAGE-ID>
+```
 
 
 ### Chromium
