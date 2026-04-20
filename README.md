@@ -136,6 +136,39 @@ intended behavior since hinting settings are usually really taste-dependent, so
 the final choice was left to the end user.
 
 
+### Flatpak
+Flatpak provides a sandboxed environment for any software run through it, which
+implies having a strict set of permissions. If the package maintainer fails to
+configure the permissions properly, which is not a rare case, access to some
+directories with important configuration files may be restricted.
+
+After the [per-user](#user-mode) install, if you start noticing the differences
+in font rendering between system and Flatpak software:
+
+Execute the command below to check if the sandbox of the specific package has
+access to the per-user font configuration directory. Replace `<PACKAGE-ID>` with
+the real package name:
+```sh
+flatpak run --command=sh <PACKAGE-ID> \
+    -c '[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/fontconfig" ] && echo Access || echo Denied'
+```
+
+If the command above outputs "Denied" then you will have to manually allow the
+sandbox to access the specified directory.
+
+You can do that either for the specific package:
+```sh
+flatpak override --user --filesystem=xdg-config/fontconfig:ro <PACKAGE-ID>
+```
+
+Or create a global override, which will affect all the Flatpak software:
+```sh
+flatpak override --user --filesystem=xdg-config/fontconfig:ro
+```
+
+> Be careful since creating global overrides may brake some Flatpak software.
+
+
 ### Chromium
 Starting from version 133 (February 2025), Chromium now uses the self-written
 replacement for FreeType called Fontations, as a new font system, with Skrifa
