@@ -154,14 +154,14 @@ flatpak run --command=sh <PACKAGE-ID> \
 ```
 
 If the command above outputs "Denied" then you will have to manually allow the
-sandbox to access the specified directory.
+sandbox to access the specified directory (read-only mode is sufficient).
 
-You can do that either for the specific package:
+This can be done either for this specific package:
 ```sh
 flatpak override --user --filesystem=xdg-config/fontconfig:ro <PACKAGE-ID>
 ```
 
-Or create a global override, which will affect all the Flatpak software:
+Or create a global override that will affect all Flatpak software:
 ```sh
 flatpak override --user --filesystem=xdg-config/fontconfig:ro
 ```
