@@ -298,10 +298,10 @@ man --pager='less -p "output <name> subpixel"' sway-output
 
    - Disable synthesized bold fonts in Qt-based software. There is an issue
      that causes bold glyphs to appear heavy in variable fonts.
-     Red Hat reports:
-     [Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=2179854),
-     [Fedora tracker](https://pagure.io/fedora-kde/SIG/issue/461).
-     [Qt report](https://bugreports.qt.io/browse/QTBUG-112136).
+     Reports:
+     [Red Hat Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=2179854),
+     [Fedora Tracker](https://pagure.io/fedora-kde/SIG/issue/461),
+     [Qt Report](https://bugreports.qt.io/browse/QTBUG-112136).
 
 - Rules for Fontconfig:
    - Enforce grayscale anti-aliasing (disable sub-pixel). Grayscale
