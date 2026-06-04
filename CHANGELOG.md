@@ -1,4 +1,8 @@
 ## Development
+- Manual icon-type font detection with the necessary tweaks for correct
+  rendering. This temporarily supplements the automatic mode introduced in
+  `0.14.0`.
+
 - Move the metadata cleanup to the final stage of the uninstaller.
 
 - Fix `DISABLE_METADATA` environment variable functionality on project removal.
