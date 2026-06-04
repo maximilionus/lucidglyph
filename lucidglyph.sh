@@ -556,12 +556,11 @@ cmd_install () {
     finalize_metadata
 
     printf "\n${C_BOLD}${C_GREEN}Success!${C_RESET} ${C_BOLD}Reboot to apply the changes.${C_RESET}\n"
-    printf "\n${C_GRAY}"
     cat <<EOF
+
 See the "Notes" section in the README file for a more thorough explanation of
 project modules and potential issues that may arise.
 EOF
-    printf "${C_RESET}"
 }
 
 cmd_remove () {
