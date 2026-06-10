@@ -21,8 +21,8 @@ shopt -s nullglob
 
 
 NAME="lucidglyph"
-VERSION="0.14.1"
-IS_RELEASE=
+VERSION="0.15.0"
+IS_RELEASE=1
 
 # Display the header with project name and version on start
 DISABLE_HEADER="${DISABLE_HEADER:-}"

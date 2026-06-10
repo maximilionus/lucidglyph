@@ -1,11 +1,11 @@
-## Development 0.14.1
-- Manual icon-type font detection with the necessary tweaks for correct
-  rendering. This temporarily supplements the automatic mode introduced in
-  `0.14.0`.
+## Release 0.15.0
+- Manual icon font detection with the necessary tweaks for correct rendering.
+  This temporarily supplements the automatic mode introduced in `0.14.0`.
 
 - Move the metadata cleanup to the final stage of the uninstaller.
 
-- Fix icon font detection Fontconfig rules order to be above any user entries.
+- Fix order of the icon font detection Fontconfig rules to be above any
+  user-defined entries.
 
 - Fix `DISABLE_METADATA` environment variable functionality on project removal.
   Script will refuse to execute since metadata is non-existent.
