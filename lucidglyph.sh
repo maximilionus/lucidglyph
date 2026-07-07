@@ -22,7 +22,7 @@ shopt -s nullglob
 
 NAME="lucidglyph"
 VERSION="0.15.0"
-IS_RELEASE=1
+IS_RELEASE=
 
 # Display the header with project name and version on start
 DISABLE_HEADER="${DISABLE_HEADER:-}"
@@ -668,7 +668,7 @@ if [[ "$SHOW_HEADER" == "false" ]]; then
     cat <<EOF
 $(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
 Environment variable "SHOW_HEADER" has been replaced by "DISABLE_HEADER", with
-the original variable considered deprecated since version <TODO> and marked for
+the original variable considered deprecated since version 0.15.0 and marked for
 removal in version 1.0.0.
 
 From now on, to disable the header message, assign any value to the

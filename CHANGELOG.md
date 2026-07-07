@@ -1,3 +1,7 @@
+## Development
+- Fix environment variable `SHOW_HEADER` deprecation notice from `0.15.0`.
+
+
 ## Release 0.15.0
 - Manual icon font detection with the necessary tweaks for correct rendering.
   This temporarily supplements the automatic mode introduced in `0.14.0`.
