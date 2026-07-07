@@ -602,7 +602,7 @@ esac
 
 # Deprecate project modes
 # TODO: Remove in 1.0.0
-if [[ "$2" =~ ^(normal|full)$ ]]; then
+if [[ "$1" == "install" ]] && [[ "$2" =~ ^(normal|full)$ ]]; then
     cat <<EOF
 $(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
 Arguments "normal" and "full" (mode selection) are considered deprecated since
