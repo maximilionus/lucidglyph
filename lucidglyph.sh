@@ -87,6 +87,7 @@ declare G_IS_PER_USER=""
 declare -a G_MODULES_BLACKLIST=()       # Hardcoded system module blacklist
 declare -a G_MODULES_BLACKLIST_USER=()  # User blacklist. Populated through `--blacklist` option.
 
+# Global variables parsed from local metadata
 declare G_M_VERSION
 declare -a G_M_MODULES_BLACKLIST
 
@@ -565,7 +566,7 @@ EOF
 
 cmd_remove () {
     if [[ -n "$DISABLE_METADATA" ]]; then
-        printf "${C_RED}Error:${C_RESET} Functionality not available with disabled metadata" >&2
+        printf "${C_RED}Error:${C_RESET} Feature is not available with disabled metadata" >&2
         exit 1
     fi
 
