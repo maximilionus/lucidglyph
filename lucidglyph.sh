@@ -78,9 +78,9 @@ C_YELLOW="\e[0;33m"
 C_RED="\e[0;31m"
 
 # Marker for tracking the appended content
-MARKER_START="### START OF LUCIDGLYPH $VERSION CONTENT ###"
+MARKER_START="### START OF $(echo "${NAME^^}") $VERSION CONTENT ###"
 MARKER_WARNING="# !! DO NOT PUT ANY USER CONFIGURATIONS INSIDE THIS BLOCK !!"
-MARKER_END="### END OF LUCIDGLYPH $VERSION CONTENT ###"
+MARKER_END="### END OF $(echo "${NAME^^}") $VERSION CONTENT ###"
 
 # Global variables
 declare G_IS_PER_USER=""
