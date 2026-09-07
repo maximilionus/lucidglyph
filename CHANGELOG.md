@@ -1,4 +1,4 @@
-## Development
+## Release 0.15.1
 - Fix environment variable `SHOW_HEADER` deprecation notice from `0.15.0`.
 
 
