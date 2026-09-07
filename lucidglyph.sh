@@ -481,7 +481,7 @@ For further information and usage details, please refer to the project
 documentation provided in the README file.
 
 Note: Entries below marked with "Stored" will be preserved between project
-updates unless overwritten by the user.
+updates unless overwritten by the OPTIONS.
 
 COMMANDS:
   install  Install, reinstall, or upgrade the project
@@ -510,17 +510,18 @@ ENVIRONMENT VARIABLES - UTILITY:
   DISABLE_HEADER  Do not show the script header on execution.
                   Default: unset (false).
 
-  DESTDIR         Relocate the whole installation by prepending the path from
-                  this variable.
+  DESTDIR         Relocate the whole installation by prepending this path.
                   Default: unset.
 
   DEST_CONF,      Set the paths to configuration directories.
-  DEST_CONF_USR   Default: "/etc" for system-wide and "~/.config" for
-                  per-user.
+  DEST_CONF_USR   Default:
+                  - system-wide:  /etc
+                  - per-user:     ~/.config
 
   DEST_USR,       Set the paths to shared directories.
-  DEST_USR_USR    Default: "/usr/local" for system-wide and "~/.local/share" for
-                  per-user.
+  DEST_USR_USR    Default:
+                  - system-wide  /usr/local
+                  - per-user     ~/.local/share
 EOF
 }
 
