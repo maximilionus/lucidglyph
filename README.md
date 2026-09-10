@@ -213,22 +213,15 @@ While GNOME does use the grayscale anti-aliasing method by default, there are a
 few Linux distributions that change this setting to the sub-pixel method,
 making the font rendering appear incorrect after the tweaks from this project.
 
-To check if your system is configured properly:
+To verify if the font anti-aliasing is configured properly:
 1. Open the terminal
-2. Execute the command below to query the current configuration:
+2. Execute the command below to check and set the grayscale font anti-aliasing:
    ```bash
-   gsettings get org.gnome.desktop.interface font-antialiasing
-   ```
-3. If the output of the above command looks like this:
-   ```bash
-   'rgba'
-   ```
-4. Then execute the command below to set a proper font anti-aliasing:
-   ```bash
-   gsettings set org.gnome.desktop.interface font-antialiasing grayscale
+   [[ "$(gsettings get org.gnome.desktop.interface font-antialiasing)" != "'grayscale'" ]] \
+       && gsettings set org.gnome.desktop.interface font-antialiasing grayscale
    ```
 
-To revert the above changes to a system defaults just execute this command:
+To revert the changes to a system defaults just execute this command:
 ```bash
 gsettings reset org.gnome.desktop.interface font-antialiasing
 ```
