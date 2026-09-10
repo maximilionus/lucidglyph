@@ -200,7 +200,7 @@ $ <software> --disable-features=FontationsFontBackend
 ```
 
 **Manual**  
-1. Open this link: `chrome://flags/#enable-fontations-backend`
+1. Open this link: `chrome://flags/#enable-fontations-backend`.
 2. Set the flag to `Disabled`.
 3. Restart the browser by closing the window.
 
@@ -214,7 +214,7 @@ few Linux distributions that change this setting to the sub-pixel method,
 making the font rendering appear incorrect after the tweaks from this project.
 
 To verify if the font anti-aliasing is configured properly:
-1. Open the terminal
+1. Open the terminal.
 2. Execute the command below to check and set the grayscale font anti-aliasing:
    ```bash
    [[ "$(gsettings get org.gnome.desktop.interface font-antialiasing)" != "'grayscale'" ]] \
