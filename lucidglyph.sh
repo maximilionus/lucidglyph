@@ -71,11 +71,12 @@ DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
 # Colors
 C_RESET="\e[0m"
 C_BOLD="\e[1m"
-C_GRAY="\e[0;90m"
-C_WHITE="\e[0;37m"
+C_RED="\e[0;31m"
 C_GREEN="\e[0;32m"
 C_YELLOW="\e[0;33m"
-C_RED="\e[0;31m"
+C_BLUE="\e[0;34m"
+C_WHITE="\e[0;37m"
+C_GRAY="\e[0;90m"
 
 # Marker for tracking the appended content
 MARKER_START="### START OF $(echo "${NAME^^}") $VERSION CONTENT ###"
@@ -486,20 +487,21 @@ updates unless overwritten by the OPTIONS.
 COMMANDS:
   install  Install, reinstall, or upgrade the project
   remove   Remove the installed project
+  info     Detect and print the existing installation information
   help     Show this help message
 
 OPTIONS:
-  -s, --system (default)  Operate in system-wide mode.
-                          Commands: install, remove.
+  -s, --system (default)   Operate in system-wide mode.
+                           Commands: install, remove.
 
-  -u, --user              Operate in per-user mode (experimental feature).
-                          Commands: install, remove.
+  -u, --user               Operate in per-user mode (experimental feature).
+                           Commands: install, remove.
 
-  -b, --blacklist <arg>   Module blacklist pattern. One pattern per option.
-                          Pattern should be provided in literal string format
-                          (single quotes).
-                          Commands: install.
-                          Stored.
+  -b, --blacklist '<arg>'  Module blacklist pattern. One pattern per option.
+                           Pattern should be provided in literal string format
+                           (single quotes).
+                           Commands: install.
+                           Stored.
 
 ENVIRONMENT VARIABLES - MODULES:
   DISABLE_METADATA  Do not store any information for further operations like
@@ -583,6 +585,25 @@ cmd_remove () {
     call_uninstaller
 
     printf "${C_GREEN}Success!${C_RESET} Reboot to apply the changes.\n"
+}
+
+cmd_info () {
+    if [[ -n "$DISABLE_METADATA" ]]; then
+        printf "${C_RED}Error:${C_RESET} Feature is not available with disabled metadata" >&2
+        exit 1
+    fi
+
+    load_metadata
+
+    printf "\n"
+
+    if [[ -z "$G_M_VERSION" ]]; then
+        printf "Project is not installed.\n"
+        exit 1
+    fi
+
+    printf "Installed Version      ${C_BLUE}%s${C_RESET}\n" "$G_M_VERSION"
+    printf "Blacklisted Modules    ${C_BLUE}%s${C_RESET}\n" "${G_M_MODULES_BLACKLIST[*]:-None}"
 }
 
 
@@ -763,6 +784,9 @@ case "$1" in
     # TODO: Remove in 1.0.0
     r|remove)
         cmd_remove
+        ;;
+    info)
+        cmd_info
         ;;
     # "h" is deprecated
     # TODO: Remove in 1.0.0
