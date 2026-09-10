@@ -1,3 +1,9 @@
+## Development
+Reduce the `autofitter` driver stem-darkening `Y` values to `400` from `500`.
+Fixes the incorrect rendering of some fonts at small sizes at the cost of
+reducing the amount of emboldening.
+
+
 ## Release 0.15.1
 - Fix environment variable `SHOW_HEADER` deprecation notice from `0.15.0`.
 
