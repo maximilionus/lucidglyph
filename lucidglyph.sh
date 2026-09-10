@@ -602,8 +602,8 @@ cmd_info () {
         exit 1
     fi
 
-    printf "Installed Version      ${C_BLUE}%s${C_RESET}\n" "$G_M_VERSION"
-    printf "Blacklisted Modules    ${C_BLUE}%s${C_RESET}\n" "${G_M_MODULES_BLACKLIST[*]:-None}"
+    printf "Installed Version    : ${C_BLUE}%s${C_RESET}\n" "$G_M_VERSION"
+    printf "Blacklisted Modules  : ${C_BLUE}%s${C_RESET}\n" "${G_M_MODULES_BLACKLIST[*]:-None}"
 }
 
 
