@@ -21,8 +21,6 @@ Visual comparison is available on the project's
 > desktop environments (like proper gamma correction and blending), correct
 > rendering cannot be guaranteed in some cases.
 
-> Previously known as **freetype-envision**
-
 
 ## Usage
 ### Install
@@ -59,17 +57,6 @@ request user confirmation to allow the upgrade.
 >
 > Experimental feature, expect things not to work as intended. User feedback is
 > greatly appreciated.
-
-> **Caution**
->
-> If you are a power user who relies heavily on symbolic links for custom
-> Fontconfig rules and use lucidglyph versions from `0.10.0` to `0.11.1`,
-> please [check this](https://github.com/maximilionus/lucidglyph/issues/19) to
-> avoid possible corruption of symlinks during an upgrade or removal of this
-> project in per-user mode.
->
-> This issue has been resolved and mitigated in `0.12.0` release. No manual
-> intervention is required.
 
 User mode allows the project to be installed for the current user only, without
 any need for elevated privileges (sudo) or system-wide changes.
