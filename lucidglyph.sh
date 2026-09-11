@@ -210,7 +210,7 @@ get_shell_conf() {
         # fish)  # TODO: Implement fish handling
         #     echo "${DESTDIR:-$HOME}/.config/fish/config.fish"
         #     ;;
-        ksh)
+        sh)
             echo "${DESTDIR:-$HOME}/.profile"
             ;;
         *)
@@ -771,7 +771,7 @@ unset positional_args
 if [[ -n "$G_IS_PER_USER" ]]; then
     shell_config="$(get_shell_conf)"
     if [[ -z "$shell_config" ]]; then
-        printf "${C_RED}Error:${C_RESET} Per-user operational mode is only supported on bash, zsh and ksh shells.\n"
+        printf "${C_RED}Error:${C_RESET} Per-user mode is supported only under bash, zsh and other sh (POSIX) shells.\n"
         exit 1
     fi
 

@@ -2,6 +2,8 @@
 - New script command - `info`. Detects and prints the existing installation
   information.
 
+- Per-user mode now supports POSIX `sh` shells.
+
 - Reduce the `autofitter` driver stem-darkening `Y` values to `400` from `500`.
   Fixes the incorrect rendering of some fonts at small sizes at the cost of
   reducing the amount of emboldening.
