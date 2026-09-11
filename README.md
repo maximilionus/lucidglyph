@@ -92,19 +92,25 @@ sudo ./lucidglyph.sh install \
 
 ## Notes
 ### Font Recommendations
-Below is a table of fonts that are recommended (and not) for use with this
-project. These are subjective, opinionated suggestions - lucidglyph does not
-enforce any font substitution.
+Below are two tables of fonts that are recommended (and not) for use with this
+project. These are subjective and opinionated suggestions - lucidglyph does not
+enforce any font substitution on its own.
 
+Recommended:
 | Serif      | Sans-serif           | Monospace        |
 | :--------- | :------------------  | :--------------- |
 | Noto Serif | Inter / Adwaita Sans | DejaVu Sans Mono |
 |            | Noto Sans            | MesloLG / Menlo  |
-|            | ~Cantarell~          | JetBrains Mono   |
+|            |                      | JetBrains Mono   |
 
-> Fonts marked with a strikethrough are generally not recommended for usage due
-> to poor legibility and improper geometry at small sizes after stem-darkening
-> _(see [Details](#details))_.
+Not recommended:
+> Fonts from this table are generally not recommended for usage due to poor
+> legibility and improper geometry at small sizes after stem-darkening _(see
+> [Details](#details))_.
+
+| Serif      | Sans-serif           | Monospace        |
+| :--------- | :------------------  | :--------------- |
+|            |  Cantarell           |                  |
 
 
 ### Font Hinting
