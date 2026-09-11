@@ -312,7 +312,7 @@ append_metadata () {
 }
 
 install_metadata () {
-    printf -- "- %-40s%s" "Storing the installation metadata"
+    printf -- "- %-40s" "Storing the installation metadata"
 
     if [[ -n "$DISABLE_METADATA" ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
@@ -340,7 +340,7 @@ EOF
 
 finalize_metadata () {
     append_metadata uninstall <<EOF
-printf -- "- %-40s%s" "Removing the installation metadata "
+printf -- "- %-40s" "Removing the installation metadata "
 rm -rf "$DEST_SHARED_DIR"
 rm -rf "$DEST_LIB_DIR"
 EOF
@@ -354,7 +354,7 @@ EOF
 }
 
 install_environment () {
-    printf -- "- %-40s%s" "Appending the environment entries "
+    printf -- "- %-40s" "Appending the environment entries "
 
     # TODO: Remove in 1.0.0
     if [[ -n "$DISABLE_ENVIRONMENT" ]]; then
@@ -363,7 +363,7 @@ install_environment () {
     fi
 
     append_metadata uninstall <<EOF
-printf -- "- %-40s%s" "Cleaning the environment entries "
+printf -- "- %-40s" "Cleaning the environment entries "
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
 EOF
     [[ -n "$G_IS_PER_USER" ]] && append_metadata uninstall <<EOF
@@ -401,7 +401,7 @@ EOF
 }
 
 install_fontconfig () {
-    printf -- "- %-40s%s" "Installing the fontconfig rules "
+    printf -- "- %-40s" "Installing the fontconfig rules "
 
     # TODO: Remove in 1.0.0
     if [[ -n "$DISABLE_FONTCONFIG" ]]; then
@@ -412,7 +412,7 @@ install_fontconfig () {
     mkdir -p "$DEST_FONTCONFIG_DIR"
 
     append_metadata uninstall <<EOF
-printf -- "- %-40s%s" "Removing the fontconfig rules "
+printf -- "- %-40s" "Removing the fontconfig rules "
 EOF
 
     for f in $FONTCONFIG_DIR/*.conf; do
