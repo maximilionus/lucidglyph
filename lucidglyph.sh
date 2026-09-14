@@ -22,7 +22,8 @@ shopt -s nullglob
 
 NAME="lucidglyph"
 VERSION="0.16.0"
-IS_RELEASE=1
+PLATFORM="$(uname -s)"
+IS_RELEASE=
 
 # Display the header with project name and version on start
 DISABLE_HEADER="${DISABLE_HEADER:-}"
@@ -31,7 +32,15 @@ DISABLE_HEADER="${DISABLE_HEADER:-}"
 SRC_DIR="src"
 MODULES_DIR="$SRC_DIR/modules"
 
-DEST_CONF="${DESTDIR:-}${DEST_CONF:-/etc}"
+case "$PLATFORM" in
+    *BSD)
+        DEST_CONF="${DESTDIR:-}${DEST_CONF:-/usr/local/etc}"
+        ;;
+    *)
+        DEST_CONF="${DESTDIR:-}${DEST_CONF:-/etc}"
+        ;;
+esac
+
 DEST_USR="${DESTDIR:-}${DEST_USR:-/usr/local}"
 DEST_USR_OLD_BEFORE_0_13_0="${DESTDIR:-}/usr"  # TODO: Remove in 1.0.0
 
@@ -59,7 +68,10 @@ M_DEST_UNINSTALL_FILE="uninstaller.sh"
 DISABLE_ENVIRONMENT=${DISABLE_ENVIRONMENT:-} # TODO: Remove in 1.0.0
 
 ENVIRONMENT_DIR="$MODULES_DIR/environment"
-DEST_ENVIRONMENT="$DEST_CONF/environment"
+case "$PLATFORM" in
+    *BSD) DEST_ENVIRONMENT="$DEST_CONF/login.conf" ;;
+    *)    DEST_ENVIRONMENT="$DEST_CONF/environment" ;;
+esac
 
 # Fontconfig group
 DISABLE_FONTCONFIG=${DISABLE_FONTCONFIG:-} # TODO: Remove in 1.0.0
@@ -346,13 +358,14 @@ rm -rf "$DEST_LIB_DIR"
 EOF
     # Get parent since shared dir already removed
     [[ -n "$G_IS_PER_USER" ]] && append_metadata uninstall <<EOF
-rmdir --ignore-fail-on-non-empty -p "$(dirname $DEST_SHARED_DIR)"
+rmdir -p "$(dirname $DEST_SHARED_DIR)" 2>/dev/null || :
 EOF
     append_metadata uninstall <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
 }
 
+# TODO: BSD support for /etc/login.conf
 install_environment () {
     printf -- "- %-40s" "Appending the environment entries "
 
@@ -364,7 +377,9 @@ install_environment () {
 
     append_metadata uninstall <<EOF
 printf -- "- %-40s" "Cleaning the environment entries "
-sed -i "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT"
+tmp="/tmp/${DEST_ENVIRONMENT}.$NAME-tmp"
+sed "/$MARKER_START/,/$MARKER_END/d" "$DEST_ENVIRONMENT" > "\$tmp"
+mv "\$tmp" "$DEST_ENVIRONMENT"
 EOF
     [[ -n "$G_IS_PER_USER" ]] && append_metadata uninstall <<EOF
 [[ ! -s $DEST_ENVIRONMENT ]] && rm -f "$DEST_ENVIRONMENT"
@@ -425,7 +440,7 @@ EOF
     done
 
     [[ -n "$G_IS_PER_USER" ]] && append_metadata uninstall <<EOF
-rmdir --ignore-fail-on-non-empty -p "$DEST_FONTCONFIG_DIR"
+rmdir -p "$DEST_FONTCONFIG_DIR" 2>/dev/null || :
 EOF
 
     append_metadata uninstall <<EOF
@@ -517,7 +532,7 @@ ENVIRONMENT VARIABLES - UTILITY:
 
   DEST_CONF,      Set the paths to configuration directories.
   DEST_CONF_USR   Default:
-                  - system-wide:  /etc
+                  - system-wide:  /etc (Linux), /usr/local/etc (BSD)
                   - per-user:     ~/.config
 
   DEST_USR,       Set the paths to shared directories.
@@ -717,7 +732,7 @@ fi
 
 [[ -z "$DISABLE_HEADER" ]] && show_header
 
-if [[ "$( uname -s )" != Linux* ]]; then
+if ! [[ $PLATFORM =~ ^Linux$|BSD$ ]]; then
     cat <<EOF
 $(printf "$C_YELLOW")----Warning----$(printf "$C_RESET")
 You are trying to run this script on the unsupported platform. Proceed at your
