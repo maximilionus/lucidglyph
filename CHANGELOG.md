@@ -4,9 +4,9 @@
 
 - Per-user mode now supports POSIX `sh` shells.
 
-- Reduce the `autofitter` driver stem-darkening `Y` values to `400` from `500`.
-  Fixes the incorrect rendering of some fonts at small sizes at the cost of
-  reducing the amount of emboldening.
+- Reduce the `autofitter` driver stem-darkening `Y` values (amount) from `500`
+  to `400`. Fixes the incorrect rendering of some fonts at small sizes at the
+  cost of reducing the amount of emboldening.
 
 
 ## Release 0.15.1
