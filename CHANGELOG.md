@@ -1,4 +1,4 @@
-## Development
+## Release 0.16.0
 - New script command - `info`. Detects and prints the existing installation
   information.
 
