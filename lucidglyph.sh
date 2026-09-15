@@ -806,7 +806,7 @@ case "$1" in
         printf "Use ${C_BOLD}help${C_RESET} command to get usage information.\n"
         ;;
     *)
-        printf "${C_RED}Error:${C_RESET} Unknown command $1.\n" >&2
+        printf "${C_RED}Error:${C_RESET} Unknown command \"$1\".\n" >&2
         printf "Use ${C_BOLD}help${C_RESET} command to get usage information.\n" >&2
         exit 1
 esac
