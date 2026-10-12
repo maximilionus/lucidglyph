@@ -24,6 +24,11 @@ Visual comparison is available on the project's
 
 ## Usage
 ### Install
+Ensure that the components listed below are present in the system:
+- Bash version `4.0` or later.
+- FreeType version `2.7` or later.
+- Fontconfig version `2.2.98` or later.
+
 Download the latest release from
 [the releases page](https://github.com/maximilionus/lucidglyph/releases/latest)
 _(Assets - Source code)_ and unpack it.
