@@ -1,3 +1,7 @@
+## Development
+- Shell version check before execution. Requires Bash version 4.0 or later.
+
+
 ## Release 0.16.0
 - New script command - `info`. Detects and prints the existing installation
   information.

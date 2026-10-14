@@ -619,6 +619,14 @@ cmd_info () {
 # Execution
 cd "$(dirname "$0")"
 
+# bash >= 4.0 required for associative arrays support.
+# TODO: Remove in 1.0.0 since all the associative array stuff was cut and is
+#       used only for backwards compatibility.
+if (( BASH_VERSINFO[0] < 4 )); then
+    printf '${C_RED}Error:${C_RESET} Bash 4.0 or later is required (found %s).\n' "$BASH_VERSION" >&2
+    exit 1
+fi
+
 # Deprecate short commands.
 # TODO: Remove in 1.0.0
 case "$1" in
