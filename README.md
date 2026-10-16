@@ -28,7 +28,7 @@ Ensure that the components listed below are present in the system:
 - Bash version `4.0` or later.
 - FreeType version `2.7` or later.
     - version `2.15.0` required for correct rendering of some fonts *(see
-      [#20](https://github.com/maximilionus/lucidglyph/issues/20)).
+      [#20](https://github.com/maximilionus/lucidglyph/issues/20))*.
 - Fontconfig version `2.2.98` or later.
 
 Download the latest release from
