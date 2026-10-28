@@ -25,10 +25,10 @@ Visual comparison is available on the project's
 ## Usage
 ### Install
 Ensure that the components listed below are present in the system:
-- FreeType version `2.7` or later.
+- FreeType version `2.7` or later is required.
     - version `2.15.0` is recommended for correct rendering of some fonts *(see
       [#20](https://github.com/maximilionus/lucidglyph/issues/20))*.
-- Fontconfig version `2.2.98` or later.
+- Fontconfig version `2.2.98` or later is required.
 
 Download the latest release from
 [the releases page](https://github.com/maximilionus/lucidglyph/releases/latest)
