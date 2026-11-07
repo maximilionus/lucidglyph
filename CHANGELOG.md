@@ -1,5 +1,8 @@
-## Development
-- Shell version check before execution. Requires Bash version 4.0 or later.
+## Release 0.16.1
+- Check the shell version before executing the legacy metadata parser. Requires
+  Bash version 4.0 or later.
+
+- Fix description of `icon-fonts-manual` Fontconfig module.
 
 
 ## Release 0.16.0
