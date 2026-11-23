@@ -22,7 +22,7 @@ shopt -s nullglob
 
 NAME="lucidglyph"
 VERSION="0.16.1"
-IS_RELEASE=1
+IS_RELEASE=
 
 # Display the header with project name and version on start
 DISABLE_HEADER="${DISABLE_HEADER:-}"
@@ -318,7 +318,7 @@ append_metadata () {
 }
 
 install_metadata () {
-    printf -- "- %-40s" "Storing the installation metadata"
+    printf -- "- %-40s" "Storing the installation metadata "
 
     if [[ -n "$DISABLE_METADATA" ]]; then
         printf "${C_YELLOW}Disabled${C_RESET}\n"
