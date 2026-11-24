@@ -68,6 +68,12 @@ FONTCONFIG_DIR="$MODULES_DIR/fontconfig"
 DEST_FONTCONFIG_DIR="$DEST_CONF/fonts/conf.d"
 DEST_FONTCONFIG_DIR_USR="$DEST_CONF_USR/fontconfig/conf.d"
 
+# Extra group
+EXTRA_DIR="$MODULES_DIR/extra"
+EXTRA_FLATPAK_DIR="$EXTRA_DIR/flatpak"
+DEST_EXTRA_DIR="/opt/$NAME/extra"
+DEST_EXTRA_FLATPAK_DIR="$DEST_EXTRA_DIR/flatpak"
+
 # Colors
 C_RESET="\e[0m"
 C_BOLD="\e[1m"
@@ -86,7 +92,8 @@ MARKER_END="### END OF $(echo "${NAME^^}") $VERSION CONTENT ###"
 # Global variables
 declare G_IS_PER_USER=""
 declare -a G_MODULES_BLACKLIST=()       # Hardcoded system module blacklist
-declare -a G_MODULES_BLACKLIST_USER=()  # User blacklist. Populated through `--blacklist` option.
+declare -a G_MODULES_BLACKLIST_USER=()  # User blacklist. Populated through '--blacklist' option.
+declare -a G_MODULES_EXTRA=()           # Extra modules for install. Populated through '--extra' option.
 
 # Global variables parsed from local metadata
 declare G_M_VERSION
@@ -424,9 +431,9 @@ EOF
     for f in $FONTCONFIG_DIR/*.conf; do
         if is_mod_blacklisted "$f"; then continue; fi
 
-        install -m 644 "$f" "$DEST_FONTCONFIG_DIR/$(basename $f)"
+        install -m 644 "$f" "$DEST_FONTCONFIG_DIR/$(basename "$f")"
         append_metadata uninstall <<EOF
-rm -f "$DEST_FONTCONFIG_DIR/$(basename $f)"
+rm -f "$DEST_FONTCONFIG_DIR/$(basename "$f")"
 EOF
     done
 
@@ -437,6 +444,64 @@ EOF
     append_metadata uninstall <<EOF
 printf "${C_GREEN}Done${C_RESET}\n"
 EOF
+    printf "${C_GREEN}Done${C_RESET}\n"
+}
+
+install_extra () {
+    local is_deployed
+
+    if ((${#G_MODULES_EXTRA[@]} == 0)); then return 0; fi
+    printf -- "- %-40s\n" "Installing the extra modules:"
+
+    for mod in "${G_MODULES_EXTRA[@]}"; do
+        if [[ "$mod" == "flatpak" ]]; then
+            if [[ -n "$G_IS_PER_USER" ]]; then
+                printf "${C_YELLOW}Warning:${C_RESET} Extra module "$mod" is not supported in per-user mode. Skipping.\n"
+                continue
+            fi
+
+            is_deployed=1
+            install_extra_flatpak
+        else
+            printf "${C_YELLOW}Warning:${C_RESET} Skipping the non-existent extra module "$mod".\n"
+        fi
+    done
+
+    if [[ -n "$is_deployed" ]]; then
+        append_metadata uninstall <<EOF
+printf -- "- %-40s" "Removing the extra modules directory "
+rm -rf "$DEST_EXTRA_DIR"
+printf "${C_GREEN}Done${C_RESET}\n"
+EOF
+    fi
+}
+
+install_extra_flatpak () {
+    printf -- "- %-40s" "Installing the extra module \"flatpak\""
+
+    install -Dm 644 \
+        "$EXTRA_FLATPAK_DIR/fontconfig/lucidglyph-flatpak.conf" \
+        "$DEST_EXTRA_FLATPAK_DIR/lucidglyph-flatpak.conf"
+
+    # Duplicate Fontconfig rules to a sandbox-reachable place
+    for f in $FONTCONFIG_DIR/*.conf; do
+        if is_mod_blacklisted "$f"; then continue; fi
+
+        install -Dm 644 "$f" "$DEST_EXTRA_FLATPAK_DIR/fontconfig/$(basename "$f")"
+    done
+
+    flatpak override --system --filesystem="$DEST_EXTRA_FLATPAK_DIR:ro" \
+        --env=FONTCONFIG_FILE="$DEST_EXTRA_FLATPAK_DIR/lucidglyph-flatpak.conf"
+
+    append_metadata uninstall <<EOF
+printf -- "- %-40s" "Removing the extra module \"flatpak\" overrides"
+sed -i \
+    -e "\|$DEST_EXTRA_FLATPAK_DIR:ro;|s|$DEST_EXTRA_FLATPAK_DIR:ro;||g" \
+    -e '\|FONTCONFIG_FILE=|d' \
+    /var/lib/flatpak/overrides/global
+printf "${C_GREEN}Done${C_RESET}\n"
+EOF
+
     printf "${C_GREEN}Done${C_RESET}\n"
 }
 
@@ -564,6 +629,7 @@ cmd_install () {
     install_metadata
     install_environment
     install_fontconfig
+    install_extra
     finalize_metadata
 
     printf "\n${C_BOLD}${C_GREEN}Success!${C_RESET} ${C_BOLD}Reboot to apply the changes.${C_RESET}\n"
@@ -755,6 +821,15 @@ while [[ $# -gt 0 ]]; do
             if [[ -n "$2" ]]; then
                 IFS=',' read -ra blacklist_arg <<< "$2"
                 G_MODULES_BLACKLIST_USER+=("${blacklist_arg[@]}")
+                shift 2
+            else
+                printf "${C_RED}Error:${C_RESET} $1 requires a module name\n" >&2
+                exit 1
+            fi
+            ;;
+        -e|--extra)
+            if [[ -n "$2" ]]; then
+                G_MODULES_EXTRA+=("$2")
                 shift 2
             else
                 printf "${C_RED}Error:${C_RESET} $1 requires a module name\n" >&2
