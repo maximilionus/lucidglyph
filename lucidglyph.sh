@@ -752,7 +752,8 @@ while [[ $# -gt 0 ]]; do
             ;;
         -b|--blacklist)
             if [[ -n "$2" ]]; then
-                G_MODULES_BLACKLIST_USER+=("$2")
+                IFS=',' read -ra blacklist_arg <<< "$2"
+                G_MODULES_BLACKLIST_USER+=("${blacklist_arg[@]}")
                 shift 2
             else
                 printf "${C_RED}Error:${C_RESET} $1 requires a module name\n" >&2
