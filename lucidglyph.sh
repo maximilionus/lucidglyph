@@ -484,16 +484,15 @@ usage: $0 [OPTIONS] [COMMAND]
 
 Improvements for the Linux font rendering stack.
 
-For further information and usage details, please refer to the project
-documentation provided in the README file.
+For additional information, refer to the project documentation in README.
 
-Note: Entries below marked with "Stored" will be preserved between project
-updates unless overwritten by the OPTIONS.
+Note: Entries marked with "Stored" are preserved between project updates
+unless overwritten by the OPTIONS.
 
 COMMANDS:
   install  Install, reinstall, or upgrade the project
   remove   Remove the installed project
-  info     Detect and print the existing installation information
+  info     Detect and display existing installation information
   help     Show this help message
 
 OPTIONS:
@@ -503,33 +502,35 @@ OPTIONS:
   -u, --user               Operate in per-user mode (experimental feature).
                            Commands: install, remove.
 
-  -b, --blacklist '<arg>'  Module blacklist pattern. One pattern per option.
-                           Pattern should be provided in literal string format
-                           (single quotes).
+  -b, --blacklist '<patterns>'
+                           Comma-separated module names or patterns to
+                           blacklist. Single-quote the argument to prevent
+                           shell expansion of wildcard characters.
                            Commands: install.
                            Stored.
 
-ENVIRONMENT VARIABLES - MODULES:
-  DISABLE_METADATA  Do not store any information for further operations like
-                    upgrades or uninstalls. Assign any value to activate.
-                    Default: unset (false).
+ENVIRONMENT VARIABLES:
+  DISABLE_METADATA  Disable storing installation metadata used by subsequent
+                    operations such as upgrades and uninstalls.
+                    Default: unset (disabled).
 
-ENVIRONMENT VARIABLES - UTILITY:
-  DISABLE_HEADER  Do not show the script header on execution.
-                  Default: unset (false).
+  DISABLE_HEADER    Do not display the script header on execution.
+                    Default: unset (disabled).
 
-  DESTDIR         Relocate the whole installation by prepending this path.
-                  Default: unset.
+  DESTDIR           Prepend this path to installation destinations.
+                    Default: unset.
 
-  DEST_CONF,      Set the paths to configuration directories.
-  DEST_CONF_USR   Default:
-                  - system-wide:  /etc
-                  - per-user:     ~/.config
+  DEST_CONF         Override the system-wide configuration directory.
+                    Default: /etc
 
-  DEST_USR,       Set the paths to shared directories.
-  DEST_USR_USR    Default:
-                  - system-wide  /usr/local
-                  - per-user     ~/.local/share
+  DEST_CONF_USR     Override the per-user configuration directory.
+                    Default: ~/.config
+
+  DEST_USR          Override the system-wide shared data directory.
+                    Default: /usr/local
+
+  DEST_USR_USR      Override the per-user shared data directory.
+                    Default: ~/.local/share
 EOF
 }
 
