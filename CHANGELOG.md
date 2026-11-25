@@ -1,3 +1,8 @@
+## Development
+- Support for passing multiple module names as comma-separated values to the
+  `--blacklist` (`-b`).
+
+
 ## Release 0.16.1
 - Check the shell version before executing the legacy metadata parser. Requires
   Bash version 4.0 or later.
