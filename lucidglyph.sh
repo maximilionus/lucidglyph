@@ -829,7 +829,8 @@ while [[ $# -gt 0 ]]; do
             ;;
         -e|--extra)
             if [[ -n "$2" ]]; then
-                G_MODULES_EXTRA+=("$2")
+                IFS=',' read -ra extra_arg <<< "$2"
+                G_MODULES_EXTRA+=("${extra_arg[@]}")
                 shift 2
             else
                 printf "${C_RED}Error:${C_RESET} $1 requires a module name\n" >&2
